@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 004dd898c28047b78e17ce086af4bdd2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 6fd4d99d3a1edc7408fe599214be6059, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239795
+  packageName: Magic Animation Blend
+  packageVersion: 2.1.0
+  assetPath: Assets/KINEMATION/MagicBlend/Runtime/MagicBlendState.cs
+  uploadId: 728685

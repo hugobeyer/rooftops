@@ -1,0 +1,4 @@
+// Alternative Euler angle method
+vector rot = degrees(quaternion_to_euler(@orient, "XYZ"));
+rot *= chf("euler_scale");
+@orient = euler_to_quaternion(radians(rot), "XYZ"); 

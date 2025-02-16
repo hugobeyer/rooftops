@@ -1,0 +1,457 @@
+fileFormatVersion: 2
+guid: 7f22f633291d9a8408223b3ba4fe6d1d
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects: {}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 1
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: spine_jump
+      takeName: spine_jump
+      internalID: -6758340123327121049
+      firstFrame: 1
+      lastFrame: 30
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0.96
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human:
+    - boneName: agent:Hips
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftUpLeg
+      humanName: LeftUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightUpLeg
+      humanName: RightUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftLeg
+      humanName: LeftLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightLeg
+      humanName: RightLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftFoot
+      humanName: LeftFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightFoot
+      humanName: RightFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:Spine
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:Spine1
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:Neck
+      humanName: Neck
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:Head
+      humanName: Head
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftShoulder
+      humanName: LeftShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightShoulder
+      humanName: RightShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftArm
+      humanName: LeftUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightArm
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftForeArm
+      humanName: LeftLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightForeArm
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftHand
+      humanName: LeftHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightHand
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:LeftToeBase
+      humanName: LeftToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:RightToeBase
+      humanName: RightToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: agent:Spine2
+      humanName: UpperChest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: Agent(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent
+      parentName: Agent(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:Hips
+      parentName: Agent(Clone)
+      position: {x: -0, y: 1.042749, z: 0}
+      rotation: {x: 0.006458546, y: -0, z: -0, w: 0.99997914}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: agent:LeftUpLeg
+      parentName: agent:Hips
+      position: {x: -0.08207801, y: -0.06771802, z: -0.015121999}
+      rotation: {x: -6.1863905e-17, y: 0.010367943, z: 0.9999463, w: -6.05942e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:LeftLeg
+      parentName: agent:LeftUpLeg
+      position: {x: 1.7763568e-17, y: 0.44371405, z: -7.083611e-10}
+      rotation: {x: -0.03811225, y: -4.5749656e-18, z: 3.5772725e-20, w: 0.9992735}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:LeftFoot
+      parentName: agent:LeftLeg
+      position: {x: -3.5527136e-17, y: 0.44527793, z: -0.000000004941973}
+      rotation: {x: 0.4597488, y: 7.8229687e-17, z: 5.877338e-17, w: 0.888049}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: agent:LeftToeBase
+      parentName: agent:LeftFoot
+      position: {x: -3.5527136e-17, y: 0.138169, z: 0.0000000010347752}
+      rotation: {x: 0.33524114, y: -1.15186844e-17, z: 1.35026515e-17, w: 0.9421324}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:LeftToe_End
+      parentName: agent:LeftToeBase
+      position: {x: -1.7763568e-17, y: 0.092781, z: 1.9495671e-13}
+      rotation: {x: 5.0997096e-16, y: 0.0118688345, z: 4.297715e-14, w: 0.9999296}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightUpLeg
+      parentName: agent:Hips
+      position: {x: 0.08207801, y: -0.06771802, z: -0.015121999}
+      rotation: {x: -6.186321e-17, y: 0.0103565985, z: 0.99994636, w: -6.05949e-17}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightLeg
+      parentName: agent:RightUpLeg
+      position: {x: -0, y: 0.44371504, z: -0.0000000013161968}
+      rotation: {x: -0.038091317, y: -4.5724456e-18, z: 3.5649374e-20, w: 0.99927425}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightFoot
+      parentName: agent:RightLeg
+      position: {x: 1.7763568e-17, y: 0.44527796, z: -9.21478e-10}
+      rotation: {x: 0.45974028, y: 8.459111e-17, z: 5.9257757e-17, w: 0.8880534}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: agent:RightToeBase
+      parentName: agent:RightFoot
+      position: {x: 1.7763568e-17, y: 0.138169, z: 9.46197e-10}
+      rotation: {x: 0.33524194, y: -9.583139e-18, z: 1.207828e-17, w: 0.9421321}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightToe_End
+      parentName: agent:RightToeBase
+      position: {x: -1.7763568e-17, y: 0.092781, z: 1.13162396e-13}
+      rotation: {x: 5.158035e-16, y: -0.011607924, z: -4.4533425e-14, w: 0.99993265}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:Spine
+      parentName: agent:Hips
+      position: {x: -0, y: 0.101823956, z: 4.3605544e-10}
+      rotation: {x: -0.08015543, y: 0, z: -0, w: 0.99678236}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:Spine1
+      parentName: agent:Spine
+      position: {x: -0, y: 0.100026995, z: -7.729889e-10}
+      rotation: {x: 1.387779e-17, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:Spine2
+      parentName: agent:Spine1
+      position: {x: -0, y: 0.093221046, z: 0.0000000057738663}
+      rotation: {x: 0.0128854085, y: -0, z: -0, w: 0.999917}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:Neck
+      parentName: agent:Spine2
+      position: {x: -0, y: 0.1686529, z: -0.000000009690461}
+      rotation: {x: 6.938895e-18, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:Head
+      parentName: agent:Neck
+      position: {x: -0, y: 0.093419045, z: 0.028410004}
+      rotation: {x: -3.413627e-24, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:HeadTop_End
+      parentName: agent:Head
+      position: {x: -0, y: 0.20962797, z: 0.10122899}
+      rotation: {x: -6.938898e-18, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightShoulder
+      parentName: agent:Spine2
+      position: {x: 0.045700002, y: 0.11195799, z: -0.008066}
+      rotation: {x: 0.48443034, y: 0.57096404, z: -0.52616334, w: 0.4030874}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightArm
+      parentName: agent:RightShoulder
+      position: {x: -0.0000000030309288, y: 0.108382, z: 0.00000007904857}
+      rotation: {x: -0.02461567, y: -0.0025622381, z: 0.103498586, w: 0.99432164}
+      scale: {x: 0.99999994, y: 1, z: 1}
+    - name: agent:RightForeArm
+      parentName: agent:RightArm
+      position: {x: -2.6645352e-17, y: 0.278415, z: 0}
+      rotation: {x: 2.1385526e-30, y: -9.7193735e-23, z: 3.097715e-23, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightHand
+      parentName: agent:RightForeArm
+      position: {x: -2.6645352e-17, y: 0.283288, z: 0}
+      rotation: {x: 2.8872655e-12, y: -0.0000034832956, z: 2.6555272e-17, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:RightHandMiddle1
+      parentName: agent:RightHand
+      position: {x: -8.881784e-18, y: 0.09532499, z: -5.508127e-13}
+      rotation: {x: -7.863859e-16, y: -4.3804962e-10, z: -7.686687e-17, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:LeftShoulder
+      parentName: agent:Spine2
+      position: {x: -0.045704, y: 0.11195595, z: -0.008066006}
+      rotation: {x: -0.484423, y: 0.57097, z: -0.5261619, w: -0.40308967}
+      scale: {x: 0.99999994, y: 1, z: 1}
+    - name: agent:LeftArm
+      parentName: agent:LeftShoulder
+      position: {x: -1.491701e-10, y: 0.10837701, z: 0.000000039591125}
+      rotation: {x: -0.024607437, y: 0.0025615543, z: -0.10350385, w: 0.99432135}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: agent:LeftForeArm
+      parentName: agent:LeftArm
+      position: {x: -2.6645352e-17, y: 0.278415, z: -2.842171e-16}
+      rotation: {x: -1.1322614e-24, y: 6.162976e-33, z: 3.135249e-17, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:LeftHand
+      parentName: agent:LeftForeArm
+      position: {x: -0, y: 0.28328797, z: -2.842171e-16}
+      rotation: {x: -1.20352125e-14, y: -0.0000007717767, z: -1.0252765e-17, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: agent:LeftHandMiddle1
+      parentName: agent:LeftHand
+      position: {x: -0, y: 0.09533405, z: 2.2737367e-15}
+      rotation: {x: 6.562746e-16, y: 3.617431e-31, z: 6.288277e-17, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: agent:Hips
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 2
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

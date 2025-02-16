@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 0928c33cca0524f058f5f1832bd344e8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269042
+  packageName: 'Mobile Monetization Pro: Ads, IAP(In App Purchase) & More - Android
+    & iOS'
+  packageVersion: 2.0.4
+  assetPath: Assets/Mobile Monetization Pro/Editor/MobileMonetizationProHelpWindow.cs
+  uploadId: 720638

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3b9c1e777897a454ab8f17fb7264c2af
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239795
+  packageName: Magic Animation Blend
+  packageVersion: 2.1.0
+  assetPath: Assets/KINEMATION/KAnimationCore/Editor/KAnimationCore.Editor.asmdef
+  uploadId: 728685

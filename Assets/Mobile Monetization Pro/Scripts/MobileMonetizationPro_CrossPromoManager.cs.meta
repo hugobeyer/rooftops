@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: ccd05e76f65ae4f0383f6911460e7977
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269042
+  packageName: 'Mobile Monetization Pro: Ads, IAP(In App Purchase) & More - Android
+    & iOS'
+  packageVersion: 2.0.4
+  assetPath: Assets/Mobile Monetization Pro/Scripts/MobileMonetizationPro_CrossPromoManager.cs
+  uploadId: 720638

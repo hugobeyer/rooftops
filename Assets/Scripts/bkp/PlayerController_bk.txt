@@ -1,0 +1,258 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Animator))]
+public class PlayerController : MonoBehaviour
+{
+    [Header("Movement Settings")]
+    [Tooltip("Initial upward force applied when jumping")]
+    public float jumpForce = 7f; // Upward force when jumping
+    [Tooltip("How much jump force increases per second during gameplay")]
+    public float jumpForceGrowthRate = 0.1f; // Added growth rate parameter
+    [Header("Jump Settings")]
+    [Tooltip("Multiplier for reducing jump height when releasing jump button early")]
+    public float jumpCutFactor = 0.5f; // Multiplier applied to upward velocity when jump is cut (released early)
+    [Tooltip("Maximum duration in seconds that jump force can be applied while holding jump")]
+    public float jumpTime = 0.35f; // Maximum duration for applying jump force when holding the jump input
+
+    [Header("Ground Detection")]
+    [Tooltip("Radius for spherecast ground detection check")]
+    public float groundCheckRadius = 0.2f;
+    [Tooltip("Vertical offset from character center for ground check")]
+    public float groundCheckOffset = 0.1f;
+    [Tooltip("Distance for detecting upcoming ground for landing animations")]
+    public float arrivalDistance = 0.25f;
+    [Tooltip("Minimum surface normal angle to be considered valid ground")]
+    public float groundSurfaceThreshold = 0.9f;
+
+    [Header("Animation")]
+    [Tooltip("Base speed multiplier for running animations")]
+    public float runSpeed = 1f;          // Base animation speed
+    [Tooltip("Minimum duration to maintain jump animation before switching to fall")]
+    public float minJumpAnimTime = 0.5f; // Minimum time (in seconds) to keep jump animation active
+
+    [Header("Animation Speed")]
+    [Tooltip("Rate at which running animation speed increases over time")]
+    public float runSpeedIncreaseRate = 0.1f;
+    [Tooltip("Maximum multiplier for running animation speed")]
+    public float maxRunSpeed = 4f;
+
+    [Header("References")]
+    [Tooltip("Module pool system reference for environment generation")]
+    public ModulePool modulePool;  // Required by other systems
+
+    [Header("Jump Tracking")]
+    public Vector3 JumpStartPosition { get; private set; }
+    public float LastJumpDistance { get; private set; }
+    public bool IsGrounded { get; private set; }
+
+    [Header("Fall Detection")]
+    [Tooltip("Time step for predictive fall detection simulation")]
+    public float simulationTimeStep = 0.1f;
+    [Tooltip("Total duration to simulate ahead for fall detection")]
+    public float simulationDuration = 2f;
+
+    [Header("Wall Detection")]
+    [Tooltip("Minimum surface area to be considered a valid wall collision")]
+    public float tinyWallAreaThreshold = 0.1f;
+
+    private Rigidbody rb;
+    private Animator animator;
+    private float jumpStartTime;
+    private float predictedFlightTime;
+    private float currentRunSpeed;
+    private BoxCollider groundCheckCollider;
+    private bool wasGrounded;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+        ConfigureRigidbody();
+        currentRunSpeed = runSpeed;
+        JumpStartPosition = transform.position;
+        groundCheckCollider = GetComponent<BoxCollider>();
+    }
+
+    void ConfigureRigidbody()
+    {
+        rb.freezeRotation = true;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+    }
+
+    void Update()
+    {
+        if (transform.position.y < -7f) ResetGame();
+        
+        // Apply continuous force growth
+        jumpForce += jumpForceGrowthRate * Time.deltaTime; // Added force growth
+        
+        UpdateGroundStatus();
+        HandleJumpInput();
+        UpdateAnimations();
+        ControlRunSpeed();
+
+        bool isGrounded = IsGrounded;
+        
+        // Only toggle the collider when grounded state changes
+        if (isGrounded != wasGrounded)
+        {
+            groundCheckCollider.enabled = !isGrounded;
+            wasGrounded = isGrounded;
+        }
+    }
+
+    void ControlRunSpeed()
+    {
+        if (IsGrounded)
+        {
+            //moveSpeed += speedIncreaseRate * Time.deltaTime;
+        
+            currentRunSpeed += (runSpeedIncreaseRate / 24) * Time.deltaTime;
+        }
+        animator.SetFloat("runSpeed", currentRunSpeed);
+    }
+
+    void UpdateGroundStatus()
+    {
+        bool wasGrounded = IsGrounded;
+        Vector3 checkPosition = transform.position + Vector3.down * 0.1f;
+        IsGrounded = Physics.CheckSphere(checkPosition, groundCheckRadius);
+
+        if (!wasGrounded && IsGrounded) HandleLanding();
+        else if (wasGrounded && !IsGrounded) HandleJumpStart();
+
+        HandleArrivalDetection();
+    }
+
+    void HandleLanding()
+    {
+        LastJumpDistance = CalculateJumpDistance();
+        JumpStartPosition = transform.position;
+        animator.SetTrigger("Land");
+        animator.ResetTrigger("Jump");
+    }
+
+    float CalculateJumpDistance()
+    {
+        return Vector3.Distance(
+            new Vector3(0, 0, JumpStartPosition.z),
+            new Vector3(0, 0, transform.position.z)
+        );
+    }
+
+    void HandleJumpStart()
+    {
+        JumpStartPosition = transform.position;
+        animator.SetTrigger("Jump");
+    }
+
+    void HandleArrivalDetection()
+    {
+        if (!IsGrounded && rb.linearVelocity.y < 0)
+        {
+            if (Physics.Raycast(transform.position, Vector3.down, out var hit, arrivalDistance))
+            {
+                if (Vector3.Dot(hit.normal, Vector3.up) > groundSurfaceThreshold)
+                {
+                    animator.SetTrigger("Arrival");
+                }
+            }
+        }
+    }
+
+    void HandleJumpInput()
+    {
+        if (IsGrounded && Input.GetButtonDown("Jump"))
+        {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z);
+            jumpStartTime = Time.time;
+        }
+
+        if (Input.GetButtonUp("Jump") && rb.linearVelocity.y > 0)
+        {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y * jumpCutFactor, rb.linearVelocity.z);
+        }
+    }
+
+    void UpdateAnimations()
+    {
+        animator.SetBool("isGrounded", IsGrounded);
+        animator.SetFloat("VerticalVelocity", rb.linearVelocity.y);
+
+        if (!IsGrounded)
+        {
+            UpdateJumpProgress();
+            CheckFallingState();
+        }
+    }
+
+    void UpdateJumpProgress()
+    {
+        ComputePredictedFlightTime();
+        float jumpProgress = Mathf.Clamp01((Time.time - jumpStartTime) / predictedFlightTime);
+        animator.SetFloat("JumpProgress", jumpProgress);
+    }
+
+    void CheckFallingState()
+    {
+        bool isFalling = rb.linearVelocity.y < 0 && WillFall();
+        animator.SetBool("isFalling", isFalling);
+    }
+
+    void ComputePredictedFlightTime()
+    {
+        float verticalVelocity = rb.linearVelocity.y;
+        float gravity = Physics.gravity.y;
+        predictedFlightTime = verticalVelocity > 0 ? (verticalVelocity / -gravity) * 2 : 0f;
+    }
+
+    bool WillFall()
+    {
+        Vector3 position = transform.position;
+        Vector3 velocity = rb.linearVelocity;
+        Vector3 gravity = Physics.gravity;
+
+        for (float t = 0; t < simulationDuration; t += simulationTimeStep)
+        {
+            Vector3 predictedPos = position + velocity * t + 0.5f * gravity * t * t;
+            if (Physics.Raycast(predictedPos, Vector3.down, 1f)) return false;
+        }
+        return true;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            if (IsValidWallCollision(contact, collision.collider))
+            {
+                HandleWallImpact();
+                break;
+            }
+        }
+    }
+
+    bool IsValidWallCollision(ContactPoint contact, Collider collider)
+    {
+        float area = collider.bounds.size.x * collider.bounds.size.y;
+        return area >= tinyWallAreaThreshold && Mathf.Abs(contact.normal.y) < 0.3f;
+    }
+
+    void HandleWallImpact()
+    {
+        modulePool?.SetMovement(false);
+        animator.SetTrigger("hitWall");
+    }
+
+    void ResetGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + Vector3.down * 0.1f, groundCheckRadius);
+        Gizmos.DrawRay(transform.position, Vector3.down * arrivalDistance);
+    }
+} 

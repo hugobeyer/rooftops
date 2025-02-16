@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: c3d10a45db30a4d98b8efcbd5c36f446
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269042
+  packageName: 'Mobile Monetization Pro: Ads, IAP(In App Purchase) & More - Android
+    & iOS'
+  packageVersion: 2.0.4
+  assetPath: Assets/Mobile Monetization Pro/Scripts/MobileMonetizationPro_Demo_ShopScript.cs
+  uploadId: 720638

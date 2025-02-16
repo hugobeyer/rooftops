@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: a0cfc4757c394ac39bff808454cc13bc
+timeCreated: 1708710029
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239795
+  packageName: Magic Animation Blend
+  packageVersion: 2.1.0
+  assetPath: Assets/KINEMATION/KAnimationCore/Editor/Attributes/UnfoldDrawer.cs
+  uploadId: 728685

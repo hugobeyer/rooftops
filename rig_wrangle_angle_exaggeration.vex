@@ -1,0 +1,74 @@
+// Exaggerate rotations (using angle/axis)
+float angle_scale = chf("angle_scale"); // 1 = normal, >1 = exaggerated
+int use_rotation = chi("use_rotation"); // Toggle rotation exaggeration
+
+// Exaggerate translations
+float pos_scale = chf("position_scale"); // 1 = normal, >1 = exaggerated
+int use_position = chi("use_position"); // Toggle position exaggeration
+
+// Get transform components
+vector rest_pos = v@rest;
+vector current_pos = @P;
+
+// Ensure @orient is normalized (Houdini stores it as a vector4)
+vector4 orient = normalize(@orient);
+
+// Exaggeration factors for each axis.
+float exaggeration_x = chf("exaggeration_x");
+float exaggeration_y = chf("exaggeration_y");
+float exaggeration_z = chf("exaggeration_z");
+
+// Blending factor (0 = original, 1 = fully exaggerated).
+float blend = chf("blend");
+
+// Get the current orientation.  Use getlocaltransform for local space.
+quaternion current_orientation = getlocaltransform(0, @ptnum);
+
+// Convert to Euler angles.
+vector euler_angles = quaterniontoeuler(current_orientation, {1,2,0}); // Adjust rotation order!
+
+// Exaggerate each axis separately.
+euler_angles.x *= exaggeration_x;
+euler_angles.y *= exaggeration_y;
+euler_angles.z *= exaggeration_z;
+
+// Convert back to quaternion.
+quaternion exaggerated_orientation = eulertoquaternion(euler_angles, {1,2,0}); // Same rotation order!
+
+// Blend between original and exaggerated orientations.
+quaternion blended_orientation = slerp(current_orientation, exaggerated_orientation, blend);
+
+// Set the new orientation.  Use setlocaltransform for local space.
+setlocaltransform(0, @ptnum, blended_orientation);
+
+if (use_rotation) {
+    // Manually decompose quaternion into angle and axis.
+    // Houdini quaternions are stored as (x, y, z, w) where w is the real part.
+    float w = orient.w;
+    // Clamp w to avoid domain errors with acos()
+    w = clamp(w, -1.0, 1.0);
+    float angle = 2.0 * acos(w);
+    float s = sqrt(max(0.0, 1.0 - w*w));
+    vector axis;
+    if (s < 0.001)
+        axis = set(1, 0, 0); // default axis when rotation is very small
+    else
+        axis = set(orient.x, orient.y, orient.z) / s;
+    
+    // Debug attributes (to help verify the computed values)
+    f@debug_angle = angle; // original angle in radians
+    v@debug_axis = axis;
+    
+    // Exaggerate the rotation angle.
+    angle *= angle_scale;
+    
+    // Rebuild the quaternion using the official Houdini constructor.
+    vector4 new_rot = quaternion(angle, axis);
+    @orient = new_rot;
+}
+
+if (use_position) {
+    // Calculate offset from rest position and apply position exaggeration
+    vector offset = current_pos - rest_pos;
+    @P = rest_pos + offset * pos_scale;
+} 

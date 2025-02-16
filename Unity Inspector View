@@ -1,0 +1,13 @@
+LevelGenerator (Script)
+├── Module Prefabs
+│   ├── Element 0: mesh_bdg_A_10
+│   ├── Element 1: mesh_bdg_B_07
+│   ├── Element 2: mesh_bdg_C_09
+│   ├── Element 3: mesh_bdg_D_06
+│   ├── Element 4: mesh_bdg_E_06
+│   ├── Element 5: mesh_bdg_F_08
+│   ├── Element 6: mesh_bdg_G_06
+│   └── Element 7: mesh_bdg_H_14
+├── Spawn Distance: 20
+├── Despawn Distance: 50
+└── Module Length: 10 

@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: b715a4ee42b646169c5ce859e6d34964
+timeCreated: 1698339846
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239795
+  packageName: Magic Animation Blend
+  packageVersion: 2.1.0
+  assetPath: Assets/KINEMATION/KAnimationCore/Runtime/Core/KSpringMath.cs
+  uploadId: 728685

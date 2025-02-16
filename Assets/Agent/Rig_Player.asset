@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c9c04639ae548bdb0a8e927492d029d, type: 3}
+  m_Name: Rig_Player
+  m_EditorClassIdentifier: 
+  targetAnimator: {fileID: 9100000, guid: 1bc7ff80a64ed8347b3026813f74b7dd, type: 2}
+  inputConfig: {fileID: 11400000, guid: 2ae7d992964aa5943b5b786c80a594cf, type: 2}
+  rigHierarchy:
+  - name: agent:Hips
+    index: 0
+    isVirtual: 0
+  - name: agent:LeftUpLeg
+    index: 1
+    isVirtual: 0
+  - name: agent:LeftLeg
+    index: 2
+    isVirtual: 0
+  - name: agent:LeftFoot
+    index: 3
+    isVirtual: 0
+  - name: agent:LeftToeBase
+    index: 4
+    isVirtual: 0
+  - name: agent:LeftToe_End
+    index: 5
+    isVirtual: 0
+  - name: agent:RightUpLeg
+    index: 6
+    isVirtual: 0
+  - name: agent:RightLeg
+    index: 7
+    isVirtual: 0
+  - name: agent:RightFoot
+    index: 8
+    isVirtual: 0
+  - name: agent:RightToeBase
+    index: 9
+    isVirtual: 0
+  - name: agent:RightToe_End
+    index: 10
+    isVirtual: 0
+  - name: agent:Spine
+    index: 11
+    isVirtual: 0
+  - name: agent:Spine1
+    index: 12
+    isVirtual: 0
+  - name: agent:Spine2
+    index: 13
+    isVirtual: 0
+  - name: agent:LeftShoulder
+    index: 14
+    isVirtual: 0
+  - name: agent:LeftArm
+    index: 15
+    isVirtual: 0
+  - name: agent:LeftForeArm
+    index: 16
+    isVirtual: 0
+  - name: agent:LeftHand
+    index: 17
+    isVirtual: 0
+  - name: agent:LeftHandMiddle1
+    index: 18
+    isVirtual: 0
+  - name: agent:Neck
+    index: 19
+    isVirtual: 0
+  - name: agent:Head
+    index: 20
+    isVirtual: 0
+  - name: agent:HeadTop_End
+    index: 21
+    isVirtual: 0
+  - name: agent:RightShoulder
+    index: 22
+    isVirtual: 0
+  - name: agent:RightArm
+    index: 23
+    isVirtual: 0
+  - name: agent:RightForeArm
+    index: 24
+    isVirtual: 0
+  - name: agent:RightHand
+    index: 25
+    isVirtual: 0
+  - name: agent:RightHandMiddle1
+    index: 26
+    isVirtual: 0
+  rigElementChains:
+  - chainName: agent:Hips
+    elementChain:
+    - name: agent:Hips
+      index: 0
+      isVirtual: 0
+    isStandalone: 0
+  - chainName: agent:LeftUpLeg
+    elementChain:
+    - name: agent:LeftUpLeg
+      index: 1
+      isVirtual: 0
+    - name: agent:LeftLeg
+      index: 2
+      isVirtual: 0
+    - name: agent:LeftFoot
+      index: 3
+      isVirtual: 0
+    - name: agent:LeftToeBase
+      index: 4
+      isVirtual: 0
+    - name: agent:LeftToe_End
+      index: 5
+      isVirtual: 0
+    isStandalone: 0
+  - chainName: agent:RightUpLeg
+    elementChain:
+    - name: agent:RightUpLeg
+      index: 6
+      isVirtual: 0
+    - name: agent:RightLeg
+      index: 7
+      isVirtual: 0
+    - name: agent:RightFoot
+      index: 8
+      isVirtual: 0
+    - name: agent:RightToeBase
+      index: 9
+      isVirtual: 0
+    - name: agent:RightToe_End
+      index: 10
+      isVirtual: 0
+    isStandalone: 0
+  - chainName: agent:Spine
+    elementChain:
+    - name: agent:Spine
+      index: 11
+      isVirtual: 0
+    - name: agent:Spine1
+      index: 12
+      isVirtual: 0
+    - name: agent:Spine2
+      index: 13
+      isVirtual: 0
+    isStandalone: 0
+  - chainName: agent:LeftShoulder
+    elementChain:
+    - name: agent:LeftShoulder
+      index: 14
+      isVirtual: 0
+    - name: agent:LeftArm
+      index: 15
+      isVirtual: 0
+    - name: agent:LeftForeArm
+      index: 16
+      isVirtual: 0
+    - name: agent:LeftHand
+      index: 17
+      isVirtual: 0
+    - name: agent:LeftHandMiddle1
+      index: 18
+      isVirtual: 0
+    isStandalone: 0
+  - chainName: agent:Neck
+    elementChain:
+    - name: agent:Neck
+      index: 19
+      isVirtual: 0
+    - name: agent:Head
+      index: 20
+      isVirtual: 0
+    - name: agent:HeadTop_End
+      index: 21
+      isVirtual: 0
+    isStandalone: 0
+  - chainName: agent:RightShoulder
+    elementChain:
+    - name: agent:RightShoulder
+      index: 22
+      isVirtual: 0
+    - name: agent:RightArm
+      index: 23
+      isVirtual: 0
+    - name: agent:RightForeArm
+      index: 24
+      isVirtual: 0
+    - name: agent:RightHand
+      index: 25
+      isVirtual: 0
+    - name: agent:RightHandMiddle1
+      index: 26
+      isVirtual: 0
+    isStandalone: 0
+  rigCurves: []
+  rigDepths: 000000000100000002000000030000000400000005000000010000000200000003000000040000000500000001000000020000000300000004000000050000000600000007000000080000000400000005000000060000000400000005000000060000000700000008000000

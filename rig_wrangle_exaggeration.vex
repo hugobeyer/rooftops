@@ -1,0 +1,73 @@
+// Parameters:
+//   orient_attribute    - Name of the rotation attribute (default "orient")
+//   angle_scale         - Scale multiplier for angle-axis exaggeration (1.0 = normal, >1 exaggerates)
+//   euler_scale         - Scale multiplier for Euler exaggeration (1.0 = normal, >1 exaggerates)
+//   pos_scale           - Scale multiplier for translation exaggeration (1.0 = normal, >1 exaggerates)
+//   use_rotation        - Toggle rotation exaggeration (1 = on, 0 = off)
+//   use_position        - Toggle translation exaggeration (1 = on, 0 = off)
+//   exaggeration_mode   - Choose method: 0 = angle-axis exaggeration, 1 = Euler exaggeration
+
+string orient_attr    = chs("orient_attribute");
+if (orient_attr == "") {
+    orient_attr = "orient";
+}
+
+float angle_scale       = chf("angle_scale");
+float euler_scale       = chf("euler_scale");
+int   use_rotation      = chi("use_rotation");
+int   exaggeration_mode = chi("exaggeration_mode"); // 0: Angle-Axis, 1: Euler
+float pos_scale         = chf("position_scale");
+int   use_position      = chi("use_position");
+
+// Get transform components for position.
+vector rest_pos     = v@rest;
+vector current_pos  = @P;
+
+if (use_rotation) {
+    // Retrieve the orientation by name.
+    vector4 cur_orient = point(0, orient_attr, @ptnum);
+    
+    // Euler-based exaggeration using Houdini's conversion routines.
+    if (exaggeration_mode == 1) {
+        // Convert quaternion to Euler angles (in degrees) using order 0 ("XYZ" default),
+        // exaggerate, and then convert back.
+        vector rot = degrees(quaterniontoeuler(cur_orient, 0));
+        rot *= euler_scale;
+        vector4 new_orient = eulertoquaternion(radians(rot), 0);
+        setpointattrib(0, orient_attr, @ptnum, new_orient, "set");
+    }
+    // Otherwise, use the Angle-Axis method.
+    else {
+        // Normalize the quaternion to ensure valid decomposition.
+        cur_orient = normalize(cur_orient);
+        
+        // Houdini quaternions are stored as (x, y, z, w) (w = real part)
+        float w = cur_orient.w;
+        w = clamp(w, -1.0, 1.0);  // Clamp for safety with acos()
+        float angle = 2.0 * acos(w);
+        float s = sqrt(max(0.0, 1.0 - w*w));
+        vector axis;
+        // If s is small, use a default axis.
+        if (s < 0.001)
+            axis = set(1, 0, 0);
+        else
+            axis = vector(cur_orient) / s;  // Corrected: Cast to vector
+        
+        // (Optional) Debug output to inspect the computed angle and axis.
+        f@debug_angle = angle;  // angle in radians
+        v@debug_axis = axis;
+        
+        // Exaggerate the rotation angle.
+        angle *= angle_scale;
+        
+        // Rebuild the quaternion from the new angle and axis.
+        vector4 new_orient = quaternion(angle, axis);
+        setpointattrib(0, orient_attr, @ptnum, new_orient, "set");
+    }
+}
+
+if (use_position) {
+    // Calculate offset from rest position and apply translation exaggeration.
+    vector offset = current_pos - rest_pos;
+    @P = rest_pos + offset * pos_scale;
+} 

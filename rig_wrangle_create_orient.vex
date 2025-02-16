@@ -1,0 +1,8 @@
+// Create a default orient attribute if it doesn't exist.
+
+// Check if the orient attribute already exists.
+if (!haspointattrib(0, "orient")) {
+    // If it doesn't exist, create it and initialize it to the identity quaternion.
+    vector4 ident = quaternion({0, 0, 0}, 1); // Identity quaternion (no rotation)
+    setpointattrib(0, "orient", @ptnum, ident, "set");
+} 

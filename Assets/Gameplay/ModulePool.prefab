@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2356650154433965650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3466384440532672193}
+  - component: {fileID: 8417933768683845535}
+  m_Layer: 0
+  m_Name: ModulePool
+  m_TagString: Ground
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3466384440532672193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2356650154433965650}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8417933768683845535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2356650154433965650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1240d389ccc62e4aa1423a8d2f03ff2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modulePrefabs:
+  - {fileID: 5576206874614625991, guid: 8501cde39cfd6c449a1b71c617a9466b, type: 3}
+  - {fileID: 2827836396314750901, guid: 4566eaee01d675046b8c474ba71ba2d5, type: 3}
+  - {fileID: 4012133717007644937, guid: fac9237912ec67e47bc65f632136f2d5, type: 3}
+  - {fileID: 2717072846886978552, guid: 833246eb047f2754baf7945b492be64a, type: 3}
+  - {fileID: 2298306158581380912, guid: bad3ae7975276b64aa965f3d0b7ee1fe, type: 3}
+  - {fileID: 3365558654541407720, guid: 252b77e0e46940d4992a031ffbf6f21a, type: 3}
+  - {fileID: 5576587549002576294, guid: 183d75132f7baa14ea92a129fda2e617, type: 3}
+  - {fileID: 4000252300584330422, guid: 8ab6a80b608bc374c9f9f831b8d72b3d, type: 3}
+  - {fileID: 1098179306837945033, guid: c7df797f96a035f42b532c19e8611001, type: 3}
+  - {fileID: 3365636387580433719, guid: a1d63b47fb1e13d428c072e1842a0230, type: 3}
+  - {fileID: 2285852052646316624, guid: 5e4625acad55a104697fed906994c824, type: 3}
+  - {fileID: 1098179306837945033, guid: 50072c5d084d4254491979688bef1990, type: 3}
+  - {fileID: 1098179306837945033, guid: 86250948b22ec544b8e1ff1fcf282c09, type: 3}
+  - {fileID: 1098179306837945033, guid: d7aab6b6688587e48bc95e66fd59458e, type: 3}
+  numberOfModulesOnScreen: 8
+  moduleMovement: {fileID: 0}
+  moduleVolume: {fileID: 0}
+  moveSpeed: 5.4
+  speedIncreaseRate: 0.05
+  showDebugVisuals: 1
+  difficultyStartTime: 1
+  maxGapSize: 10
+  maxHeightVariation: 4
+  difficultyRampDuration: 1
+  gapDifficultyCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  heightDifficultyCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  bonusSpotPrefab: {fileID: 5404275788931603570, guid: 6777a316520a61743a32c128d692d869, type: 3}
+  bonusSpotFrequency: 0.2
+  bonusSpotHeightOffset: 0

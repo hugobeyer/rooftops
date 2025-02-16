@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3d63cd2c08ebe834286c4a63636ea284
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239795
+  packageName: Magic Animation Blend
+  packageVersion: 2.1.0
+  assetPath: Assets/KINEMATION/KAnimationCore/Editor/Attributes/KAttributesEditor.cs
+  uploadId: 728685

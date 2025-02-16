@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 611cca5ecffeb3a4a8843fa1a20b5b51
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 239795
+  packageName: Magic Animation Blend
+  packageVersion: 2.1.0
+  assetPath: Assets/KINEMATION/KAnimationCore/Editor/Misc/TransformHandleWidget.cs
+  uploadId: 728685

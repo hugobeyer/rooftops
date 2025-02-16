@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - GroundedTrigger
+  - GroundCollider
+  - JumpPad
+  - BonusSpot
+  - customSpots
+  - StepUpAllowance
+  - DeathTrigger
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - 
+  - 
+  - moduleshit
+  - ShadowReceiver
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - DeathDetector
+  - Messages
+  - Player
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: envo
+    uniqueID: 3138801931
+    locked: 0
+  - name: text
+    uniqueID: 142401065
+    locked: 0
+  m_RenderingLayers:
+  - Default
+  - 3DText
+  - Light Layer 2
+  - Light Layer 3
+  - Light Layer 4
+  - Light Layer 5
+  - Light Layer 6
+  - Light Layer 7
