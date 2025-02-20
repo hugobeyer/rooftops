@@ -576,7 +576,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8771091787928289351, guid: 9dd558880683c56419d4c266709b0a58, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8771091787928289351, guid: 9dd558880683c56419d4c266709b0a58, type: 3}
       propertyPath: m_TagString

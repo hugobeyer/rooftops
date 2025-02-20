@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 3708516810501949770}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.78, z: 4.32}
+  m_LocalPosition: {x: 0, y: 0.38, z: 4.691}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -142,6 +142,10 @@ PrefabInstance:
     - target: {fileID: -2485599274069657327, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_Layer
       value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_AABB.m_Center.x
@@ -268,6 +272,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9118591500628666525}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9173174205637492147}
     - targetCorrespondingSourceObject: {fileID: -6656686103951908793, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7897448974499949938}
@@ -302,8 +309,8 @@ CharacterController:
   serializedVersion: 3
   m_Height: 1.8
   m_Radius: 0.4
-  m_SlopeLimit: 0
-  m_StepOffset: 1
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
@@ -342,9 +349,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpForce: 6
-  maxJumpForce: 14
-  jumpChargeRate: 7
-  jumpForceGrowthRate: 0.0325
+  maxJumpForce: 32
+  jumpChargeRate: 5
+  jumpForceGrowthRate: 0.025
   runSpeedMultiplier: 1
   jumpCutFactor: 0.5
   runSpeed: 1
@@ -352,8 +359,13 @@ MonoBehaviour:
   simulationDuration: 2
   baseAnimationSpeed: 24
   baseMoveSpeed: 1
-  isVaulting: 0
+  isVaulting: 1
   modulePool: {fileID: 0}
+  groundCheckRadius: 0.3
+  groundCheckDistance: 0.1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &4410404002048786494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,6 +379,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   armAnimationDelay: 0.75
+  jumpActivationThreshold: 0.5
+  jumpHeightForMaxSpineWeight: 16
+  spineBlendTime: 0.5
+  spineResetDelay: 0.3
+  spineResetDuration: 0.7
+  quickJumpThreshold: 0.1
 --- !u!114 &4844833027925439069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -414,9 +432,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetMaterial: {fileID: 2100000, guid: d5ce4f85e91a7da4c98fd93129753703, type: 2}
-  lerpInTime: 0.1
-  holdDuration: 0.1
-  lerpOutTime: 0.1
+  lerpInTime: 0.2
+  holdDuration: 2
+  lerpOutTime: 1
+--- !u!114 &9173174205637492147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088488356021552172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d30d4cf2b3dfe5439c715bf0e27f404, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftFootstepAudio: {fileID: 0}
+  rightFootstepAudio: {fileID: 0}
 --- !u!1 &3721125065108199738 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6656686103951908793, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}

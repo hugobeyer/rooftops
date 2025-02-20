@@ -40,17 +40,6 @@
                 },
                 {
                     "name": "",
-                    "id": "ecc09b60-fea8-498f-b4c0-094835ca63a4",
-                    "path": "<Touchscreen>/primaryTouch/tap",
-                    "interactions": "Tap",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "6dd2ac23-fade-43cb-97f0-8cba644e6f60",
                     "path": "<Touchscreen>/primaryTouch/press",
                     "interactions": "Press",

@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using RoofTops;
 using TMPro;
+using UnityEngine.InputSystem;
+using RoofTops.GameActions;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, GameActions.IPlayerActions
 {
     public static GameManager Instance { get; private set; }
     
@@ -116,11 +117,15 @@ public class GameManager : MonoBehaviour
     public float increasedGravity = -20f;  // Adjust this value as needed
     private float currentGravity;
 
+    private GameActions gameActions;
+
     void Awake()
     {
         Instance = this;
+        gameActions = new GameActions();
+        gameActions.Player.AddCallbacks(this);
+        gameActions.Enable();
         
-        // Set initial gravity
         currentGravity = defaultGravity;
         Physics.gravity = new Vector3(0, currentGravity, 0);
         
@@ -185,17 +190,11 @@ public class GameManager : MonoBehaviour
     {
         if (!HasGameStarted)
         {
-            // Force the player to remain hidden until the game starts.
-            if (player != null && player.activeSelf)
-            {
-                player.SetActive(false);
-            }
-
-            // Check for jump input to start the game.
-            if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space))
-            {
-                StartGame();
-            }
+            // Remove this legacy input check
+            // if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space))
+            // {
+            //     StartGame();
+            // }
             return;
         }
 
@@ -247,35 +246,6 @@ public class GameManager : MonoBehaviour
             Vector4 playerPos = player.transform.position;
             targetMaterial.SetVector("_PlayerPosition", playerPos);
         }
-
-        // Remove all slow-mo input handling
-        // Mouse/Keyboard controls for testing
-        if (Application.isEditor || Debug.isDebugBuild)
-        {
-            // Remove slow-mo controls
-            // if (Input.GetMouseButtonDown(1))
-            // {
-            //     TryActivateSlowMo();
-            // }
-            
-            // Remove double click detection
-            // if (Input.GetMouseButtonDown(0))
-            // {
-            //     float timeSinceLastClick = Time.time - lastTapTime;
-            //     if (timeSinceLastClick <= doubleTapTimeThreshold)
-            //     {
-            //         TryActivateSlowMo();
-            //     }
-            //     lastTapTime = Time.time;
-            // }
-        }
-
-        // Remove mobile touch controls
-        // if (Input.touchCount > 0)
-        // {
-        //     Touch touch = Input.GetTouch(0);
-        //     ... remove all touch handling code ...
-        // }
     }
 
     public void TogglePause()
@@ -516,5 +486,22 @@ public class GameManager : MonoBehaviour
     public void ResetGravity()
     {
         SetGravity(defaultGravity);
+    }
+
+    // Implement the input system callback
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (!HasGameStarted && context.performed)
+        {
+            StartGame();
+        }
+    }
+
+    void OnDisable()
+    {
+        if (gameActions != null)
+        {
+            gameActions.Disable();
+        }
     }
 } 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dependencies>
+    <androidPackages>
+        <!-- For Unity Gaming Services -->
+        <androidPackage spec="com.google.android.gms:play-services-base:18.3.0" />
+    </androidPackages>
+</dependencies> 

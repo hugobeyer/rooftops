@@ -10,12 +10,13 @@ namespace RoofTops
         public static ModulePool Instance { get; private set; }
 
         [Header("Module Settings")]
-        public List<GameObject> modulePrefabs; // assign all your module prefabs here
-        public int numberOfModulesOnScreen = 5; // how many modules remain active at any time
+        public List<GameObject> modulePrefabs; // Assign all your module prefabs here
+        public int numberOfModulesOnScreen = 5; // How many modules remain active at any time
+        [SerializeField] private int initialPoolSizePerPrefab = 5; // New: Pre-populate pool
 
         [Header("Movement Settings")]
-        public Transform moduleMovement; // node that will be moved to simulate environment motion
-        public Transform moduleVolume;   // volume that defines the spawn/removal boundaries
+        public Transform moduleMovement; // Node that will be moved to simulate environment motion
+        public Transform moduleVolume;   // Volume that defines the spawn/removal boundaries
         public float gameSpeed { get; private set; } // Current speed of module movement
 
         // For backwards compatibility
@@ -54,49 +55,46 @@ namespace RoofTops
 
         private const float GRID_UNIT = 1f;
 
-        private bool isMoving = true;  // New field to track movement state
+        private bool isMoving = true;
         private GameObject lastSpawnedPrefab;
-        private float totalDistance = 0f;  // Add this field to track total distance
-
+        private float totalDistance = 0f;
         private bool canSpawnBonusAndJumpPads = true;
 
         void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
+            Instance = this;
 
-            // Create the module movement parent
-            moduleMovement = new GameObject("Module Movement").transform;
-            
-            // Initialize the pool
+            // Create the module movement parent if not assigned
+            if (moduleMovement == null)
+            {
+                moduleMovement = new GameObject("Module Movement").transform;
+            }
+
             poolDictionary = new Dictionary<string, Queue<GameObject>>();
             activeModules = new List<GameObject>();
-            
-            // Start moving slowly right away
-            SetMovement(true);
-            gameSpeed = GameManager.Instance.initialGameSpeed;
-            
+
             if (!ValidateSetup()) return;
+
+            // Pre-populate the pool
+            InitializePool();
+
             gameStartTime = Time.time;
             gameSpeed = GameManager.Instance.initialGameSpeed;
             InitializeVolumeBoundaries();
             SpawnInitialModules();
 
-            // Ensure movement resets properly
             isMoving = true;
         }
 
         void OnValidate()
         {
-            // Ensure we have valid settings
             numberOfModulesOnScreen = Mathf.Max(2, numberOfModulesOnScreen);
+            initialPoolSizePerPrefab = Mathf.Max(1, initialPoolSizePerPrefab); // Ensure valid pool size
         }
 
         bool ValidateSetup()
@@ -106,40 +104,50 @@ namespace RoofTops
                 Debug.LogError($"{gameObject.name}: No module prefabs assigned!");
                 return false;
             }
-
-            if (!moduleVolume)
+            if (!moduleVolume || !(volumeCollider = moduleVolume.GetComponent<BoxCollider>()))
             {
-                Debug.LogError($"{gameObject.name}: No module volume assigned!");
+                Debug.LogError($"{gameObject.name}: Module volume or BoxCollider missing!");
                 return false;
             }
-
-            volumeCollider = moduleVolume.GetComponent<BoxCollider>();
-            if (!volumeCollider)
-            {
-                Debug.LogError($"{gameObject.name}: Module volume must have a BoxCollider!");
-                return false;
-            }
-
             if (!moduleMovement)
             {
                 Debug.LogError($"{gameObject.name}: No module movement transform assigned!");
                 return false;
             }
-
-            // Remove any prefab with "vista" in its name
-            modulePrefabs.RemoveAll(prefab => prefab.name.ToLower().Contains("vista"));
-
-            // Validate remaining prefabs have BoxColliders
+            modulePrefabs.RemoveAll(prefab => prefab != null && prefab.name.ToLower().Contains("vista"));
             foreach (var prefab in modulePrefabs)
             {
-                if (!prefab.GetComponent<BoxCollider>())
+                if (prefab == null || !prefab.GetComponent<BoxCollider>())
                 {
-                    Debug.LogError($"{gameObject.name}: Prefab {prefab.name} must have a BoxCollider!");
+                    Debug.LogError($"{gameObject.name}: Invalid prefab {prefab?.name} - missing BoxCollider!");
                     return false;
                 }
             }
-
+            // Check GameManager reference
+            if (GameManager.Instance == null)
+            {
+                Debug.LogError($"{gameObject.name}: GameManager instance not found!");
+                return false;
+            }
             return true;
+        }
+
+        void InitializePool()
+        {
+            foreach (var prefab in modulePrefabs)
+            {
+                string key = prefab.name;
+                poolDictionary[key] = new Queue<GameObject>();
+                for (int i = 0; i < initialPoolSizePerPrefab; i++)
+                {
+                    GameObject module = Instantiate(prefab);
+                    module.SetActive(false);
+                    module.transform.SetParent(moduleMovement);
+                    ConfigureGroundTags(module);
+                    poolDictionary[key].Enqueue(module);
+                }
+            }
+            Debug.Log($"Pool initialized with {initialPoolSizePerPrefab} modules per prefab.");
         }
 
         void InitializeVolumeBoundaries()
@@ -150,75 +158,60 @@ namespace RoofTops
 
         void SpawnInitialModules()
         {
-            // Disable bonus and jump pad spawning for initial modules
             bool originalSpawnState = canSpawnBonusAndJumpPads;
             canSpawnBonusAndJumpPads = false;
 
-            // Spawn first module at the back of the volume
             GameObject firstModule = GetModuleFromPool(GetRandomModulePrefab());
             firstModule.transform.SetParent(moduleMovement);
             BoxCollider firstBC = firstModule.GetComponent<BoxCollider>();
-            
-            // Position the first module at ground level (y = 0)
             firstModule.transform.position = new Vector3(
                 0, 
-                0,  // Keep at ground level
+                0, 
                 volumeBackBoundary - (firstBC.center.z * firstModule.transform.localScale.z)
             );
             firstModule.SetActive(true);
             activeModules.Add(firstModule);
 
-            // Spawn remaining modules forward with no gaps initially
             GameObject lastModule = firstModule;
             BoxCollider lastBC = firstBC;
-            
+
             for (int i = 1; i < numberOfModulesOnScreen; i++)
             {
                 GameObject module = GetModuleFromPool(GetRandomModulePrefab());
                 module.transform.SetParent(moduleMovement);
                 module.SetActive(true);
-
                 BoxCollider bc = module.GetComponent<BoxCollider>();
-                
-                // Calculate where the last module ends
                 float lastModuleEnd = lastModule.transform.position.z + 
-                                    (lastBC.center.z + lastBC.size.z/2) * lastModule.transform.localScale.z;
-                
-                // Position this module with no gap and at ground level initially
+                                     (lastBC.center.z + lastBC.size.z / 2) * lastModule.transform.localScale.z;
                 module.transform.position = new Vector3(
                     0, 
                     0, 
-                    lastModuleEnd - (bc.center.z - bc.size.z/2) * module.transform.localScale.z
+                    lastModuleEnd - (bc.center.z - bc.size.z / 2) * module.transform.localScale.z
                 );
-                
                 activeModules.Add(module);
                 lastModule = module;
                 lastBC = bc;
             }
 
-            // Re-enable bonus and jump pad spawning after initial setup
             canSpawnBonusAndJumpPads = originalSpawnState;
         }
 
         public void Update()
         {
-            if (GameManager.Instance.IsPaused) return;
-            
-            if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
+            if (GameManager.Instance.IsPaused || !isMoving) return;
+
+            float deltaTime = Time.deltaTime;
+            if (!GameManager.Instance.HasGameStarted)
             {
-                // Before the game starts, keep speed at the initial value
                 gameSpeed = GameManager.Instance.initialGameSpeed;
-                moduleMovement.Translate(Vector3.back * gameSpeed * Time.deltaTime);
             }
-            else if (isMoving)
+            else
             {
-                gameSpeed += GameManager.Instance.speedIncreaseRate * Time.unscaledDeltaTime;
-                moduleMovement.Translate(Vector3.back * gameSpeed * Time.deltaTime);
+                gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
             }
+            moduleMovement.Translate(Vector3.back * gameSpeed * deltaTime); // Single Translate call
 
-            // Clean up null references
-            activeModules.RemoveAll(module => module == null);
-
+            activeModules.RemoveAll(module => module == null); // Clean up nulls
             if (activeModules.Count == 0) return;
 
             RecycleModulesIfNeeded();
@@ -227,70 +220,25 @@ namespace RoofTops
 
         void RecycleModulesIfNeeded()
         {
+            if (activeModules[0] == null) return;
             GameObject firstModule = activeModules[0];
             BoxCollider bc = firstModule.GetComponent<BoxCollider>();
-
-            // Calculate where this module ends
             float moduleEnd = firstModule.transform.position.z + 
-                             (bc.center.z + bc.size.z/2) * firstModule.transform.localScale.z;
+                             (bc.center.z + bc.size.z / 2) * firstModule.transform.localScale.z;
 
-            // If the module has moved completely past the volume's back boundary
             if (moduleEnd < volumeBackBoundary)
             {
-                // Get the last module
                 GameObject lastModule = activeModules[activeModules.Count - 1];
                 BoxCollider lastBC = lastModule.GetComponent<BoxCollider>();
-
-                // Calculate where the last module ends
                 float lastModuleEnd = lastModule.transform.position.z + 
-                                    (lastBC.center.z + lastBC.size.z/2) * lastModule.transform.localScale.z;
+                                     (lastBC.center.z + lastBC.size.z / 2) * lastModule.transform.localScale.z;
 
-                // Calculate gap and height variation based on current difficulty
-                float gap = 0f;
-                float heightVariation = 0f;
-                
-                if (TimeSinceStart > difficultyStartTime)
-                {
-                    // Randomize gap in 0.5 unit increments
-                    float maxCurrentGap = maxGapSize * CurrentGapMultiplier;
-                    int possibleIncrements = Mathf.FloorToInt(maxCurrentGap / GRID_UNIT);
-                    if (possibleIncrements > 0)
-                    {
-                        int randomIncrements = Random.Range(0, possibleIncrements + 1);
-                        gap = randomIncrements * GRID_UNIT;
-                    }
-                    
-                    // Randomize height in 0.5 unit increments
-                    float maxCurrentHeight = maxHeightVariation * CurrentHeightMultiplier;
-                    int possibleHeightIncrements = Mathf.FloorToInt(maxCurrentHeight / GRID_UNIT);
-                    if (possibleHeightIncrements > 0)
-                    {
-                        int randomHeightIncrements = Random.Range(-possibleHeightIncrements, possibleHeightIncrements + 1);
-                        heightVariation = randomHeightIncrements * GRID_UNIT;
-                        
-                        // Ensure we don't go below ground level
-                        float currentHeight = firstModule.transform.position.y;
-                        if (currentHeight + heightVariation < 0)
-                        {
-                            heightVariation = Mathf.Max(-currentHeight, 0);
-                            // Round to nearest grid unit
-                            heightVariation = Mathf.Round(heightVariation / GRID_UNIT) * GRID_UNIT;
-                        }
-                    }
-                }
-
-                // Position recycled module with gap and height variation
-                float newZPosition = lastModuleEnd + gap - (bc.center.z - bc.size.z/2) * firstModule.transform.localScale.z;
+                float gap = CalculateGap();
+                float heightVariation = CalculateHeightVariation(firstModule.transform.position.y);
+                float newZPosition = lastModuleEnd + gap - (bc.center.z - bc.size.z / 2) * firstModule.transform.localScale.z;
                 float newYPosition = firstModule.transform.position.y + heightVariation;
 
-                // When repositioning modules, ensure y = 0
-                firstModule.transform.position = new Vector3(
-                    0,
-                    newYPosition,
-                    newZPosition
-                );
-                
-                // Move to end of list
+                firstModule.transform.position = new Vector3(0, newYPosition, newZPosition);
                 activeModules.RemoveAt(0);
                 activeModules.Add(firstModule);
             }
@@ -301,65 +249,42 @@ namespace RoofTops
             while (activeModules.Count < numberOfModulesOnScreen)
             {
                 GameObject newModule = GetModuleFromPool(GetRandomModulePrefab());
+                if (newModule == null) break; // Safety check
+
                 BoxCollider newBC = newModule.GetComponent<BoxCollider>();
-
-                moduleMovement.Translate(Vector3.back * gameSpeed * Time.unscaledDeltaTime);
-
-                // Get the last module
                 GameObject lastModule = activeModules[activeModules.Count - 1];
                 BoxCollider lastBC = lastModule.GetComponent<BoxCollider>();
-
-                // Calculate where the last module ends
                 float lastModuleEnd = lastModule.transform.position.z + 
-                                    (lastBC.center.z + lastBC.size.z/2) * lastModule.transform.localScale.z;
+                                     (lastBC.center.z + lastBC.size.z / 2) * lastModule.transform.localScale.z;
 
-                // Calculate gap and height variation based on current difficulty
-                float gap = 0f;
-                float heightVariation = 0f;
-                
-                if (TimeSinceStart > difficultyStartTime)
-                {
-                    // Randomize gap in 0.5 unit increments
-                    float maxCurrentGap = maxGapSize * CurrentGapMultiplier;
-                    int possibleIncrements = Mathf.FloorToInt(maxCurrentGap / GRID_UNIT);
-                    if (possibleIncrements > 0)
-                    {
-                        int randomIncrements = Random.Range(0, possibleIncrements + 1);
-                        gap = randomIncrements * GRID_UNIT;
-                    }
-                    
-                    // Randomize height in 0.5 unit increments
-                    float maxCurrentHeight = maxHeightVariation * CurrentHeightMultiplier;
-                    int possibleHeightIncrements = Mathf.FloorToInt(maxCurrentHeight / GRID_UNIT);
-                    if (possibleHeightIncrements > 0)
-                    {
-                        int randomHeightIncrements = Random.Range(-possibleHeightIncrements, possibleHeightIncrements + 1);
-                        heightVariation = randomHeightIncrements * GRID_UNIT;
-                        
-                        // Ensure we don't go below ground level
-                        float currentHeight = newModule.transform.position.y;
-                        if (currentHeight + heightVariation < 0)
-                        {
-                            heightVariation = Mathf.Max(-currentHeight, 0);
-                            // Round to nearest grid unit
-                            heightVariation = Mathf.Round(heightVariation / GRID_UNIT) * GRID_UNIT;
-                        }
-                    }
-                }
-
-                // Position the new module with gap and height variation
-                float newZPosition = lastModuleEnd + gap - (newBC.center.z - newBC.size.z/2) * newModule.transform.localScale.z;
+                float gap = CalculateGap();
+                float heightVariation = CalculateHeightVariation(newModule.transform.position.y);
+                float newZPosition = lastModuleEnd + gap - (newBC.center.z - newBC.size.z / 2) * newModule.transform.localScale.z;
                 float newYPosition = newModule.transform.position.y + heightVariation;
 
-                // When repositioning modules, ensure y = 0
-                newModule.transform.position = new Vector3(
-                    0,
-                    newYPosition,
-                    newZPosition
-                );
-
+                newModule.transform.position = new Vector3(0, newYPosition, newZPosition);
+                newModule.SetActive(true);
                 activeModules.Add(newModule);
             }
+        }
+
+        private float CalculateGap()
+        {
+            if (TimeSinceStart <= difficultyStartTime) return 0f;
+            float maxCurrentGap = maxGapSize * CurrentGapMultiplier;
+            int possibleIncrements = Mathf.FloorToInt(maxCurrentGap / GRID_UNIT);
+            return possibleIncrements > 0 ? Random.Range(0, possibleIncrements + 1) * GRID_UNIT : 0f;
+        }
+
+        private float CalculateHeightVariation(float currentHeight)
+        {
+            if (TimeSinceStart <= difficultyStartTime) return 0f;
+            float maxCurrentHeight = maxHeightVariation * CurrentHeightMultiplier;
+            int possibleIncrements = Mathf.FloorToInt(maxCurrentHeight / GRID_UNIT);
+            if (possibleIncrements <= 0) return 0f;
+            int randomIncrements = Random.Range(-possibleIncrements, possibleIncrements + 1);
+            float variation = randomIncrements * GRID_UNIT;
+            return currentHeight + variation < 0 ? Mathf.Max(-currentHeight, 0) : variation;
         }
 
         void SpawnModule()
@@ -372,98 +297,62 @@ namespace RoofTops
 
             GameObject prefab = GetRandomModulePrefab();
             GameObject module = GetModuleFromPool(prefab);
-            BoxCollider newBC = module.GetComponent<BoxCollider>();
+            if (module == null) return; // Safety check
 
+            BoxCollider newBC = module.GetComponent<BoxCollider>();
             module.transform.SetParent(moduleMovement);
             module.SetActive(true);
 
-            // Get the last module
             GameObject lastModule = activeModules[activeModules.Count - 1];
             BoxCollider lastBC = lastModule.GetComponent<BoxCollider>();
-
-            // Calculate where the last module ends
             float lastModuleEnd = lastModule.transform.position.z + 
-                                (lastBC.center.z + lastBC.size.z/2) * lastModule.transform.localScale.z;
+                                 (lastBC.center.z + lastBC.size.z / 2) * lastModule.transform.localScale.z;
 
-            // Calculate gap and height variation based on current difficulty
-            float gap = 0f;
-            float heightVariation = 0f;
-            
-            if (TimeSinceStart > difficultyStartTime)
-            {
-                // Randomize gap in 0.5 unit increments
-                float maxCurrentGap = maxGapSize * CurrentGapMultiplier;
-                int possibleIncrements = Mathf.FloorToInt(maxCurrentGap / GRID_UNIT);
-                if (possibleIncrements > 0)
-                {
-                    int randomIncrements = Random.Range(0, possibleIncrements + 1);
-                    gap = randomIncrements * GRID_UNIT;
-                }
-                
-                // Randomize height in 0.5 unit increments
-                float maxCurrentHeight = maxHeightVariation * CurrentHeightMultiplier;
-                int possibleHeightIncrements = Mathf.FloorToInt(maxCurrentHeight / GRID_UNIT);
-                if (possibleHeightIncrements > 0)
-                {
-                    int randomHeightIncrements = Random.Range(-possibleHeightIncrements, possibleHeightIncrements + 1);
-                    heightVariation = randomHeightIncrements * GRID_UNIT;
-                    
-                    // Ensure we don't go below ground level
-                    float currentHeight = module.transform.position.y;
-                    if (currentHeight + heightVariation < 0)
-                    {
-                        heightVariation = Mathf.Max(-currentHeight, 0);
-                        // Round to nearest grid unit
-                        heightVariation = Mathf.Round(heightVariation / GRID_UNIT) * GRID_UNIT;
-                    }
-                }
-            }
-
-            // Position the new module with gap and height variation
-            float newZPosition = lastModuleEnd + gap - (newBC.center.z - newBC.size.z/2) * module.transform.localScale.z;
+            float gap = CalculateGap();
+            float heightVariation = CalculateHeightVariation(module.transform.position.y);
+            float newZPosition = lastModuleEnd + gap - (newBC.center.z - newBC.size.z / 2) * module.transform.localScale.z;
             float newYPosition = module.transform.position.y + heightVariation;
 
-            // When repositioning modules, ensure y = 0
-            module.transform.position = new Vector3(
-                0,
-                newYPosition,
-                newZPosition
-            );
-
+            module.transform.position = new Vector3(0, newYPosition, newZPosition);
             activeModules.Add(module);
 
-            // Only spawn bonus/jump pads if allowed and game has started
             if (canSpawnBonusAndJumpPads && GameManager.Instance.HasGameStarted)
             {
-                // Your bonus/jump pad spawn logic
+                // Your bonus/jump pad spawn logic here
             }
         }
 
         GameObject GetModuleFromPool(GameObject prefab)
         {
-            GameObject newModule;
+            if (prefab == null) return null;
             string key = prefab.name;
-            
-            if (poolDictionary.ContainsKey(key) && poolDictionary[key].Count > 0)
+            GameObject newModule;
+
+            if (!poolDictionary.ContainsKey(key))
+            {
+                poolDictionary[key] = new Queue<GameObject>();
+            }
+
+            if (poolDictionary[key].Count > 0)
             {
                 newModule = poolDictionary[key].Dequeue();
             }
             else
             {
                 newModule = Instantiate(prefab);
+                newModule.transform.SetParent(moduleMovement);
+                ConfigureGroundTags(newModule);
             }
-            
-            newModule.transform.SetParent(moduleMovement);
-            ConfigureGroundTags(newModule);
+
+            newModule.SetActive(true);
             return newModule;
         }
 
         void ReturnModuleToPool(GameObject module)
         {
             if (module == null) return;
-            
             module.SetActive(false);
-            string key = module.name;
+            string key = module.name.Replace("(Clone)", ""); // Handle clone suffix
             if (!poolDictionary.ContainsKey(key))
             {
                 poolDictionary[key] = new Queue<GameObject>();
@@ -481,32 +370,25 @@ namespace RoofTops
                    $"Max Height: ±{maxHeightVariation * CurrentDifficultyFactor:F1}m";
         }
 
-        // New public method to stop/start movement
         public void SetMovement(bool moving)
         {
             isMoving = moving;
-            if(moving) gameSpeed = GameManager.Instance.initialGameSpeed;
+            if (moving) gameSpeed = GameManager.Instance.initialGameSpeed;
         }
 
-        // Add this new public method
         public GameObject GetNextModule()
         {
-            // Return the next module in the list after the first one
             if (activeModules.Count > 1)
             {
-                return activeModules[1];  // Index 1 is the next module
+                return activeModules[1];
             }
             return null;
         }
 
         private GameObject GetRandomModulePrefab()
         {
-            // Filter out the last spawned prefab
             List<GameObject> availablePrefabs = modulePrefabs.FindAll(p => p != lastSpawnedPrefab);
-            
-            // If no available prefabs (only one type exists), use original list
             if (availablePrefabs.Count == 0) availablePrefabs = modulePrefabs;
-            
             GameObject selectedPrefab = availablePrefabs[Random.Range(0, availablePrefabs.Count)];
             lastSpawnedPrefab = selectedPrefab;
             return selectedPrefab;
@@ -519,15 +401,7 @@ namespace RoofTops
                 Collider col = child.GetComponent<Collider>();
                 if (col != null)
                 {
-                    // Assign tags based on collider type
-                    if (col.isTrigger)
-                    {
-                        child.tag = triggerGroundTag;
-                    }
-                    else
-                    {
-                        child.tag = solidGroundTag;
-                    }
+                    child.tag = col.isTrigger ? triggerGroundTag : solidGroundTag;
                 }
             }
         }
@@ -537,23 +411,36 @@ namespace RoofTops
             gameSpeed = GameManager.Instance.initialGameSpeed;
         }
 
-        // Add this method to reset the distance when needed
         public void ResetDistance()
         {
             totalDistance = 0f;
         }
 
-        // Add this new method
         public void StopMovement()
         {
             isMoving = false;
             gameSpeed = 0;
         }
 
+        // New: Full pool reset for game restarts
+        public void ResetPool()
+        {
+            foreach (var module in activeModules)
+            {
+                if (module != null) ReturnModuleToPool(module);
+            }
+            activeModules.Clear();
+            moduleMovement.position = Vector3.zero; // Reset movement position
+            SpawnInitialModules();
+            ResetSpeed();
+            ResetDistance();
+            isMoving = true;
+        }
+
         void OnDestroy()
         {
-            // Cleanup when the ModulePool is destroyed
-            // PrepareForReset();
+            // Cleanup
+            if (Instance == this) Instance = null;
         }
 
         public float GetMaxModuleHeight()
@@ -563,7 +450,6 @@ namespace RoofTops
             float uiZ = GameManager.Instance.gameplayUI.transform.position.z;
             float maxHeight = 0f;
             
-            // Find the module at the UI's position
             foreach (GameObject module in activeModules)
             {
                 if (module != null)
@@ -571,17 +457,15 @@ namespace RoofTops
                     BoxCollider bc = module.GetComponent<BoxCollider>();
                     if (bc != null)
                     {
-                        // Calculate module's start and end Z positions
-                        float moduleStart = module.transform.position.z - (bc.center.z - bc.size.z/2) * module.transform.localScale.z;
-                        float moduleEnd = module.transform.position.z + (bc.center.z + bc.size.z/2) * module.transform.localScale.z;
+                        float moduleStart = module.transform.position.z - (bc.center.z - bc.size.z / 2) * module.transform.localScale.z;
+                        float moduleEnd = module.transform.position.z + (bc.center.z + bc.size.z / 2) * module.transform.localScale.z;
                         
-                        // If UI is within this module's bounds
                         if (uiZ >= moduleStart && uiZ <= moduleEnd)
                         {
-                            float moduleHeight = module.transform.position.y;
-                            moduleHeight += (bc.center.y + bc.size.y/2) * module.transform.localScale.y;
+                            float moduleHeight = module.transform.position.y + 
+                                                (bc.center.y + bc.size.y / 2) * module.transform.localScale.y;
                             maxHeight = moduleHeight;
-                            break;  // Found the current module, no need to check others
+                            break;
                         }
                     }
                 }
@@ -591,4 +475,3 @@ namespace RoofTops
         }
     }
 }
-
