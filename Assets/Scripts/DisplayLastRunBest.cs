@@ -1,20 +1,22 @@
 using UnityEngine;
 using TMPro;
 
-public class DisplayLastRunBest : MonoBehaviour
+namespace RoofTops
 {
-    public TMP_Text bestText;
-
-    void Start()
+    public class DisplayLastRunBest : MonoBehaviour
     {
+        public TMP_Text bestText;
 
-        if (bestText == null)
+        void Start()
         {
-            bestText = GetComponent<TMP_Text>();
-        }
+            if (bestText == null)
+            {
+                bestText = GetComponent<TMP_Text>();
+            }
 
-        float bestDistance = GameManager.Instance.gameData.bestDistance;
-        bestText.text = $"{bestDistance:F1} m";
-    }
-    
+            float bestDistance = GameManager.Instance.gameData.bestDistance;
+            bestText.text = $"{bestDistance:F1} m";
+        }
+        
+    } 
 } 

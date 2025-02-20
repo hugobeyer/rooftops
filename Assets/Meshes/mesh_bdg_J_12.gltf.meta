@@ -9,7 +9,7 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 804e1ce4c496647cfa3f1a1134187c71, type: 3}
   _removeEmptyRootObjects: 1
-  _scaleFactor: 1
+  _scaleFactor: 0.9967
   _deduplicateResources: 0
   _maximumLod: 300
   _readWriteEnabled: 1
@@ -41,7 +41,7 @@ ScriptedImporter:
 '
   optimizeGameObjects: 0
   materials:
-  - {instanceID: 0}
+  - {fileID: 266564896448798252, guid: 21955d9ecc6314b4f90d99987cbaa42a, type: 3}
   textures: []
   hasSceneData: 1
   hasAnimationData: 0

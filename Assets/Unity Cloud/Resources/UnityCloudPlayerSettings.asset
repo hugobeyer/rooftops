@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 997525a85c32f8042811b3ce7e4d4fad, type: 3}
   m_Name: UnityCloudPlayerSettings
   m_EditorClassIdentifier: 
-  AppId: 7687f4bc-d2e7-4c75-9a83-5ba2bfe59df4
+  AppId: b1215445-eb0e-4948-9eb8-504b02fab7fc
   AppName: default
   AppDisplayName: Default
   AppOrganizationID: Default

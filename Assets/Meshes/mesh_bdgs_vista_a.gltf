@@ -11,13 +11,13 @@
 			"type":"SCALAR",
 			"min":[0
 			],
-			"max":[125375
+			"max":[124245
 			]
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":125376,
+			"count":124246,
 			"type":"VEC3",
 			"min":[0,0,-64
 			],
@@ -27,7 +27,17 @@
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":125376,
+			"count":124246,
+			"type":"VEC3",
+			"min":[0.0669559985,0.0729853362,0.02909863
+			],
+			"max":[1.99999499,1.19997668,0.611634314
+			]
+		},
+		{
+			"bufferView":3,
+			"componentType":5126,
+			"count":124246,
 			"type":"VEC3",
 			"min":[-1,-1,-1
 			],
@@ -35,40 +45,30 @@
 			]
 		},
 		{
-			"bufferView":3,
-			"componentType":5126,
-			"count":125376,
-			"type":"VEC4",
-			"min":[-0.99999994,-0.265580744,-0.808388352,1
-			],
-			"max":[1,0.141386673,0.99999994,1
-			]
-		},
-		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":125376,
-			"type":"VEC3",
-			"min":[0.0669559985,0.0729853362,0.0759999976
+			"count":124246,
+			"type":"VEC4",
+			"min":[-0.999999881,-0.265580744,-0.956431448,1
 			],
-			"max":[2,0.88376987,0.966061413
+			"max":[1,0.141703844,0.999999881,1
 			]
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":125376,
+			"count":124246,
 			"type":"VEC2",
-			"min":[0,0.00555562973
+			"min":[0,0.00557774305
 			],
-			"max":[0.994528532,1
+			"max":[0.994467318,1
 			]
 		}
 	],
 	"buffers":[
 		{
 			"uri":"mesh_bdgs_vista_a_data.bin",
-			"byteLength":8323800,
+			"byteLength":8256000,
 			"name":"main_buffer"
 		}
 	],
@@ -81,31 +81,31 @@
 		{
 			"buffer":0,
 			"byteOffset":801240,
-			"byteLength":1504512,
+			"byteLength":1490952,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteOffset":2305752,
-			"byteLength":1504512,
+			"byteOffset":2292192,
+			"byteLength":1490952,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteOffset":3810264,
-			"byteLength":2006016,
+			"byteOffset":3783144,
+			"byteLength":1490952,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteOffset":5816280,
-			"byteLength":1504512,
+			"byteOffset":5274096,
+			"byteLength":1987936,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteOffset":7320792,
-			"byteLength":1003008,
+			"byteOffset":7262032,
+			"byteLength":993968,
 			"target":34962
 		}
 	],
@@ -121,10 +121,10 @@
 				{
 					"attributes":{
 						"TEXCOORD_0":5,
-						"COLOR_0":4,
-						"TANGENT":3,
+						"TANGENT":4,
+						"COLOR_0":2,
 						"POSITION":1,
-						"NORMAL":2
+						"NORMAL":3
 					},
 					"indices":0,
 					"material":0

@@ -58,15 +58,58 @@ public class NoiseMovement : MonoBehaviour
     public float maxSpeedMultiplier = 2.0f;   // Maximum speed multiplier
     private float speedNoiseOffset;           // For random starting point
 
+    // New Blend Settings
+    [Header("Blend Settings")]
+    public bool useInitialBlend = false;         // Enable/Disable initial blending
+    public Vector3 initialBlendPosition;         // Starting point for the blend
+    public float blendDuration = 1f;               // Duration (in seconds) for the blend
+    private float blendTimer = 0f;                 // Internal timer for position blending
+    private float fovBlendTimer = 0f;              // Separate timer for FOV blending
+
+    [Header("Blend FOV Settings")]
+    public bool blendFOV = false;                // Enable FOV blending
+    public float initialFOV = 60f;               // Starting Field-of-View
+    public float finalFOV = 90f;                 // Target Field-of-View
+
+    [Header("Initial LookAt Settings")]
+    public bool useInitialLookAtOffset = false;     // Enable the initial look-at offset
+    public Vector3 initialLookAtOffset = Vector3.zero; // Offset to add to the target position for initial look
+
+    [Header("Initial Game Settings")]
+    public float initialNoiseMultiplier = 0.5f;  // Controls noise intensity before game starts
+    private float currentNoiseMultiplier = 1f;
+
     private Vector3 startingPosition;
     private Vector3 noisePosition;
     private float yawNoiseOffset;
     private float pitchNoiseOffset;
     private float rollNoiseOffset;
+    
+    // Add these new fields to store the calculated angles
+    private float yawAngle;
+    private float pitchAngle;
+    private float rollAngle;
+
+    // Cache these vectors to avoid allocations
+    private Vector3 targetDirection;
+    private readonly Vector3 upOffset = Vector3.up * 0.5f;
+    
+    // Cache quaternions to avoid allocations
+    private Quaternion yawRotation;
+    private Quaternion pitchRotation; 
+    private Quaternion rollRotation;
+    private Quaternion targetRotation;
 
     private void Start()
     {
+        // Save default starting position (will be used for noise offset)
         startingPosition = transform.position;
+        
+        // If using blend, override the starting position of the transform with your custom point
+        if(useInitialBlend)
+        {
+            transform.position = initialBlendPosition;
+        }
         
         // Randomize starting noise offsets
         firstNoiseOffset = new Vector3(
@@ -92,6 +135,16 @@ public class NoiseMovement : MonoBehaviour
 
     private void Update()
     {
+        if (!GameManager.Instance.HasGameStarted)
+        {
+            currentNoiseMultiplier = initialNoiseMultiplier;
+        }
+        else if (currentNoiseMultiplier < 1f)
+        {
+            // Smoothly transition to full noise when game starts
+            currentNoiseMultiplier = Mathf.MoveTowards(currentNoiseMultiplier, 1f, Time.deltaTime);
+        }
+
         float time = Time.time;
         
         // Calculate speed multiplier from noise
@@ -103,69 +156,162 @@ public class NoiseMovement : MonoBehaviour
         );
 
         // Calculate time-based noise for first layer
-        Vector3 noise1 = new Vector3(
-            FitRange.Fit(Mathf.PerlinNoise(time * firstFrequency + firstNoiseOffset.x, 0f), 0f, 1f, minXOffset, maxXOffset, fitType),
-            FitRange.Fit(Mathf.PerlinNoise(time * firstFrequency + firstNoiseOffset.y, 1f), 0f, 1f, minYOffset, maxYOffset, fitType),
-            FitRange.Fit(Mathf.PerlinNoise(time * firstFrequency + firstNoiseOffset.z, 2f), 0f, 1f, minZOffset, maxZOffset, fitType)
-        ) * firstIntensity;
+        noisePosition.x = FitRange.Fit(Mathf.PerlinNoise(time * firstFrequency + firstNoiseOffset.x, 0f), 0f, 1f, minXOffset, maxXOffset, fitType);
+        noisePosition.y = FitRange.Fit(Mathf.PerlinNoise(time * firstFrequency + firstNoiseOffset.y, 1f), 0f, 1f, minYOffset, maxYOffset, fitType);
+        noisePosition.z = FitRange.Fit(Mathf.PerlinNoise(time * firstFrequency + firstNoiseOffset.z, 2f), 0f, 1f, minZOffset, maxZOffset, fitType);
+
+        noisePosition *= firstIntensity * currentNoiseMultiplier;
 
         Vector3 noise2 = new Vector3(
             FitRange.Fit(Mathf.PerlinNoise(time * secondFrequency + firstNoiseOffset2.x, 3f), 0f, 1f, minXOffset, maxXOffset, fitType),
             FitRange.Fit(Mathf.PerlinNoise(time * secondFrequency + firstNoiseOffset2.y, 4f), 0f, 1f, minYOffset, maxYOffset, fitType),
             FitRange.Fit(Mathf.PerlinNoise(time * secondFrequency + firstNoiseOffset2.z, 5f), 0f, 1f, minZOffset, maxZOffset, fitType)
-        ) * secondIntensity;
+        ) * secondIntensity * currentNoiseMultiplier;
 
-        // Combine noises and add to starting position
-        noisePosition = startingPosition + noise1 + noise2;
-        transform.position = noisePosition;
+        // Combine noise layers
+        noisePosition += noise2;
 
-        // Calculate rotation noise for each axis
-        float yawAngle = FitRange.Fit(
-            Mathf.PerlinNoise(time * yawFrequency + yawNoiseOffset, 0f),
-            0f, 1f,
-            minYawAngle, maxYawAngle,
-            fitType
-        );
+        // The default target position for noise movement
+        Vector3 targetPos = startingPosition + noisePosition;
 
-        float pitchAngle = FitRange.Fit(
-            Mathf.PerlinNoise(time * pitchFrequency + pitchNoiseOffset, 1f),
-            0f, 1f,
-            minPitchAngle, maxPitchAngle,
-            fitType
-        );
-
-        float rollAngle = FitRange.Fit(
-            Mathf.PerlinNoise(time * rollFrequency + rollNoiseOffset, 2f),
-            0f, 1f,
-            minRollAngle, maxRollAngle,
-            fitType
-        );
-
-        // Look at target if assigned and apply rotations
-        if (target != null)
+        // Position blending: only start blending position after game has started.
+        if (useInitialBlend && blendTimer < blendDuration)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(target.position - transform.position);
-            
-            // Create separate rotations for each axis
-            Quaternion yawRotation = Quaternion.Euler(0, yawAngle, 0);
-            Quaternion pitchRotation = Quaternion.Euler(pitchAngle, 0, 0);
-            Quaternion rollRotation = Quaternion.Euler(0, 0, rollAngle);
-
-            // Apply each rotation with speed affected by noise multiplier
-            Quaternion currentRotation = transform.rotation;
-            currentRotation = Quaternion.Slerp(currentRotation, targetRotation * yawRotation, 
-                Time.deltaTime * yawLookSpeed * speedMultiplier);
-            currentRotation = Quaternion.Slerp(currentRotation, currentRotation * pitchRotation, 
-                Time.deltaTime * pitchLookSpeed * speedMultiplier);
-            currentRotation = Quaternion.Slerp(currentRotation, currentRotation * rollRotation, 
-                Time.deltaTime * rollLookSpeed * speedMultiplier);
-
-            transform.rotation = currentRotation;
+            if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
+            {
+                // Hold position until game starts.
+                transform.position = initialBlendPosition;
+            }
+            else
+            {
+                blendTimer += Time.deltaTime;
+                float rawBlendFactor = Mathf.Clamp01(blendTimer / blendDuration);
+                float blendFactor = Mathf.SmoothStep(0f, 1f, rawBlendFactor);
+                transform.position = Vector3.Lerp(initialBlendPosition, targetPos, blendFactor);
+            }
         }
         else
         {
-            // If no target, just apply noise rotation
+            transform.position = targetPos;
+        }
+        
+        // FOV blending: update only when the game has started.
+        if (blendFOV)
+        {
+            Camera cam = GetComponent<Camera>();
+            if (cam != null)
+            {
+                if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
+                {
+                    // While the game hasn't started, hold FOV at the initial value.
+                    cam.fieldOfView = initialFOV;
+                }
+                else if (fovBlendTimer < blendDuration)
+                {
+                    fovBlendTimer += Time.deltaTime;
+                    float fovRawBlend = Mathf.Clamp01(fovBlendTimer / blendDuration);
+                    float fovBlendFactor = Mathf.SmoothStep(0f, 1f, fovRawBlend);
+                    cam.fieldOfView = Mathf.Lerp(initialFOV, finalFOV, fovBlendFactor);
+                }
+                else
+                {
+                    cam.fieldOfView = finalFOV;
+                }
+            }
+        }
+
+        // Calculate rotation noise for each axis and store in class fields
+        yawAngle = FitRange.Fit(
+            Mathf.PerlinNoise(time * yawFrequency + yawNoiseOffset, 0f),
+            0f, 1f,
+            minYawAngle * currentNoiseMultiplier, maxYawAngle * currentNoiseMultiplier,
+            fitType
+        );
+
+        pitchAngle = FitRange.Fit(
+            Mathf.PerlinNoise(time * pitchFrequency + pitchNoiseOffset, 1f),
+            0f, 1f,
+            minPitchAngle * currentNoiseMultiplier, maxPitchAngle * currentNoiseMultiplier,
+            fitType
+        );
+
+        rollAngle = FitRange.Fit(
+            Mathf.PerlinNoise(time * rollFrequency + rollNoiseOffset, 2f),
+            0f, 1f,
+            minRollAngle * currentNoiseMultiplier, maxRollAngle * currentNoiseMultiplier,
+            fitType
+        );
+
+        // Cache rotation calculations
+        if (target != null)
+        {
+            Vector3 lookAtTargetPos;
+            if (useInitialLookAtOffset && GameManager.Instance != null)
+            {
+                if (!GameManager.Instance.HasGameStarted)
+                {
+                    // Hold at initial offset position
+                    lookAtTargetPos = target.position + initialLookAtOffset;
+                }
+                else
+                {
+                    // Use the same blend timer/duration from position blending
+                    float blendFactor = Mathf.SmoothStep(0f, 1f, blendTimer / blendDuration);
+                    lookAtTargetPos = Vector3.Lerp(target.position + initialLookAtOffset, target.position, blendFactor);
+                }
+            }
+            else
+            {
+                lookAtTargetPos = target.position;
+            }
+
+            targetDirection = lookAtTargetPos - transform.position + upOffset;
+            targetRotation = Quaternion.LookRotation(targetDirection);
+            
+            // Set cached quaternions using the calculated noise angles
+            yawRotation.eulerAngles = new Vector3(0, yawAngle, 0);
+            pitchRotation.eulerAngles = new Vector3(pitchAngle, 0, 0);
+            rollRotation.eulerAngles = new Vector3(0, 0, rollAngle);
+
+            // Apply the final rotation
+            transform.rotation = targetRotation * yawRotation * pitchRotation * rollRotation;
+        }
+        else
+        {
             transform.rotation = Quaternion.Euler(pitchAngle, yawAngle, rollAngle);
         }
+    }
+
+    public void ResetCamera()
+    {
+        // Reset noise offsets
+        firstNoiseOffset = new Vector3(
+            Random.Range(0f, 1000f),
+            Random.Range(0f, 1000f),
+            Random.Range(0f, 1000f)
+        );
+
+        firstNoiseOffset2 = new Vector3(
+            Random.Range(0f, 1000f),
+            Random.Range(0f, 1000f),
+            Random.Range(0f, 1000f)
+        );
+
+        // Reset rotation noise offsets
+        yawNoiseOffset = Random.Range(0f, 1000f);
+        pitchNoiseOffset = Random.Range(0f, 1000f);
+        rollNoiseOffset = Random.Range(0f, 1000f);
+    }
+
+    public void TransitionToDeathView()
+    {
+        // Optional: Modify camera behavior during death
+        // For example, increase noise intensity or change offset
+        firstIntensity *= 2f;  // Double the noise intensity
+        secondIntensity *= 2f;
+        
+        // Could also modify rotation ranges for death view
+        minYawAngle *= 1.5f;
+        maxYawAngle *= 1.5f;
     }
 } 

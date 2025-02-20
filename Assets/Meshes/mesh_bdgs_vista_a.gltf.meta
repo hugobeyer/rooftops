@@ -16,19 +16,19 @@ ScriptedImporter:
   _generateColliders: 0
   _swapUvs: 0
   _generateLightmapUVs: 0
-  _importBlendShapeNames: 1
+  _importBlendShapeNames: 0
   _blendShapeFrameWeight:
     _option: 0
     _multiplier: 1
   _importNormals: 0
   _importTangents: 0
-  _importCamera: 2
+  _importCamera: 0
   _importAnimations: 2
   _mecanimHumanoidFlip: 0
   _addAnimatorComponent: 0
   _animationLoopTime: 1
   _animationLoopPose: 0
-  _importMaterials: 1
+  _importMaterials: 0
   _enableGpuInstancing: 0
   _texturesReadWriteEnabled: 1
   _generateMipMaps: 1
@@ -41,7 +41,7 @@ ScriptedImporter:
 '
   optimizeGameObjects: 0
   materials:
-  - {instanceID: 0}
+  - {fileID: 266564896448798252, guid: 671a0597d66e242409e964ae2cd486c8, type: 3}
   textures: []
   hasSceneData: 1
   hasAnimationData: 0

@@ -396,9 +396,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: d3ad7370d8eb5144da9ceccb00dd929a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7995320191958160057}
-    - targetCorrespondingSourceObject: {fileID: 8771091787928289351, guid: d3ad7370d8eb5144da9ceccb00dd929a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: -5135063261310957751}
   m_SourcePrefab: {fileID: -4161369568681901532, guid: d3ad7370d8eb5144da9ceccb00dd929a, type: 3}
 --- !u!4 &1564025021031451643 stripped
 Transform:
@@ -431,23 +428,3 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 20, z: 6}
   m_Center: {x: 0, y: -10, z: 3}
---- !u!114 &-5135063261310957751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2717072846886978552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c8712ddf2d8ad647ae643376de26cd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spotMaterial: {fileID: 2100000, guid: a2deab81943791346804cd6786f2e63a, type: 2}
-  tiltAmount: 1.3
-  noiseSpeed: 1.02
-  offsetAmount: 3.26
-  focusInterval: 0.89
-  focusDuration: 2.9
-  tiltDamping: 0.77
-  noiseDamping: 1.05

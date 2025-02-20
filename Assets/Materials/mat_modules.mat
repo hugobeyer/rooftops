@@ -27,13 +27,13 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties: _Cone _UsePath
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -102,6 +102,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _Angle: 0
     - _BUILTIN_AlphaClip: 0
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 2
@@ -118,7 +119,7 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _Cone: 0.58
+    - _Cone: -2.8
     - _ConeHeight: 4.42
     - _ConeRadius: 3.73
     - _Cone_1: 6.3
@@ -126,26 +127,35 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Distance: 63.8
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _Float: -2.36
-    - _Float_1: 0.5
-    - _Fog_Offset: -0.8
-    - _Fog_Spread: 63.59
+    - _FadeLerp: 0.0024859905
+    - _Float: -2.28
+    - _Float_1: 0.52
+    - _Fog_Offset: -119.5
+    - _Fog_Spread: 113.3
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightFog_Offset: -0.38
-    - _HeightFog_Spread: 215.9
-    - _Height_Exponential: 11.23
+    - _HeightFogSpread: 36
+    - _HeightFog_Offset: -41.01
+    - _HeightFog_Spread: 285.58
+    - _Height_Exponential: 2.66
+    - _Hue: 0.613
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _Outline: 0.5
+    - _Offst: 29.11
+    - _Outline: 0.87
     - _Parallax: 0.005
+    - _PathRatio: 0.49
+    - _Path_Width: -1.09
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Rings: 24.28
+    - _Ringsojt: -0.2
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -154,26 +164,39 @@ Material:
     - _Surface: 0
     - _UsePath: 1
     - _UseVertexColor: 1
+    - _Use_Rings: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
+    - _aggg: -32.4
+    - _fuzz: 0.6
+    - _pathwidth: -0.58
+    - _pathwidth2: 0.25
+    - _ranf: 1.7
     - _rrrtr: -68.89
     - _rrrtr_1: -15
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.08518248, g: 0.24142286, b: 0.37106913, a: 1}
+    - _Colomask: {r: 0.6556392, g: 0.56012416, b: 0.7987421, a: 0}
     - _Color: {r: 0.16969258, g: 0.21274401, b: 0.32704395, a: 1}
     - _ConeColor: {r: 1, g: 1, b: 1, a: 0}
     - _ConeDir: {r: 0, g: 0, b: 0, a: 0}
     - _ConeOffset: {r: 3.7, g: 2.16, b: 0, a: 0}
     - _ConePos: {r: -0.62, g: 0.08, b: -0.56, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FOGS_COlor: {r: 0.12014949, g: 0.13372193, b: 0.2830189, a: 0}
-    - _Fog_Color: {r: 0.03945647, g: 0.1437873, b: 0.3584906, a: 0}
-    - _HeightFog_Color: {r: 0.51572317, g: 0.3251573, b: 0.076223195, a: 0}
-    - _PathColor: {r: 0.046101745, g: 0.3962264, b: 0.10156702, a: 0}
+    - _FOGS_COlor: {r: 0.10670064, g: 0.28292808, b: 0.40880498, a: 1}
+    - _Fade: {r: 1, g: 1, b: 1, a: 0}
+    - _Fog_Color: {r: 0.9496855, g: 0.8343134, b: 0.63611, a: 0}
+    - _HeightFog_Color: {r: 0.6901961, g: 0.38924542, b: 0.02352939, a: 1}
+    - _HeightFog_Warm: {r: 1, g: 0.7048142, b: 0, a: 0}
+    - _PathColor: {r: 0.0404651, g: 0.41509432, b: 0.13992418, a: 1}
+    - _PlayerPosition: {r: 0, g: 0.07999992, b: 0, a: 0}
+    - _Rings_Color: {r: 1, g: 1, b: 1, a: 0}
+    - _ShadowOff: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpotOffsetVector: {r: 3.21525, g: 3.21525, b: 3.21525, a: 0}
+    - _SpotOffsetVector: {r: 3.259884, g: 3.259884, b: 3.259884, a: 0}
     - _SpotTiltVector: {r: 0, g: 0, b: 0, a: 0}
     - _Vector3: {r: 0.71, g: 5.83, b: -1.86, a: 0}
+    - _offsetsh: {r: 0.01, g: 6.21, b: -0.08, a: 0}
     - _spotOffsetVector: {r: 0, g: 0, b: 0, a: 0}
     - _spotTiltVector: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

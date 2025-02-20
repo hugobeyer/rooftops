@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using RoofTops;
 
 public class JumpDistanceDisplay : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class JumpDistanceDisplay : MonoBehaviour
 
     private PlayerController player;
     private float jumpStartZ;
+    private bool hasRecordedJumpStart = false;  // New flag to record jump start only once
     private Coroutine fadeCoroutine;
     private static JumpDistanceDisplay instance;
 
@@ -33,17 +35,27 @@ public class JumpDistanceDisplay : MonoBehaviour
         
         // Initially hide the text.
         if(distanceText != null)
+        {
             distanceText.alpha = 0f;
+        }
     }
 
     void Update()
     {
         if (!player || !movementSource) return;
 
-        // Start tracking when leaving ground
+        // Record the starting position for jump distance when the player is grounded, only once.
         if (player.IsGroundedOnCollider || player.IsGroundedOnTrigger)
         {
-            jumpStartZ = movementSource.position.z;
+            if (!hasRecordedJumpStart)
+            {
+                jumpStartZ = movementSource.position.z;
+                hasRecordedJumpStart = true;
+            }
+        }
+        else
+        {
+            hasRecordedJumpStart = false;
         }
 
         // Show final distance when landing

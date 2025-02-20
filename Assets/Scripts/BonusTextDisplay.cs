@@ -3,56 +3,49 @@ using TMPro;
 
 public class BonusTextDisplay : MonoBehaviour
 {
-    public TMP_Text bonusText;  // Assign in inspector
-    private static BonusTextDisplay instance;
+    public static BonusTextDisplay Instance { get; private set; }
+    
+    [Header("UI Settings")]
+    public TMP_Text bonusText;
+    
+    private int allTimeTotal = 0;
 
-    void Awake()
+    void Start()
     {
-        instance = this;
-        // Auto-reference if not assigned
+        Instance = this;
+        
+        // Auto-find text component if not assigned
         if (bonusText == null)
         {
             bonusText = GetComponent<TMP_Text>();
         }
+
+        // Load the all-time total from GameData
+        if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+        {
+            allTimeTotal = GameManager.Instance.gameData.totalBonusCollected;
+        }
+        
+        UpdateDisplay();
     }
 
-    public static void ShowBonus(float amount)
+    public void AddBonus(int amount)
     {
-        if (instance == null)
-        {
-            Debug.LogWarning("No BonusTextDisplay instance found!");
-            return;
-        }
-
-        if (instance.bonusText == null)
-        {
-            Debug.LogWarning("No TMP_Text component assigned to BonusTextDisplay!");
-            return;
-        }
-
-        instance.bonusText.text = "+" + amount.ToString("F0");
-        instance.StopAllCoroutines();
-        instance.StartCoroutine(instance.FadeOutText());
+        // (Always update bonus; the UI parent handles hiding until game start.)
+        allTimeTotal += amount;
+        UpdateDisplay();
     }
 
-    private System.Collections.IEnumerator FadeOutText()
+    void UpdateDisplay()
     {
-        float duration = 1f;
-        float elapsed = 0f;
-        Color startColor = bonusText.color;
-
-        // Make sure text is visible at start
-        bonusText.color = new Color(startColor.r, startColor.g, startColor.b, 1f);
-
-        while (elapsed < duration)
+        if (bonusText != null)
         {
-            elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsed/duration);
-            bonusText.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
-            yield return null;
+            bonusText.text = $"{allTimeTotal}";
         }
+    }
 
-        bonusText.text = "";
-        bonusText.color = startColor;
+    public void ResetTotal()
+    {
+        UpdateDisplay();
     }
 } 

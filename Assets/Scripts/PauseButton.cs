@@ -1,32 +1,48 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PauseButton : MonoBehaviour
+namespace RoofTops
 {
-    private Button button;
-
-    void Start()
+    public class PauseButton : MonoBehaviour
     {
-        button = GetComponent<Button>();
-        if (button != null)
+        private Button button;
+        private CanvasGroup canvasGroup;
+
+        void Start()
         {
-            button.onClick.AddListener(OnPauseButtonClick);
+            button = GetComponent<Button>();
+            canvasGroup = GetComponent<CanvasGroup>();
+            
+            // Hide until game starts
+            if (canvasGroup != null)
+                canvasGroup.alpha = 0;
+            
+            if (button != null)
+                button.onClick.AddListener(OnPauseClicked);
         }
-    }
 
-    void OnPauseButtonClick()
-    {
-        if (GameManager.Instance != null)
+        void Update()
+        {
+            // Show button when game starts
+            if (GameManager.Instance.HasGameStarted && canvasGroup != null)
+            {
+                canvasGroup.alpha = 1;
+                canvasGroup.interactable = true;
+                canvasGroup.blocksRaycasts = true;
+            }
+        }
+
+        void OnPauseClicked()
         {
             GameManager.Instance.TogglePause();
         }
-    }
 
-    void OnDestroy()
-    {
-        if (button != null)
+        void OnDestroy()
         {
-            button.onClick.RemoveListener(OnPauseButtonClick);
+            if (button != null)
+            {
+                button.onClick.RemoveListener(OnPauseClicked);
+            }
         }
     }
 } 

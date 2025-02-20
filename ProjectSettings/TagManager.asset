@@ -11,6 +11,7 @@ TagManager:
   - customSpots
   - StepUpAllowance
   - DeathTrigger
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -34,7 +35,7 @@ TagManager:
   - DeathDetector
   - Messages
   - Player
-  - 
+  - Quads
   - 
   - 
   - 

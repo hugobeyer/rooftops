@@ -1,17 +1,20 @@
 using UnityEngine;
 using TMPro;
 
-public class DisplayLastRunDistance : MonoBehaviour
+namespace RoofTops
 {
-    public TMP_Text distanceText;
-    void Start()
+    public class DisplayLastRunDistance : MonoBehaviour
     {
-        if (distanceText == null)
+        public TMP_Text distanceText;
+        void Start()
         {
-            distanceText = GetComponent<TMP_Text>();
+            if (distanceText == null)
+            {
+                distanceText = GetComponent<TMP_Text>();
+            }
+
+            float lastRun = GameManager.Instance.gameData.lastRunDistance;
+            distanceText.text = $"{lastRun:F1} m";
         }
-        float lastRun = GameManager.Instance.gameData.lastRunDistance;
-        distanceText.text = $"{lastRun:F1} m";
     }
-    
 } 

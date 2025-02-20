@@ -27,7 +27,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 0
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -133,6 +133,7 @@ Material:
     - _DstBlendAlpha: 0
     - _EnableExternalAlpha: 0
     - _EnvironmentReflections: 1
+    - _Float: 7.67
     - _FloorY: 0
     - _Fog_Offset: -0.9
     - _Fog_Spread: 133.34
@@ -145,7 +146,7 @@ Material:
     - _JumpLerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _POW: 3.46
+    - _POW: 15.23
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -166,14 +167,15 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     - _ZWriteControl: 0
+    - _step: 0.14
     - alphaCutoff: -0.5
     - baseColorTextureRotation: 0
     - baseColorTextureTexCoord: 0
     m_Colors:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
-    - _Color: {r: 0.036708612, g: 0.0311894, b: 0.11949676, a: 1}
-    - _ColorEdge: {r: 0.25157225, g: 0.20151842, b: 0.19223915, a: 0}
-    - _ColorJump: {r: 0, g: 0.41285947, b: 0.48235294, a: 0}
+    - _Color: {r: 0.08785964, g: 0.058383755, b: 0.1509434, a: 1}
+    - _ColorEdge: {r: 0.3241169, g: 0.41545725, b: 0.42767292, a: 0}
+    - _ColorJump: {r: 0.4716981, g: 0.45359078, b: 0.22694904, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.03945647, g: 0.14378726, b: 0.35849056, a: 0}
     - _Fog_Color: {r: 0.03945647, g: 0.1437873, b: 0.3584906, a: 0}
@@ -182,6 +184,7 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Vector3: {r: 0.06, g: 0.04, b: 0.05, a: 0}
     - _col: {r: 0, g: 1, b: 1, a: 1}
     - baseColorFactor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
