@@ -1,6 +1,6 @@
-# RoofTops
+ROOFTOPS!!
 
-A Unity game where you jump from rooftop to rooftop, collecting bonuses and trying to achieve the highest score possible.
+A mobile game where you jump from rooftop to rooftop, collecting bonuses and trying to achieve the highest score possible.
 
 ## Project Structure
 
@@ -10,11 +10,11 @@ A Unity game where you jump from rooftop to rooftop, collecting bonuses and tryi
 - `Assets/Materials/`: Contains materials and textures
 - `Assets/Meshes/`: Contains 3D models
 
+This doc is in no way org yet.
+
 ## Development Setup
 
-1. Unity Version: 2022.3 or later
-2. Clone this repository
-3. Open the project in Unity
+1. Unity Version: 6.0 or later
 4. Open the Main scene in `Assets/Scenes/Main.unity`
 
 ## Game Features
@@ -28,12 +28,3 @@ A Unity game where you jump from rooftop to rooftop, collecting bonuses and tryi
 ## Controls
 
 - Space/Touch: Jump
-- Escape: Pause game
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request 
