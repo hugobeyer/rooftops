@@ -143,10 +143,10 @@ Material:
     - _GlossyReflections: 0
     - _HeightFog_Offset: -0.5
     - _HeightFog_Spread: 69.82
-    - _JumpLerp: 0.25794697
+    - _JumpLerp: 0.6054497
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _POW: 15.23
+    - _POW: 6.84
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -173,9 +173,9 @@ Material:
     - baseColorTextureTexCoord: 0
     m_Colors:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
-    - _Color: {r: 0.08785964, g: 0.058383755, b: 0.1509434, a: 1}
+    - _Color: {r: 0.061400566, g: 0.043728452, b: 0.06918234, a: 1}
     - _ColorEdge: {r: 0.3241169, g: 0.41545725, b: 0.42767292, a: 0}
-    - _ColorJump: {r: 0.4716981, g: 0.45359078, b: 0.22694904, a: 0}
+    - _ColorJump: {r: 0.5660378, g: 0.31766605, b: 0.11569951, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.03945647, g: 0.14378726, b: 0.35849056, a: 0}
     - _Fog_Color: {r: 0.03945647, g: 0.1437873, b: 0.3584906, a: 0}

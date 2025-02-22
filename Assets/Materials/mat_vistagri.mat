@@ -39,7 +39,9 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _HeightFog_Offset: -23.4
+    - _Fog_Offset: -303.6
+    - _Fog_Spread: 218.5
+    - _HeightFog_Offset: -18.3
     - _Height_Exponential: -1.8
     m_Colors:
     - _HeightFog_Color: {r: 0.74213827, g: 0.6412075, b: 0, a: 1}

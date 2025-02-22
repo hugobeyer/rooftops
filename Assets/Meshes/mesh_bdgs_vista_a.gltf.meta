@@ -23,7 +23,7 @@ ScriptedImporter:
   _importNormals: 0
   _importTangents: 0
   _importCamera: 0
-  _importAnimations: 2
+  _importAnimations: 0
   _mecanimHumanoidFlip: 0
   _addAnimatorComponent: 0
   _animationLoopTime: 1
@@ -41,7 +41,7 @@ ScriptedImporter:
 '
   optimizeGameObjects: 0
   materials:
-  - {fileID: 266564896448798252, guid: 671a0597d66e242409e964ae2cd486c8, type: 3}
+  - {instanceID: 0}
   textures: []
   hasSceneData: 1
   hasAnimationData: 0

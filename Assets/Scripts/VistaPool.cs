@@ -13,6 +13,7 @@ namespace RoofTops
         public List<GameObject> vistaPrefabs; // assign your vista prefabs here
         public int numberOfVistasOnScreen = 3; // how many vistas remain active at any time
         public float vistaSpanSize = 64f; // fixed size for vista modules
+        public Vector3 vistaOffset = Vector3.zero;  // Add this offset variable
 
         [Header("Movement Settings")]
         public Transform vistaMovement; // node that will be moved to simulate environment motion
@@ -32,7 +33,8 @@ namespace RoofTops
         void Awake()
         {
             Instance = this;
-            gameSpeed = GameManager.Instance.initialGameSpeed;
+            // Get speed from ModulePool if it exists, otherwise use initial speed
+            gameSpeed = ModulePool.Instance != null ? ModulePool.Instance.gameSpeed : GameManager.Instance.initialGameSpeed;
         }
 
         void OnValidate()
@@ -47,6 +49,9 @@ namespace RoofTops
 
             InitializeVolumeBoundaries();
             SpawnInitialVistas();
+            
+            // Add debug log to track initialization
+            Debug.Log("Vista Pool initialized at start");
         }
 
         bool ValidateSetup()
@@ -87,27 +92,27 @@ namespace RoofTops
 
         void SpawnInitialVistas()
         {
-            // Spawn first vista at the back of the volume
+            // First vista with offset
             GameObject firstVista = GetVistaFromPool(vistaPrefabs[Random.Range(0, vistaPrefabs.Count)]);
             firstVista.transform.SetParent(vistaMovement);
             firstVista.transform.position = new Vector3(
-                vistaMovement.position.x, 
-                vistaMovement.position.y, 
-                volumeBackBoundary
+                vistaMovement.position.x + vistaOffset.x, 
+                vistaMovement.position.y + vistaOffset.y, 
+                volumeBackBoundary + vistaOffset.z
             );
             firstVista.SetActive(true);
             activeVistas.Add(firstVista);
 
-            // Spawn remaining vistas forward
+            // Subsequent vistas NEED offset too!
             float nextSpawnPoint = volumeBackBoundary + vistaSpanSize;
             for (int i = 1; i < numberOfVistasOnScreen; i++)
             {
                 GameObject vista = GetVistaFromPool(vistaPrefabs[Random.Range(0, vistaPrefabs.Count)]);
                 vista.transform.SetParent(vistaMovement);
                 vista.transform.position = new Vector3(
-                    vistaMovement.position.x,
-                    vistaMovement.position.y,
-                    nextSpawnPoint
+                    vistaMovement.position.x + vistaOffset.x,  // Add offset here
+                    vistaMovement.position.y + vistaOffset.y,  // Add offset here
+                    nextSpawnPoint + vistaOffset.z            // Add offset here
                 );
                 vista.SetActive(true);
                 activeVistas.Add(vista);
@@ -117,14 +122,18 @@ namespace RoofTops
 
         void Update()
         {
-            if (GameManager.Instance.IsPaused) return;
-            
-            if (ModulePool.Instance != null)
+            if (GameManager.Instance.IsPaused || !isMoving) return;
+
+            float deltaTime = Time.deltaTime;
+            if (!GameManager.Instance.HasGameStarted)
             {
-                // Always match ModulePool's speed, both in initial and game states
-                gameSpeed = ModulePool.Instance.gameSpeed;
-                vistaMovement.Translate(Vector3.back * gameSpeed * Time.deltaTime);
+                gameSpeed = GameManager.Instance.initialGameSpeed;
             }
+            else
+            {
+                gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
+            }
+            vistaMovement.Translate(Vector3.back * gameSpeed * deltaTime);
 
             if (activeVistas.Count == 0) return;
 
@@ -260,5 +269,23 @@ namespace RoofTops
 
         // Add backwards compatibility property to match ModulePool
         public float currentMoveSpeed { get { return gameSpeed; } set { gameSpeed = value; } }
+
+        public void ResetVistas()
+        {
+            Debug.Log("Resetting vistas...");
+            
+            // Clear existing vistas
+            foreach (var vista in activeVistas)
+            {
+                if (vista != null)
+                {
+                    ReturnVistaToPool(vista);
+                }
+            }
+            activeVistas.Clear();
+            
+            // Respawn vistas
+            SpawnInitialVistas();
+        }
     }
 } 

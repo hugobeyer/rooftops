@@ -268,16 +268,7 @@ PrefabInstance:
       addedObject: {fileID: 4410404002048786494}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4844833027925439069}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 9118591500628666525}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 9173174205637492147}
-    - targetCorrespondingSourceObject: {fileID: -6656686103951908793, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7897448974499949938}
   m_SourcePrefab: {fileID: 100100000, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
 --- !u!4 &1706896920531967638 stripped
 Transform:
@@ -308,7 +299,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 1.8
-  m_Radius: 0.4
+  m_Radius: 0.25
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -348,9 +339,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b72db9439bd3eb644b4dc0c816817db6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpForce: 6
+  jumpForce: 5
   maxJumpForce: 32
-  jumpChargeRate: 5
+  jumpChargeRate: 7
   jumpForceGrowthRate: 0.025
   runSpeedMultiplier: 1
   jumpCutFactor: 0.5
@@ -359,7 +350,6 @@ MonoBehaviour:
   simulationDuration: 2
   baseAnimationSpeed: 24
   baseMoveSpeed: 1
-  isVaulting: 1
   modulePool: {fileID: 0}
   groundCheckRadius: 0.3
   groundCheckDistance: 0.1
@@ -378,47 +368,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64ebd5544dbdfcf42936582ad9519fd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  armAnimationDelay: 0.75
-  jumpActivationThreshold: 0.5
-  jumpHeightForMaxSpineWeight: 16
+  armAnimationDelay: 0.5
+  jumpActivationThreshold: 0.1
+  jumpHeightForMaxSpineWeight: 32
   spineBlendTime: 0.5
-  spineResetDelay: 0.3
+  spineResetDelay: 0.2
   spineResetDuration: 0.7
   quickJumpThreshold: 0.1
---- !u!114 &4844833027925439069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088488356021552172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: beff96e127f09b044ab66beee726adc6, type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 3232b6aa-1542-41fb-ab2a-aa7f704b28b0
-    m_ActionName: 'Player/Jump[/Keyboard/a,/Keyboard/space,/Mouse/leftButton]'
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
+  turnDuration: 2
+  turnStartDelay: 0.5
 --- !u!114 &9118591500628666525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,36 +393,3 @@ MonoBehaviour:
   lerpInTime: 0.2
   holdDuration: 2
   lerpOutTime: 1
---- !u!114 &9173174205637492147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088488356021552172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d30d4cf2b3dfe5439c715bf0e27f404, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  leftFootstepAudio: {fileID: 0}
-  rightFootstepAudio: {fileID: 0}
---- !u!1 &3721125065108199738 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -6656686103951908793, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
-  m_PrefabInstance: {fileID: 1169428240045537661}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7897448974499949938
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3721125065108199738}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e03e7ed42ce9470c899fc6cc550571e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hierarchy: []
-  hierarchyDepths: 

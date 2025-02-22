@@ -5,7 +5,7 @@ public class JumpPadEffectController : MonoBehaviour
 {
     [Header("Effect Settings")]
     public float effectDuration = 1f;       // How long the effect lasts
-    public ParticleSystem particleSystem;  // Add this if using particles
+    public new ParticleSystem particleSystem;  // Add this if using particles
 
     void Start()
     {

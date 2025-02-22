@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using RoofTops;
 
 public class BonusTextDisplay : MonoBehaviour
 {

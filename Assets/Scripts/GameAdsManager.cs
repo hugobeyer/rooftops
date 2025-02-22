@@ -12,7 +12,9 @@ namespace RoofTops
         [SerializeField] private float minTimeBetweenAds = 30f;  // Minimum seconds between ads
         
         [Header("Skip Settings")]
+#pragma warning disable 0414
         [SerializeField] private int maxAdSkips = 3;
+#pragma warning restore 0414
         private int adSkipsAvailable = 0;
         public int AdSkipsAvailable => adSkipsAvailable;
 

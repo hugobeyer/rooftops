@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using UnityEngine.InputSystem;
 
 namespace RoofTops
 {
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(PlayerInput))]
     public class PlayerController : MonoBehaviour
     {
         [Header("Movement Settings")]
@@ -23,10 +21,6 @@ namespace RoofTops
         public float runSpeed = 1f;
 
         [Header("Jump Tracking")]
-        public Vector3 JumpStartPosition { get; private set; }
-        public float LastJumpDistance { get; private set; }
-
-        [Header("Fall Detection")]
         public float simulationTimeStep = 0.1f;
         public float simulationDuration = 2f;
 
@@ -46,12 +40,10 @@ namespace RoofTops
         private bool isDead = false;
 
         private CharacterController cc;
-        public bool isVaulting = false;
+        //public bool isVaulting = false;
         public ModulePool modulePool;
         private Vector3 _velocity = Vector3.zero;
         private PlayerColorEffects colorEffects;
-        private PlayerInput playerInput;
-        private InputAction jumpAction;
 
         [Header("Jump Pad State")]
         private bool isOnJumpPad = false;
@@ -82,7 +74,7 @@ namespace RoofTops
             return isDead;
         }
 
-        void Start()
+        void Awake()
         {
             cc = GetComponent<CharacterController>();
             
@@ -103,48 +95,15 @@ namespace RoofTops
             {
                 modulePool = ModulePool.Instance;
             }
-            
-            JumpStartPosition = transform.position;
-
-            // Setup input
-            playerInput = GetComponent<PlayerInput>();
-            if (playerInput != null && playerInput.actions != null)
-            {
-                jumpAction = playerInput.actions.FindAction("Jump");
-                if (jumpAction == null)
-                {
-                    // No debug logs here
-                }
-            }
-            else
-            {
-                // No debug logs here
-            }
-        }
-
-        void OnEnable()
-        {
-            if (jumpAction != null)
-                jumpAction.Enable();
-        }
-
-        void OnDisable()
-        {
-            if (jumpAction != null)
-                jumpAction.Disable();
         }
 
         void Update()
         {
-            if (isVaulting || GameManager.Instance.IsPaused)
-                return;
+            //if (isVaulting || GameManager.Instance.IsPaused)
+            //    return;
 
             // Always handle jump input, even before game starts
             HandleJumpInput();
-
-            // Don't process other updates until game starts
-            if (!GameManager.Instance.HasGameStarted)
-                return;
 
             if ((transform.position.y < -7f || isDead) && modulePool.gameSpeed > 0)
             {
@@ -156,7 +115,7 @@ namespace RoofTops
             
             if (isDead)
             {
-                if (jumpAction.WasPressedThisFrame())
+                if (Input.GetButtonDown("Jump"))
                 {
                     StartCoroutine(DelayedReset());
                 }
@@ -208,12 +167,14 @@ namespace RoofTops
 
         void HandleJumpInput()
         {
-            if (jumpAction == null || isOnJumpPad) return;
-
-            bool jumpTapped = jumpAction.WasPressedThisFrame();
-            bool jumpHeld = jumpAction.IsPressed();
-            bool jumpReleased = jumpAction.WasReleasedThisFrame();
+            if (isOnJumpPad || !InputManager.Exists()) return;
             
+            bool jumpTapped = InputManager.Instance.isJumpPressed;
+            bool jumpHeld = InputManager.Instance.isJumpHeld;
+            bool jumpReleased = InputManager.Instance.isJumpReleased;
+
+            Debug.Log($"Input states - Tapped: {jumpTapped}, Held: {jumpHeld}, Released: {jumpReleased}");
+
             if (cc.isGrounded)
             {
                 // Reset gravity when grounded
@@ -225,7 +186,13 @@ namespace RoofTops
                     _velocity.y = jumpForce;
                     holdingJump = true;
                     colorEffects?.StartSlowdownEffect();
-                    GameManager.Instance.IncreaseGravity(); // Increase gravity immediately on jump
+                    GameManager.Instance.IncreaseGravity();
+                    // Ensure we complete the jump animation
+                    var animator = GetComponent<PlayerAnimatorController>();
+                    if (animator != null)
+                    {
+                        animator.TriggerJumpAnimation(jumpForce);
+                    }
                 }
                 // Handle charge jump start
                 else if (jumpTapped && !isChargingJump)
@@ -249,9 +216,14 @@ namespace RoofTops
                 if (isChargingJump && cc.isGrounded)
                 {
                     _velocity.y = currentChargedJumpForce;
-                    GameManager.Instance.IncreaseGravity(); // Increase gravity for charged jumps too
+                    GameManager.Instance.IncreaseGravity();
+                    // Ensure we complete the charged jump animation
+                    var animator = GetComponent<PlayerAnimatorController>();
+                    if (animator != null)
+                    {
+                        animator.TriggerJumpAnimation(currentChargedJumpForce);
+                    }
                 }
-                
                 // Apply jump cut if in air and moving upward
                 if (!cc.isGrounded && _velocity.y > 0)
                 {
@@ -265,16 +237,8 @@ namespace RoofTops
 
         void HandleLanding()
         {
-            LastJumpDistance = CalculateJumpDistance();
-            JumpStartPosition = transform.position;
-        }
-
-        float CalculateJumpDistance()
-        {
-            return Vector3.Distance(
-                new Vector3(0, 0, JumpStartPosition.z),
-                new Vector3(0, 0, transform.position.z)
-            );
+            isChargingJump = false;
+            holdingJump = false;
         }
 
         void CheckFallingState()
@@ -351,10 +315,10 @@ namespace RoofTops
         }
 
         // This method allows external scripts (like the vault script) to set the vaulting state.
-        public void SetVaultingState(bool vaulting)
-        {
-            isVaulting = vaulting;
-        }
+        //public void SetVaultingState(bool vaulting)
+        //{
+            //isVaulting = vaulting;
+        //}
 
         public (float distance, float airTime) PredictJumpTrajectory()
         {
@@ -374,22 +338,31 @@ namespace RoofTops
 
         public void HandleDeath()
         {
-            isDead = true;
-            modulePool?.StopMovement();  // Use the new method instead of trying to set gameSpeed directly
-            
-            // Only zero out horizontal velocity, keep vertical for falling
-            _velocity.x = 0;
-            _velocity.z = 0;
-            
-            GetComponent<PlayerAnimatorController>().TriggerFallAnimation();
-            
-            // Retrieve the final distance directly from GameManager.
-            float finalDistance = GameManager.Instance.CurrentDistance;
-            
-            // Show ad through GameAdsManager
-            GameAdsManager.Instance?.OnPlayerDeath(() => {
-                GameManager.Instance.HandlePlayerDeath(finalDistance);
-            });
+            if (!isDead)
+            {
+                isDead = true;
+                // Immediately trigger camera transition
+                FindFirstObjectByType<NoiseMovement>()?.TransitionToDeathView();
+                // Disable input
+                // For legacy input, just disable the controller
+                this.enabled = false;
+                GetComponent<PlayerAnimatorController>().ResetAnimationStates();
+                modulePool?.StopMovement();  // Use the new method instead of trying to set gameSpeed directly
+                
+                // Only zero out horizontal velocity, keep vertical for falling
+                _velocity.x = 0;
+                _velocity.z = 0;
+                
+                GetComponent<PlayerAnimatorController>().TriggerFallAnimation();
+                
+                // Retrieve the final distance directly from GameManager.
+                float finalDistance = GameManager.Instance.CurrentDistance;
+                
+                // Show ad through GameAdsManager
+                GameAdsManager.Instance?.OnPlayerDeath(() => {
+                    GameManager.Instance.HandlePlayerDeath(finalDistance);
+                });
+            }
         }
 
         private void OnTriggerEnter(Collider other)
@@ -405,7 +378,25 @@ namespace RoofTops
         {
             isOnJumpPad = true;
             jumpPadTimer = JUMP_PAD_DURATION;
+            isChargingJump = false;
+            holdingJump = false;
+            // Tell the animator to trigger a jump but with different parameters
+            var animator = GetComponent<PlayerAnimatorController>();
+            if (animator != null)
+            {
+                animator.TriggerJumpAnimation(_velocity.y);
+            }
             GameManager.Instance.ActivateJumpPadAudioEffect(JUMP_PAD_DURATION, 0.5f);
+        }
+
+        public void Die()
+        {
+            if (!isDead)
+            {
+                isDead = true;
+                GetComponent<PlayerAnimatorController>().ResetAnimationStates();
+                // ... rest of death handling
+            }
         }
     }
 } 

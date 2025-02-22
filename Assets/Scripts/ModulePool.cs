@@ -53,11 +53,13 @@ namespace RoofTops
         private float CurrentGapMultiplier => gapDifficultyCurve.Evaluate(CurrentDifficultyFactor);
         private float CurrentHeightMultiplier => heightDifficultyCurve.Evaluate(CurrentDifficultyFactor);
 
-        private const float GRID_UNIT = 1f;
+        private const float GRID_UNIT = 0.5f;
 
         private bool isMoving = true;
         private GameObject lastSpawnedPrefab;
+#pragma warning disable 0414
         private float totalDistance = 0f;
+#pragma warning restore 0414
         private bool canSpawnBonusAndJumpPads = true;
 
         void Awake()

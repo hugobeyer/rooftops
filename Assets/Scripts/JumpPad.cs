@@ -126,6 +126,13 @@ namespace RoofTops
 
                     // Add time scale effect with much longer duration
                     GameManager.Instance.SlowTimeForJump(0.3f, 1.5f);  // 0.3x speed for 1.5 seconds
+
+                    // Get the animator controller and trigger air state
+                    PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
+                    if (animController != null)
+                    {
+                        animController.TriggerAirState();
+                    }
                 }
             }
         }

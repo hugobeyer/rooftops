@@ -1,4 +1,6 @@
 using UnityEngine;
+using RoofTops;
+using System.Collections;
 
 public class NoiseMovement : MonoBehaviour
 {
@@ -64,16 +66,23 @@ public class NoiseMovement : MonoBehaviour
     public Vector3 initialBlendPosition;         // Starting point for the blend
     public float blendDuration = 1f;               // Duration (in seconds) for the blend
     private float blendTimer = 0f;                 // Internal timer for position blending
-    private float fovBlendTimer = 0f;              // Separate timer for FOV blending
 
     [Header("Blend FOV Settings")]
-    public bool blendFOV = false;                // Enable FOV blending
-    public float initialFOV = 60f;               // Starting Field-of-View
-    public float finalFOV = 90f;                 // Target Field-of-View
+    public bool blendFOV = false;
+    public float initialFOV = 60f;
+    public float midFOV = 75f;
+    public float finalFOV = 90f;
 
-    [Header("Initial LookAt Settings")]
-    public bool useInitialLookAtOffset = false;     // Enable the initial look-at offset
-    public Vector3 initialLookAtOffset = Vector3.zero; // Offset to add to the target position for initial look
+    [Header("Blend Timings")]
+    public float midFOVDelay = 1f;          // How long to wait before starting mid blend
+    public float finalFOVDelay = 2f;        // How long to wait before starting final blend
+    public float midBlendDuration = 1f;     // How long the blend to mid FOV/offset takes
+    public float finalBlendDuration = 2f;   // How long the blend to final FOV/offset takes
+
+    [Header("Look At Settings")]
+    public bool useInitialLookAtOffset = false;
+    public Vector3 midLookAtOffset = new Vector3(0, 1f, 0);
+    public Vector3 initialLookAtOffset = Vector3.zero;
 
     [Header("Initial Game Settings")]
     public float initialNoiseMultiplier = 0.5f;  // Controls noise intensity before game starts
@@ -99,6 +108,33 @@ public class NoiseMovement : MonoBehaviour
     private Quaternion pitchRotation; 
     private Quaternion rollRotation;
     private Quaternion targetRotation;
+
+    [Header("Death Settings")]
+    private bool isPlayerDead = false;
+    private Vector3 lastValidPosition;  // Store the last position before death
+    public Transform deathCameraTarget;  // Assign this in inspector - the position to move to when player dies
+    public GameObject deathVisualObject;  // Object to show during death (assign in inspector)
+    public float deathTransitionSpeed = 2f;  // How fast to move to death position
+    private float deathTransitionTimer = 0f;
+    private Vector3 deathStartPosition;  // Position when death started
+
+    // Add these back - they're needed for the blending system
+    private float fovBlendTimer = 0f;
+    private float lookAtBlendTimer = 0f;
+    private FOVStage currentFOVStage = FOVStage.Initial;
+
+    [Header("Death Camera Settings")]
+    public float deathNoiseIntensity = 0.5f;    // How much noise during death
+    public float deathBlendDuration = 1.5f;      // How long to blend to death view
+    public float deathFOV = 65f;                 // FOV during death state
+    private float deathBlendTimer = 0f;          // Track the death transition
+
+    private enum FOVStage
+    {
+        Initial,
+        Mid,
+        Final
+    }
 
     private void Start()
     {
@@ -131,10 +167,18 @@ public class NoiseMovement : MonoBehaviour
 
         // Add random offset for speed noise
         speedNoiseOffset = Random.Range(0f, 1000f);
+
+        // Ensure death visual is hidden at start
+        if (deathVisualObject != null)
+        {
+            deathVisualObject.SetActive(false);
+        }
     }
 
     private void Update()
     {
+        if (isPlayerDead) return;
+
         if (!GameManager.Instance.HasGameStarted)
         {
             currentNoiseMultiplier = initialNoiseMultiplier;
@@ -143,6 +187,22 @@ public class NoiseMovement : MonoBehaviour
         {
             // Smoothly transition to full noise when game starts
             currentNoiseMultiplier = Mathf.MoveTowards(currentNoiseMultiplier, 1f, Time.deltaTime);
+        }
+
+        // Check if player just died
+        if (target != null && target.GetComponent<PlayerController>()?.IsDead() == true && !isPlayerDead)
+        {
+            isPlayerDead = true;
+            lastValidPosition = target.position;
+            deathStartPosition = transform.position;
+            
+            // Show the death visual object
+            if (deathVisualObject != null)
+            {
+                deathVisualObject.SetActive(true);
+            }
+            
+            deathTransitionTimer = 0f;  // Reset transition timer
         }
 
         float time = Time.time;
@@ -172,7 +232,26 @@ public class NoiseMovement : MonoBehaviour
         noisePosition += noise2;
 
         // The default target position for noise movement
-        Vector3 targetPos = startingPosition + noisePosition;
+        Vector3 targetPos;
+        if (isPlayerDead)
+        {
+            if (deathCameraTarget != null)
+            {
+                // Lerp to death camera position
+                deathTransitionTimer += Time.deltaTime * deathTransitionSpeed;
+                float t = Mathf.SmoothStep(0f, 1f, deathTransitionTimer);
+                targetPos = Vector3.Lerp(deathStartPosition, deathCameraTarget.position, t) + noisePosition;
+            }
+            else
+            {
+                // Fallback to last valid position if no death target is set
+                targetPos = lastValidPosition + noisePosition;
+            }
+        }
+        else
+        {
+            targetPos = startingPosition + noisePosition;
+        }
 
         // Position blending: only start blending position after game has started.
         if (useInitialBlend && blendTimer < blendDuration)
@@ -203,19 +282,42 @@ public class NoiseMovement : MonoBehaviour
             {
                 if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
                 {
-                    // While the game hasn't started, hold FOV at the initial value.
                     cam.fieldOfView = initialFOV;
-                }
-                else if (fovBlendTimer < blendDuration)
-                {
-                    fovBlendTimer += Time.deltaTime;
-                    float fovRawBlend = Mathf.Clamp01(fovBlendTimer / blendDuration);
-                    float fovBlendFactor = Mathf.SmoothStep(0f, 1f, fovRawBlend);
-                    cam.fieldOfView = Mathf.Lerp(initialFOV, finalFOV, fovBlendFactor);
+                    fovBlendTimer = 0f;
+                    currentFOVStage = FOVStage.Initial;
                 }
                 else
                 {
-                    cam.fieldOfView = finalFOV;
+                    fovBlendTimer += Time.deltaTime;
+                    
+                    switch (currentFOVStage)
+                    {
+                        case FOVStage.Initial:
+                            if (fovBlendTimer >= midFOVDelay)
+                            {
+                                currentFOVStage = FOVStage.Mid;
+                                fovBlendTimer = 0f;
+                                lookAtBlendTimer = 0f;
+                            }
+                            break;
+                            
+                        case FOVStage.Mid:
+                            float midBlend = Mathf.SmoothStep(0f, 1f, fovBlendTimer / midBlendDuration);
+                            cam.fieldOfView = Mathf.Lerp(initialFOV, midFOV, midBlend);
+                            
+                            if (fovBlendTimer >= midBlendDuration && fovBlendTimer >= finalFOVDelay)
+                            {
+                                currentFOVStage = FOVStage.Final;
+                                fovBlendTimer = 0f;
+                                lookAtBlendTimer = 0f;
+                            }
+                            break;
+                            
+                        case FOVStage.Final:
+                            float finalBlend = Mathf.SmoothStep(0f, 1f, fovBlendTimer / finalBlendDuration);
+                            cam.fieldOfView = Mathf.Lerp(midFOV, finalFOV, finalBlend);
+                            break;
+                    }
                 }
             }
         }
@@ -245,35 +347,65 @@ public class NoiseMovement : MonoBehaviour
         // Cache rotation calculations
         if (target != null)
         {
-            Vector3 lookAtTargetPos;
-            if (useInitialLookAtOffset && GameManager.Instance != null)
+            Vector3 lookAtTargetPos = target.position;  // Default to player
+            
+            if (isPlayerDead)
             {
-                if (!GameManager.Instance.HasGameStarted)
+                // Priority 1: Death camera target
+                if (deathCameraTarget != null)
                 {
-                    // Hold at initial offset position
-                    lookAtTargetPos = target.position + initialLookAtOffset;
+                    lookAtTargetPos = deathCameraTarget.position;
                 }
+                // Priority 2: Last known player position
                 else
                 {
-                    // Use the same blend timer/duration from position blending
-                    float blendFactor = Mathf.SmoothStep(0f, 1f, blendTimer / blendDuration);
-                    lookAtTargetPos = Vector3.Lerp(target.position + initialLookAtOffset, target.position, blendFactor);
+                    lookAtTargetPos = lastValidPosition;
                 }
+                
+                // Remove vertical offset during death view
+                targetDirection = lookAtTargetPos - transform.position;
             }
             else
             {
-                lookAtTargetPos = target.position;
+                // Normal gameplay look-at logic
+                if (useInitialLookAtOffset && GameManager.Instance != null)
+                {
+                    if (!GameManager.Instance.HasGameStarted)
+                    {
+                        lookAtTargetPos = target.position + initialLookAtOffset;
+                        lookAtBlendTimer = 0f;
+                    }
+                    else
+                    {
+                        switch (currentFOVStage)
+                        {
+                            case FOVStage.Initial:
+                                lookAtTargetPos = target.position + initialLookAtOffset;
+                                break;
+
+                            case FOVStage.Mid:
+                                lookAtBlendTimer += Time.deltaTime;
+                                float toMidBlend = Mathf.SmoothStep(0f, 1f, lookAtBlendTimer / midBlendDuration);
+                                lookAtTargetPos = target.position + Vector3.Lerp(initialLookAtOffset, midLookAtOffset, toMidBlend);
+                                break;
+
+                            case FOVStage.Final:
+                                lookAtBlendTimer += Time.deltaTime;
+                                float toFinalBlend = Mathf.SmoothStep(0f, 1f, lookAtBlendTimer / finalBlendDuration);
+                                lookAtTargetPos = target.position + Vector3.Lerp(midLookAtOffset, Vector3.zero, toFinalBlend);
+                                break;
+                        }
+                    }
+                }
+                targetDirection = lookAtTargetPos - transform.position + upOffset;
             }
 
-            targetDirection = lookAtTargetPos - transform.position + upOffset;
             targetRotation = Quaternion.LookRotation(targetDirection);
             
-            // Set cached quaternions using the calculated noise angles
+            // Apply rotations (noise remains but could be modified)
             yawRotation.eulerAngles = new Vector3(0, yawAngle, 0);
             pitchRotation.eulerAngles = new Vector3(pitchAngle, 0, 0);
             rollRotation.eulerAngles = new Vector3(0, 0, rollAngle);
-
-            // Apply the final rotation
             transform.rotation = targetRotation * yawRotation * pitchRotation * rollRotation;
         }
         else
@@ -282,8 +414,28 @@ public class NoiseMovement : MonoBehaviour
         }
     }
 
+    void LateUpdate()
+    {
+        // If in death state, skip normal rotation calculations
+        if (isPlayerDead) return;
+        
+        // ... keep existing rotation code ...
+    }
+
     public void ResetCamera()
     {
+        isPlayerDead = false;
+        deathTransitionTimer = 0f;
+        
+        // Restore target reference
+        target = FindFirstObjectByType<PlayerController>()?.transform;
+        
+        // Hide the death visual object
+        if (deathVisualObject != null)
+        {
+            deathVisualObject.SetActive(false);
+        }
+        
         // Reset noise offsets
         firstNoiseOffset = new Vector3(
             Random.Range(0f, 1000f),
@@ -305,13 +457,65 @@ public class NoiseMovement : MonoBehaviour
 
     public void TransitionToDeathView()
     {
-        // Optional: Modify camera behavior during death
-        // For example, increase noise intensity or change offset
-        firstIntensity *= 2f;  // Double the noise intensity
-        secondIntensity *= 2f;
+        isPlayerDead = true;
+        StartCoroutine(BlendToDeathView());
+    }
+
+    private IEnumerator BlendToDeathView()
+    {
+        float duration = 1f;
+        float elapsed = 0f;
         
-        // Could also modify rotation ranges for death view
-        minYawAngle *= 1.5f;
-        maxYawAngle *= 1.5f;
+        // Store initial noise values
+        float startFirstIntensity = firstIntensity;
+        float startSecondIntensity = secondIntensity;
+        
+        Quaternion startRotation = transform.rotation;
+        Vector3 startPosition = transform.position;
+
+        if (deathCameraTarget != null)
+        {
+            Vector3 lookPos = deathCameraTarget.position;
+            Quaternion targetRotation = Quaternion.LookRotation(lookPos - startPosition);
+            
+            while (elapsed < duration)
+            {
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+                transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+                
+                // Diminish noise intensity gradually
+                firstIntensity = Mathf.Lerp(startFirstIntensity, 0f, t);
+                secondIntensity = Mathf.Lerp(startSecondIntensity, 0f, t);
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            transform.rotation = targetRotation;
+            firstIntensity = 0f;
+            secondIntensity = 0f;
+        }
+        
+        // Just wait a frame to ensure everything is settled
+        yield return null;
+    }
+
+    private IEnumerator DeathShake()
+    {
+        float duration = 1f;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            // Add subtle positional noise
+            transform.localPosition += new Vector3(
+                Random.Range(-0.1f, 0.1f),
+                Random.Range(-0.05f, 0.05f),
+                Random.Range(-0.1f, 0.1f)
+            );
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 } 
