@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using TMPro;
 using RoofTops;
+using System.Linq;
 
 namespace RoofTops
 {
@@ -129,9 +130,40 @@ namespace RoofTops
         public GameObject deathUIPanel;          // Assign in inspector
         public float deathUIPanelDelay = 0.5f;   // Delay before showing UI
 
+        [Header("Player References")]
+        public GameObject playerRagdoll;  // Assign the ragdoll prefab in inspector
+
+        [Header("Ragdoll Settings")]
+        public float deathForce = 5f;         // Force applied on death
+        public float upwardForce = 2f;        // Upward force component
+        public float forwardForce = 2.5f;     // Forward force component
+        public bool applyTorque = true;       // Option to add rotation force
+        public float torqueForce = 2f;        // Amount of rotational force
+
+        [Header("Ragdoll Physics")]
+        public float colliderSkinWidth = 0.08f;     // Prevents clipping
+        public float colliderBounciness = 0.3f;     // Makes ragdoll bounce slightly
+        public bool useCCD = true;                  // Better collision detection
+
+        // Store initial states
+        private float initialTimeScale;
+        private Vector3 initialGravity;
+
+        [Header("UI Panel Settings")]
+        public float initialPanelHideTime = 3f; // how long to hide panel at start
+
+        private PanelController panelController; // reference to the panel script
+        [Header("Popup After Panel Shows")]
+        public GameObject popupMessage;      // The GameObject to show briefly
+        public float popupDisplayTime = 2f;  // How many seconds it stays visible
+
         void Awake()
         {
             Instance = this;
+            
+            // Store initial states
+            initialTimeScale = Time.timeScale;
+            initialGravity = Physics.gravity;
             
             // Find InputManager if not assigned
             if (inputManager == null)
@@ -193,7 +225,6 @@ namespace RoofTops
 
         void Start()
         {
-            // Double-check pause indicator is hidden
             if (pauseIndicator != null)
             {
                 pauseIndicator.SetActive(false);
@@ -202,6 +233,12 @@ namespace RoofTops
             if (gameplayUI != null)
             {
                 gameplayUITransform = gameplayUI.transform;
+            }
+
+            // Keep or find the panel controller if needed
+            if (panelController == null)
+            {
+                panelController = FindObjectOfType<PanelController>();
             }
         }
 
@@ -402,39 +439,50 @@ namespace RoofTops
 
         public void StartGame()
         {
-            HasGameStarted = true;
-            Time.timeScale = timeSpeed;
-            
-            // Add this line to fire the event
-            onGameStarted.Invoke();
-            
-            // Start playing the music if it isn't already playing.
-            if (musicSource != null && !musicSource.isPlaying)
+            if (!HasGameStarted)
             {
-                musicSource.Play();
-            }
-            
-            // Start blending to normal speed
-            if (ModulePool.Instance != null)
-            {
-                moduleSpeedStartTime = Time.time;
-            }
+                HasGameStarted = true;
+                
+                // Hide the panel once the game actually starts
+                if (panelController != null && panelController.gameObject != null)
+                {
+                    panelController.gameObject.SetActive(false);
+                    StartCoroutine(ReEnablePanelAfterDelay());
+                }
 
-            // Reveal the player now that the game has started.
-            if (player != null)
-            {
-                player.SetActive(true);
-            }
-            
-            // Reveal the UI group now that the game has started.
-            if (initialUIGroup != null)
-            {
-                initialUIGroup.SetActive(true);
-            }
+                Time.timeScale = timeSpeed;
+                
+                // Add this line to fire the event
+                onGameStarted.Invoke();
+                
+                // Start playing the music if it isn't already playing.
+                if (musicSource != null && !musicSource.isPlaying)
+                {
+                    musicSource.Play();
+                }
+                
+                // Start blending to normal speed
+                if (ModulePool.Instance != null)
+                {
+                    moduleSpeedStartTime = Time.time;
+                }
 
-            if (VistaPool.Instance != null)
-            {
-                VistaPool.Instance.ResetVistas();
+                // Reveal the player now that the game has started.
+                if (player != null)
+                {
+                    player.SetActive(true);
+                }
+                
+                // Reveal the UI group now that the game has started.
+                if (initialUIGroup != null)
+                {
+                    initialUIGroup.SetActive(true);
+                }
+
+                if (VistaPool.Instance != null)
+                {
+                    VistaPool.Instance.ResetVistas();
+                }
             }
         }
 
@@ -476,35 +524,43 @@ namespace RoofTops
         // New method to handle the overall game over (player death) logic.
         public void HandlePlayerDeath(float finalDistance)
         {
-            // Hide gameplay UI first
+            // Save stats
+            RecordFinalDistance(finalDistance);
+            
+            // Spawn ragdoll for visual effect
+            SwitchToRagdoll();
+            
+            // Hide gameplay UI
             gameplayUI?.gameObject.SetActive(false);
             
-            // Stop the music
+            // Stop music
             if (musicSource != null)
             {
                 musicSource.Stop();
             }
 
-            // Stop footsteps
-            if (footstepController != null)
-            {
-                footstepController.enabled = false;
-            }
-            
-            // Record final stats
-            RecordFinalDistance(finalDistance);
-            
-            // Show death UI after delay
-            StartCoroutine(ShowDeathUI(finalDistance));
+            // Show death UI after a short delay
+            StartCoroutine(ShowDeathUI());
         }
 
-        private IEnumerator ShowDeathUI(float finalDistance)
+        private IEnumerator ShowDeathUI()
         {
-            // Wait for camera transition
-            yield return new WaitForSeconds(1f);
+            // Wait for camera movement and ragdoll to settle
+            yield return new WaitForSeconds(deathUIPanelDelay);
             
-            // Show death UI
-            deathUIPanel?.SetActive(true);
+            // Fade in the death UI
+            if (deathUIPanel != null)
+            {
+                // Optional: Add fade-in effect here
+                deathUIPanel.SetActive(true);
+            }
+        }
+
+        // Call this from the UI button
+        public void RestartGame()
+        {
+            // Clean scene reload
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         // void UpdateDisplays()
@@ -541,6 +597,122 @@ namespace RoofTops
         void OnDisable()
         {
             // Remove disabling of gameActions:
+        }
+
+        private void SwitchToRagdoll()
+        {
+            if (playerRagdoll != null && player != null)
+            {
+                // Get source animator and disable it
+                var sourceAnimator = player.GetComponent<Animator>();
+                if (sourceAnimator != null)
+                {
+                    sourceAnimator.enabled = false;
+                }
+
+                // Spawn ragdoll at player position
+                GameObject ragdollInstance = Instantiate(playerRagdoll, 
+                    player.transform.position, 
+                    player.transform.rotation);
+
+                // Copy pose from player to ragdoll
+                if (sourceAnimator != null)
+                {
+                    // Get all the transforms from both hierarchies
+                    Transform[] sourceTransforms = player.GetComponentsInChildren<Transform>();
+                    Transform[] ragdollTransforms = ragdollInstance.GetComponentsInChildren<Transform>();
+
+                    // Match rotations for each bone
+                    foreach (Transform source in sourceTransforms)
+                    {
+                        // Find matching transform in ragdoll
+                        Transform target = ragdollTransforms.FirstOrDefault(t => t.name == source.name);
+                        if (target != null)
+                        {
+                            target.rotation = source.rotation;
+                            target.position = source.position;
+                        }
+                    }
+                }
+
+                // Tell camera to transition to death view - DON'T change its target!
+                var cameraController = FindFirstObjectByType<NoiseMovement>();
+                if (cameraController != null)
+                {
+                    // Just trigger the transition, don't set the target
+                    cameraController.TransitionToDeathView();
+                }
+
+                // Rest of the ragdoll setup...
+                Rigidbody[] ragdollRBs = ragdollInstance.GetComponentsInChildren<Rigidbody>();
+                Collider[] ragdollColliders = ragdollInstance.GetComponentsInChildren<Collider>();
+
+                // Setup colliders to prevent clipping
+                foreach (Collider col in ragdollColliders)
+                {
+                    if (col is CapsuleCollider capsule)
+                    {
+                        capsule.radius += colliderSkinWidth;
+                    }
+                    else if (col is SphereCollider sphere)
+                    {
+                        sphere.radius += colliderSkinWidth;
+                    }
+                    else if (col is BoxCollider box)
+                    {
+                        box.size += Vector3.one * colliderSkinWidth * 2;
+                    }
+
+                    // Add bouncy material if needed
+                    if (colliderBounciness > 0)
+                    {
+                        PhysicsMaterial bouncyMaterial = new PhysicsMaterial
+                        {
+                            bounciness = colliderBounciness,
+                            frictionCombine = PhysicsMaterialCombine.Multiply
+                        };
+                        col.material = bouncyMaterial;
+                    }
+                }
+
+                // Setup rigidbodies with CCD if enabled
+                foreach (Rigidbody rb in ragdollRBs)
+                {
+                    if (useCCD)
+                    {
+                        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+                    }
+
+                    Vector3 forceDirection = Vector3.back * deathForce + 
+                                           Vector3.up * upwardForce + 
+                                           Vector3.forward * forwardForce;
+
+                    rb.AddForce(forceDirection, ForceMode.Impulse);
+
+                    if (applyTorque)
+                    {
+                        rb.AddTorque(Random.insideUnitSphere * torqueForce, ForceMode.Impulse);
+                    }
+                }
+
+                // Disable original player
+                player.SetActive(false);
+            }
+        }
+
+        // Wait for initialPanelHideTime seconds, then show the panel
+        private IEnumerator ReEnablePanelAfterDelay()
+        {
+            yield return new WaitForSeconds(initialPanelHideTime);
+            panelController.gameObject.SetActive(true);
+
+            // Right after re-enabling the panel, show the extra popup
+            if (popupMessage != null)
+            {
+                popupMessage.SetActive(true); 
+                yield return new WaitForSeconds(popupDisplayTime);
+                popupMessage.SetActive(false); 
+            }
         }
     }
 } 

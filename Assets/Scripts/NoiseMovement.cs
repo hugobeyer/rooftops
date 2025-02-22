@@ -109,25 +109,26 @@ public class NoiseMovement : MonoBehaviour
     private Quaternion rollRotation;
     private Quaternion targetRotation;
 
-    [Header("Death Settings")]
+    [Header("Death Camera")]
+    public Transform deathCameraTarget;
+    public float deathBlendDuration = 1.5f;
+    public float deathFOV = 65f;
+    public float deathNoiseIntensity = 0.5f;
+    public Vector3 deathOffset = new Vector3(0, 2f, -4f);
+    public GameObject deathVisualObject;
+
     private bool isPlayerDead = false;
-    private Vector3 lastValidPosition;  // Store the last position before death
-    public Transform deathCameraTarget;  // Assign this in inspector - the position to move to when player dies
-    public GameObject deathVisualObject;  // Object to show during death (assign in inspector)
-    public float deathTransitionSpeed = 2f;  // How fast to move to death position
-    private float deathTransitionTimer = 0f;
-    private Vector3 deathStartPosition;  // Position when death started
+    private bool isInDeathTransition = false;
+
+    // Store these for the blend
+    private Vector3 deathStartPosition;
+    private Quaternion deathStartRotation;
+    private float deathStartFOV;
 
     // Add these back - they're needed for the blending system
     private float fovBlendTimer = 0f;
     private float lookAtBlendTimer = 0f;
     private FOVStage currentFOVStage = FOVStage.Initial;
-
-    [Header("Death Camera Settings")]
-    public float deathNoiseIntensity = 0.5f;    // How much noise during death
-    public float deathBlendDuration = 1.5f;      // How long to blend to death view
-    public float deathFOV = 65f;                 // FOV during death state
-    private float deathBlendTimer = 0f;          // Track the death transition
 
     private enum FOVStage
     {
@@ -141,13 +142,13 @@ public class NoiseMovement : MonoBehaviour
         // Save default starting position (will be used for noise offset)
         startingPosition = transform.position;
         
-        // If using blend, override the starting position of the transform with your custom point
+        // If using blend, override the starting position
         if(useInitialBlend)
         {
             transform.position = initialBlendPosition;
         }
         
-        // Randomize starting noise offsets
+        // Randomize noise offsets
         firstNoiseOffset = new Vector3(
             Random.Range(0f, 1000f),
             Random.Range(0f, 1000f),
@@ -168,7 +169,7 @@ public class NoiseMovement : MonoBehaviour
         // Add random offset for speed noise
         speedNoiseOffset = Random.Range(0f, 1000f);
 
-        // Ensure death visual is hidden at start
+        // Hide death visual at start
         if (deathVisualObject != null)
         {
             deathVisualObject.SetActive(false);
@@ -177,34 +178,25 @@ public class NoiseMovement : MonoBehaviour
 
     private void Update()
     {
-        if (isPlayerDead) return;
+        // If we're in the death transition or fully dead, skip normal rotation updates
+        if (isPlayerDead || isInDeathTransition)
+        {
+            // You can still do your positional noise if you want, but skip rotation
+            // If you need to keep *positional* noise, do it here but don't call transform.rotation below.
+            return;
+        }
 
+        // Otherwise, do normal camera behavior
         if (!GameManager.Instance.HasGameStarted)
         {
             currentNoiseMultiplier = initialNoiseMultiplier;
         }
         else if (currentNoiseMultiplier < 1f)
         {
-            // Smoothly transition to full noise when game starts
             currentNoiseMultiplier = Mathf.MoveTowards(currentNoiseMultiplier, 1f, Time.deltaTime);
         }
 
-        // Check if player just died
-        if (target != null && target.GetComponent<PlayerController>()?.IsDead() == true && !isPlayerDead)
-        {
-            isPlayerDead = true;
-            lastValidPosition = target.position;
-            deathStartPosition = transform.position;
-            
-            // Show the death visual object
-            if (deathVisualObject != null)
-            {
-                deathVisualObject.SetActive(true);
-            }
-            
-            deathTransitionTimer = 0f;  // Reset transition timer
-        }
-
+        // Calculate noise and position
         float time = Time.time;
         
         // Calculate speed multiplier from noise
@@ -231,27 +223,10 @@ public class NoiseMovement : MonoBehaviour
         // Combine noise layers
         noisePosition += noise2;
 
-        // The default target position for noise movement
-        Vector3 targetPos;
-        if (isPlayerDead)
-        {
-            if (deathCameraTarget != null)
-            {
-                // Lerp to death camera position
-                deathTransitionTimer += Time.deltaTime * deathTransitionSpeed;
-                float t = Mathf.SmoothStep(0f, 1f, deathTransitionTimer);
-                targetPos = Vector3.Lerp(deathStartPosition, deathCameraTarget.position, t) + noisePosition;
-            }
-            else
-            {
-                // Fallback to last valid position if no death target is set
-                targetPos = lastValidPosition + noisePosition;
-            }
-        }
-        else
-        {
-            targetPos = startingPosition + noisePosition;
-        }
+        // Simplify target position logic
+        Vector3 targetPos = isPlayerDead ? 
+            (deathCameraTarget != null ? deathCameraTarget.position : transform.position) + noisePosition :
+            startingPosition + noisePosition;
 
         // Position blending: only start blending position after game has started.
         if (useInitialBlend && blendTimer < blendDuration)
@@ -359,7 +334,7 @@ public class NoiseMovement : MonoBehaviour
                 // Priority 2: Last known player position
                 else
                 {
-                    lookAtTargetPos = lastValidPosition;
+                    lookAtTargetPos = transform.position;
                 }
                 
                 // Remove vertical offset during death view
@@ -414,27 +389,74 @@ public class NoiseMovement : MonoBehaviour
         }
     }
 
-    void LateUpdate()
+    private IEnumerator BlendToDeathView()
     {
-        // If in death state, skip normal rotation calculations
-        if (isPlayerDead) return;
-        
-        // ... keep existing rotation code ...
+        float elapsed = 0f;
+        isInDeathTransition = true;
+
+        // 1) Capture our current transforms
+        deathStartPosition = transform.position;
+        deathStartRotation = transform.rotation;
+        deathStartFOV = GetComponent<Camera>().fieldOfView;
+
+        // 2) Final position/rotation
+        Vector3 finalPosition = (deathCameraTarget != null) 
+            ? deathCameraTarget.position + deathOffset
+            : transform.position;
+
+        Vector3 finalLookAtPos = (deathCameraTarget != null)
+            ? (deathCameraTarget.position + upOffset)
+            : transform.position + transform.forward;
+
+        Vector3 finalLookDirection = finalLookAtPos - finalPosition; 
+        Quaternion finalRotation = Quaternion.LookRotation(finalLookDirection, Vector3.up);
+
+        // 3) Blend smoothly
+        while (elapsed < deathBlendDuration)
+        {
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / deathBlendDuration);
+
+            // Lerp position
+            transform.position = Vector3.Lerp(deathStartPosition, finalPosition, t);
+
+            // Slerp rotation
+            transform.rotation = Quaternion.Slerp(deathStartRotation, finalRotation, t);
+
+            // Lerp FOV
+            GetComponent<Camera>().fieldOfView = Mathf.Lerp(deathStartFOV, deathFOV, t);
+
+            // If you want to keep rotation NOISE while transitioning, you can skip it or adjust it:
+            firstIntensity  = Mathf.Lerp(firstIntensity,  deathNoiseIntensity, t);
+            secondIntensity = Mathf.Lerp(secondIntensity, deathNoiseIntensity, t);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 4) Snap final
+        transform.position = finalPosition;
+        transform.rotation = finalRotation;
+        GetComponent<Camera>().fieldOfView = deathFOV;
+        firstIntensity  = deathNoiseIntensity;
+        secondIntensity = deathNoiseIntensity;
+
+        // End transition
+        isInDeathTransition = false;
     }
 
     public void ResetCamera()
     {
         isPlayerDead = false;
-        deathTransitionTimer = 0f;
-        
-        // Restore target reference
-        target = FindFirstObjectByType<PlayerController>()?.transform;
-        
-        // Hide the death visual object
+        isInDeathTransition = false;
+
+        // Hide death visual
         if (deathVisualObject != null)
         {
             deathVisualObject.SetActive(false);
         }
+
+        // Restore target reference
+        target = FindFirstObjectByType<PlayerController>()?.transform;
         
         // Reset noise offsets
         firstNoiseOffset = new Vector3(
@@ -468,64 +490,13 @@ public class NoiseMovement : MonoBehaviour
     public void TransitionToDeathView()
     {
         isPlayerDead = true;
+        
+        // Show death visual if you like
+        if (deathVisualObject != null)
+        {
+            deathVisualObject.SetActive(true);
+        }
+
         StartCoroutine(BlendToDeathView());
-    }
-
-    private IEnumerator BlendToDeathView()
-    {
-        float duration = 1f;
-        float elapsed = 0f;
-        
-        // Store initial noise values
-        float startFirstIntensity = firstIntensity;
-        float startSecondIntensity = secondIntensity;
-        
-        Quaternion startRotation = transform.rotation;
-        Vector3 startPosition = transform.position;
-
-        if (deathCameraTarget != null)
-        {
-            Vector3 lookPos = deathCameraTarget.position;
-            Quaternion targetRotation = Quaternion.LookRotation(lookPos - startPosition);
-            
-            while (elapsed < duration)
-            {
-                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
-                transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
-                
-                // Diminish noise intensity gradually
-                firstIntensity = Mathf.Lerp(startFirstIntensity, 0f, t);
-                secondIntensity = Mathf.Lerp(startSecondIntensity, 0f, t);
-                
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            
-            transform.rotation = targetRotation;
-            firstIntensity = 0f;
-            secondIntensity = 0f;
-        }
-        
-        // Just wait a frame to ensure everything is settled
-        yield return null;
-    }
-
-    private IEnumerator DeathShake()
-    {
-        float duration = 1f;
-        float elapsed = 0f;
-        
-        while (elapsed < duration)
-        {
-            // Add subtle positional noise
-            transform.localPosition += new Vector3(
-                Random.Range(-0.1f, 0.1f),
-                Random.Range(-0.05f, 0.05f),
-                Random.Range(-0.1f, 0.1f)
-            );
-            
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
     }
 } 

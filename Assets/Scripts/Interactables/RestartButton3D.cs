@@ -44,10 +44,5 @@ public class RestartButton3D : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ResetGame();
-        }
     }
 } 
