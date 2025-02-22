@@ -126,6 +126,7 @@ Material:
     - _Cone_1: 6.3
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DashLerp: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _Distance: 63.8
@@ -146,6 +147,7 @@ Material:
     - _HeightFog_Spread: 285.58
     - _Height_Exponential: 27.08
     - _Hue: 0.613
+    - _Lerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Offst: 29.11
@@ -193,6 +195,7 @@ Material:
     - _ConePos: {r: -0.62, g: 0.08, b: -0.56, a: 0}
     - _DarkColor: {r: 0.14117645, g: 0.2754987, b: 0.53333336, a: 0}
     - _DarkMask: {r: 0.59748423, g: 0.140916, b: 0.140916, a: 0}
+    - _DashCOlor: {r: 0.51572317, g: 0.30683905, b: 0.02757007, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.10670064, g: 0.28292808, b: 0.40880498, a: 1}
     - _Fade: {r: 1, g: 1, b: 1, a: 0}
@@ -201,7 +204,7 @@ Material:
     - _HeightFog_Warm: {r: 1, g: 0.7688107, b: 0.21568626, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _PathColor: {r: 0.10254725, g: 0.5345911, b: 0.42340174, a: 1}
-    - _PlayerPosition: {r: 0, g: -1.3233881, b: 0, a: 0}
+    - _PlayerPosition: {r: 0, g: -0.8581468, b: 0, a: 0}
     - _Rings_Color: {r: 1, g: 1, b: 1, a: 0}
     - _ShadowOff: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

@@ -71,6 +71,7 @@ namespace RoofTops
         [Header("Dash Visuals")]
         public Material dashMaterial;
         public Material secondaryDashMaterial;
+        public Material tertiaryDashMaterial;
         private int dashLerpID;
         private float dashLerp;
         public string additionalShaderParam = "_AdditionalEffect";
@@ -158,6 +159,11 @@ namespace RoofTops
             {
                 secondaryDashMaterial.SetFloat(dashLerpID, 0f);
                 secondaryDashMaterial.SetFloat(additionalShaderParamID, 0f);
+            }
+            if (tertiaryDashMaterial != null)
+            {
+                tertiaryDashMaterial.SetFloat(dashLerpID, 0f);
+                tertiaryDashMaterial.SetFloat(additionalShaderParamID, 0f);
             }
         }
 
@@ -591,6 +597,11 @@ namespace RoofTops
                     secondaryDashMaterial.SetFloat(dashLerpID, dashLerp);
                     secondaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
                 }
+                if (tertiaryDashMaterial != null)
+                {
+                    tertiaryDashMaterial.SetFloat(dashLerpID, dashLerp);
+                    tertiaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
+                }
                 if (playerAnimator != null) playerAnimator.SetDashLayerWeight(dashLerp);
                 
                 yield return null;
@@ -607,6 +618,11 @@ namespace RoofTops
             {
                 secondaryDashMaterial.SetFloat(dashLerpID, dashLerp);
                 secondaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
+            }
+            if (tertiaryDashMaterial != null)
+            {
+                tertiaryDashMaterial.SetFloat(dashLerpID, dashLerp);
+                tertiaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
             }
             if (playerAnimator != null) playerAnimator.SetDashLayerWeight(dashLerp);
             
