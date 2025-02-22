@@ -12,6 +12,8 @@ namespace RoofTops
         
         [Header("Timing Settings")]
         [SerializeField] private float startDelay = 2f;
+        public float minRepeatTime = 12f;
+        public float maxRepeatTime = 18f;
         private bool hasStarted = false;
         
         [Header("Audio Settings")]
@@ -54,7 +56,7 @@ namespace RoofTops
                 GameManager.Instance.onGameStarted.AddListener(OnGameStart);
             }
 
-            playerAnimator = FindObjectOfType<PlayerAnimatorController>();
+            playerAnimator = FindFirstObjectByType<PlayerAnimatorController>();
         }
 
         void OnDestroy()
@@ -68,17 +70,19 @@ namespace RoofTops
         
         void OnGameStart()
         {
+            hasStarted = false; // Reset the started state
             if (particleSystemComponent != null)
             {
+                StopAllCoroutines(); // Stop any existing coroutines
                 StartCoroutine(DelayedStart());
             }
         }
 
         private IEnumerator DelayedStart()
         {
-            Debug.Log($"DelayedStart - Waiting {startDelay} seconds");
             yield return new WaitForSeconds(startDelay);
             
+            // First play
             particleSystemComponent.Play();
             hasStarted = true;
 
@@ -86,6 +90,23 @@ namespace RoofTops
             if (playerAnimator != null)
             {
                 playerAnimator.TriggerTurn();
+            }
+
+            // Start repeating without initial delay
+            while (true)
+            {
+                float waitTime = Random.Range(minRepeatTime, maxRepeatTime);
+                yield return new WaitForSeconds(waitTime);
+                
+                if (particleSystemComponent != null)
+                {
+                    particleSystemComponent.Play();
+                    
+                    if (playerAnimator != null)
+                    {
+                        playerAnimator.TriggerTurn();
+                    }
+                }
             }
         }
 

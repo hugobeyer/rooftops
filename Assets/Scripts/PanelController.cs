@@ -8,12 +8,7 @@ public class PanelController : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     void Start()
     {
-        Debug.Log("Panel Start - Is Canvas enabled: " + GetComponentInParent<Canvas>().enabled);
-        Debug.Log("Panel RectTransform size: " + GetComponent<RectTransform>().rect.size);
         rectTransform = GetComponent<RectTransform>();
-
-        // Add this to verify InputManager exists
-        Debug.Log("InputManager exists: " + InputManager.Exists());
     }
 
     void Update()
@@ -27,25 +22,20 @@ public class PanelController : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("Panel CLICKED");
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("Panel ENTER");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Debug.Log("Panel EXIT");
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("Panel DOWN - Position: " + eventData.position);
         if (InputManager.Instance == null)
         {
-            Debug.LogError("InputManager.Instance is null!");
             return;
         }
         isHolding = true;
@@ -54,7 +44,6 @@ public class PanelController : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        Debug.Log("Panel UP");
         isHolding = false;
         InputManager.Instance.SetJumpReleased();
     }

@@ -52,34 +52,11 @@ namespace RoofTops
 
         void OnTriggerEnter(Collider other)
         {
-            Debug.Log($"Something hit jump pad: {other.gameObject.name}");  // Log any collision
-            
             if (other.CompareTag("Player"))
             {
-                Debug.Log("It was the player!");  // Log player collision
-                
                 PlayerController player = other.GetComponent<PlayerController>();
                 if (player != null)
                 {
-                    Debug.Log("Found PlayerController");  // Log component found
-                    
-                    // Debug to check if we're hitting the trigger
-                    Debug.Log("JumpPad triggered");
-
-                    // Spawn effect directly
-                    if (jumpPadEffectPrefab != null)
-                    {
-                        Debug.Log("Have effect prefab");  // Log prefab exists
-                        Vector3 effectPosition = transform.position + Vector3.up * 0.5f;
-                        GameObject effect = Instantiate(jumpPadEffectPrefab, effectPosition, Quaternion.identity);
-                        effect.transform.SetParent(transform);  // Parent to the jump pad
-                        effect.SetActive(true);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("No jump pad effect prefab assigned!");
-                    }
-
                     // Notify player they're on a jump pad
                     player.OnJumpPadActivated();
 

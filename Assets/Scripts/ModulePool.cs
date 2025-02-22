@@ -17,7 +17,11 @@ namespace RoofTops
         [Header("Movement Settings")]
         public Transform moduleMovement; // Node that will be moved to simulate environment motion
         public Transform moduleVolume;   // Volume that defines the spawn/removal boundaries
-        public float gameSpeed { get; private set; } // Current speed of module movement
+        private float _gameSpeed;
+        public float gameSpeed {
+            get => _gameSpeed;
+            private set => _gameSpeed = value;
+        }
 
         // For backwards compatibility
         public float currentMoveSpeed { get { return gameSpeed; } set { gameSpeed = value; } }
@@ -475,5 +479,7 @@ namespace RoofTops
             
             return maxHeight;
         }
+
+        public void SetGameSpeed(float speed) => _gameSpeed = speed;
     }
 }

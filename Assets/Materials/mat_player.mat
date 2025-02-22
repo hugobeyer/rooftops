@@ -27,7 +27,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 0
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -127,6 +127,8 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DashAngle: -3.73
+    - _DashLerp: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -143,7 +145,7 @@ Material:
     - _GlossyReflections: 0
     - _HeightFog_Offset: -0.5
     - _HeightFog_Spread: 69.82
-    - _JumpLerp: 0.6054497
+    - _JumpLerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _POW: 6.84
@@ -175,7 +177,8 @@ Material:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
     - _Color: {r: 0.061400566, g: 0.043728452, b: 0.06918234, a: 1}
     - _ColorEdge: {r: 0.3241169, g: 0.41545725, b: 0.42767292, a: 0}
-    - _ColorJump: {r: 0.5660378, g: 0.31766605, b: 0.11569951, a: 0}
+    - _ColorJump: {r: 0.11764705, g: 0.5647059, b: 0.5429436, a: 0}
+    - _DashColor: {r: 2.1435473, g: 0.27934536, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.03945647, g: 0.14378726, b: 0.35849056, a: 0}
     - _Fog_Color: {r: 0.03945647, g: 0.1437873, b: 0.3584906, a: 0}

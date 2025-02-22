@@ -55,6 +55,47 @@ namespace RoofTops
         public float groundCheckDistance = 0.2f;
         public LayerMask groundLayer;  // Set this in inspector to include ground layers
 
+        [Header("Dash Settings")]
+        public float dashSpeedMultiplier = 1.5f;
+        public float dashDuration = 0.3f;      // Total dash duration
+        public float dashCooldown = 1f;        
+        public float doubleTapThreshold = 0.3f;
+
+        private float lastJumpPressTime;
+        private bool canDash = true;
+        private bool isDashing;
+        private float originalGravity;
+        private float dashTimer;
+        private float originalGameSpeed;
+
+        [Header("Dash Visuals")]
+        public Material dashMaterial;
+        public Material secondaryDashMaterial;
+        private int dashLerpID;
+        private float dashLerp;
+        public string additionalShaderParam = "_AdditionalEffect";
+        private int additionalShaderParamID;
+
+        [Header("Dash Timing")]
+        [Range(0f, 0.5f)] public float fadeInPortion = 0.2f; // First 20% of duration for fade in
+        [Range(0f, 0.5f)] public float fadeOutPortion = 0.2f; // Last 20% for fade out
+
+        // Calculated times
+        private float fadeInTime;
+        private float fadeOutTime;
+        private float fullEffectTime;
+
+        private PlayerAnimatorController playerAnimator;
+
+        [Header("Dash Effects")]
+        public GameObject dashEffectPrefab;
+        public Vector3 effectOffset = new Vector3(0, 0.5f, 0);
+        private GameObject activeDashEffect;
+        public AudioClip dashSound;
+        [Range(0f, 1f)]
+        public float dashVolume = 0.7f;
+        private AudioSource audioSource;
+
         public bool IsGroundedOnCollider
         {
             get
@@ -78,6 +119,11 @@ namespace RoofTops
         {
             cc = GetComponent<CharacterController>();
             
+            // Add audio source component
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0f; // 2D sound
+            
             var meshObject = GetComponentInChildren<MeshRenderer>()?.gameObject;
             if (meshObject != null)
             {
@@ -95,6 +141,24 @@ namespace RoofTops
             {
                 modulePool = ModulePool.Instance;
             }
+            
+            playerAnimator = GetComponent<PlayerAnimatorController>();
+        }
+
+        void Start()
+        {
+            dashLerpID = Shader.PropertyToID("_DashLerp");
+            additionalShaderParamID = Shader.PropertyToID(additionalShaderParam);
+            if (dashMaterial != null)
+            {
+                dashMaterial.SetFloat(dashLerpID, 0f);
+                dashMaterial.SetFloat(additionalShaderParamID, 0f);
+            }
+            if (secondaryDashMaterial != null)
+            {
+                secondaryDashMaterial.SetFloat(dashLerpID, 0f);
+                secondaryDashMaterial.SetFloat(additionalShaderParamID, 0f);
+            }
         }
 
         void Update()
@@ -104,6 +168,7 @@ namespace RoofTops
 
             // Always handle jump input, even before game starts
             HandleJumpInput();
+            HandleDashInput();
 
             if ((transform.position.y < -7f || isDead) && modulePool.gameSpeed > 0)
             {
@@ -163,6 +228,12 @@ namespace RoofTops
                     isOnJumpPad = false;
                 }
             }
+
+            if (isDashing)
+            {
+                dashTimer -= Time.deltaTime;
+                if (dashTimer <= 0) EndDash();
+            }
         }
 
         void HandleJumpInput()
@@ -172,8 +243,6 @@ namespace RoofTops
             bool jumpTapped = InputManager.Instance.isJumpPressed;
             bool jumpHeld = InputManager.Instance.isJumpHeld;
             bool jumpReleased = InputManager.Instance.isJumpReleased;
-
-            Debug.Log($"Input states - Tapped: {jumpTapped}, Held: {jumpHeld}, Released: {jumpReleased}");
 
             if (cc.isGrounded)
             {
@@ -235,10 +304,91 @@ namespace RoofTops
             }
         }
 
+        void HandleDashInput()
+        {
+            if (InputManager.Instance.isJumpPressed)
+            {
+                if (Time.time - lastJumpPressTime < doubleTapThreshold && CanDash())
+                {
+                    StartDash();
+                }
+                lastJumpPressTime = Time.time;
+            }
+        }
+
+        void StartDash()
+        {
+            isDashing = true;
+            canDash = false;
+            dashTimer = dashDuration;
+            
+            // Play dash sound
+            if (dashSound != null)
+            {
+                // Try both methods to ensure sound plays
+                audioSource.PlayOneShot(dashSound, dashVolume);
+                AudioSource.PlayClipAtPoint(dashSound, Camera.main.transform.position, dashVolume);
+                Debug.Log("Playing dash sound"); // Debug feedback
+            }
+            else
+            {
+                Debug.LogWarning("Dash sound is not assigned!"); // Debug warning
+            }
+            
+            // Create dash effect
+            if (dashEffectPrefab != null)
+            {
+                if (activeDashEffect != null) Destroy(activeDashEffect);
+                activeDashEffect = Instantiate(dashEffectPrefab, transform);
+                activeDashEffect.transform.localPosition = effectOffset;
+                activeDashEffect.SetActive(true);
+            }
+
+            // Store original values
+            originalGameSpeed = ModulePool.Instance.gameSpeed;
+            originalGravity = Physics.gravity.y;
+            
+            // Apply dash effects
+            ModulePool.Instance.SetGameSpeed(originalGameSpeed * dashSpeedMultiplier);
+            Physics.gravity = Vector3.zero;
+            _velocity.y = 0;
+            dashLerp = 1f;
+            StartCoroutine(UpdateDashVisual());
+        }
+
+        void EndDash()
+        {
+            isDashing = false;
+            ModulePool.Instance.SetGameSpeed(originalGameSpeed);
+            Physics.gravity = new Vector3(0, originalGravity, 0);
+            if (dashMaterial != null)
+            {
+                dashMaterial.SetFloat(dashLerpID, 0f);
+            }
+        }
+
+        bool CanDash()
+        {
+            return !cc.isGrounded && 
+                   canDash && 
+                   !isOnJumpPad &&
+                   dashTimer <= 0;
+        }
+
         void HandleLanding()
         {
             isChargingJump = false;
             holdingJump = false;
+            canDash = true;
+            if (dashMaterial != null)
+            {
+                dashMaterial.SetFloat(dashLerpID, 0f);
+            }
+            if (activeDashEffect != null)
+            {
+                Destroy(activeDashEffect);
+                activeDashEffect = null;
+            }
         }
 
         void CheckFallingState()
@@ -396,6 +546,75 @@ namespace RoofTops
                 isDead = true;
                 GetComponent<PlayerAnimatorController>().ResetAnimationStates();
                 // ... rest of death handling
+            }
+        }
+
+        private IEnumerator UpdateDashVisual()
+        {
+            // Calculate timing based on main duration
+            fadeInTime = dashDuration * fadeInPortion;
+            fadeOutTime = dashDuration * fadeOutPortion;
+            fullEffectTime = dashDuration - fadeInTime - fadeOutTime;
+            
+            float fadeOutStart = fadeInTime + fullEffectTime;
+            float elapsed = 0f;
+
+            while (elapsed < dashDuration && isDashing)
+            {
+                elapsed += Time.deltaTime;
+                
+                if (elapsed < fadeInTime)
+                {
+                    // Fade in
+                    dashLerp = Mathf.SmoothStep(0f, 1f, elapsed / fadeInTime);
+                }
+                else if (elapsed < fadeOutStart)
+                {
+                    // Full effect
+                    dashLerp = 1f;
+                }
+                else
+                {
+                    // Fade out
+                    float fadeOutElapsed = elapsed - fadeOutStart;
+                    dashLerp = Mathf.SmoothStep(1f, 0f, fadeOutElapsed / fadeOutTime);
+                }
+
+                // Update visuals
+                if (dashMaterial != null)
+                {
+                    dashMaterial.SetFloat(dashLerpID, dashLerp);
+                    dashMaterial.SetFloat(additionalShaderParamID, dashLerp);
+                }
+                if (secondaryDashMaterial != null)
+                {
+                    secondaryDashMaterial.SetFloat(dashLerpID, dashLerp);
+                    secondaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
+                }
+                if (playerAnimator != null) playerAnimator.SetDashLayerWeight(dashLerp);
+                
+                yield return null;
+            }
+
+            // Final reset
+            dashLerp = 0f;
+            if (dashMaterial != null)
+            {
+                dashMaterial.SetFloat(dashLerpID, dashLerp);
+                dashMaterial.SetFloat(additionalShaderParamID, dashLerp);
+            }
+            if (secondaryDashMaterial != null)
+            {
+                secondaryDashMaterial.SetFloat(dashLerpID, dashLerp);
+                secondaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
+            }
+            if (playerAnimator != null) playerAnimator.SetDashLayerWeight(dashLerp);
+            
+            // Clean up effect
+            if (activeDashEffect != null)
+            {
+                Destroy(activeDashEffect, 0.5f); // Optional delay for effect to finish
+                activeDashEffect = null;
             }
         }
     }

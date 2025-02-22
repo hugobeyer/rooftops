@@ -21,7 +21,6 @@ namespace RoofTops
             modulePool = ModulePool.Instance;
             if (modulePool == null)
             {
-                Debug.LogError("ModulePool instance not found!");
                 enabled = false;
                 return;
             }

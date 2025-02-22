@@ -36,7 +36,7 @@ namespace RoofTops
             adsManager = FindFirstObjectByType<MonoBehaviour>();
             if (adsManager != null && adsManager.GetType().Name.Contains("UnityAdsManager"))
             {
-                Debug.Log("Found Unity Ads Manager");
+                // Debug.Log("Found Unity Ads Manager");
             }
 
             lastAdTime = -minTimeBetweenAds; // Allow first ad immediately

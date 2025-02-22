@@ -137,10 +137,6 @@ namespace RoofTops
             if (inputManager == null)
             {
                 inputManager = FindFirstObjectByType<InputManager>();
-                if (inputManager == null)
-                {
-                    Debug.LogError("InputManager not found in scene!");
-                }
             }
 
             currentGravity = defaultGravity;
@@ -186,7 +182,13 @@ namespace RoofTops
                 initialUIGroup.SetActive(false);
             }
             
-            // UpdateDisplays();
+            // Get the ads manager
+            MonoBehaviour adsManager = FindFirstObjectByType<MonoBehaviour>();
+            if (adsManager != null && adsManager.GetType().Name.Contains("UnityAdsManager"))
+            {
+                // Remove Debug.Log
+                // Debug.Log("Found Unity Ads Manager");
+            }
         }
 
         void Start()
@@ -295,13 +297,29 @@ namespace RoofTops
 
         public void ResetGame()
         {
-            // Simple scene reload
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // Reset game state
+            HasGameStarted = false;
+            IsPaused = false;
+            Time.timeScale = timeSpeed;
+            
+            // Reset components
+            if (player != null)
+            {
+                PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
+                if (animController != null)
+                {
+                    animController.ResetAnimationStates();
+                    animController.ResetTurnState();
+                }
+            }
 
             if (VistaPool.Instance != null)
             {
                 VistaPool.Instance.ResetVistas();
             }
+
+            // Reload the scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         public void SlowTimeForJump(float targetScale = 0.25f, float duration = 0.75f)

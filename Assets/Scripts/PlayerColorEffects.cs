@@ -28,24 +28,19 @@ public class PlayerColorEffects : MonoBehaviour
             MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
             if (meshRenderer == null)
             {
-                Debug.LogWarning("[PlayerColorEffects] MeshRenderer not found, disabling script.");
-                enabled = false;
                 return;
             }
 
             // Use the instance material to avoid modifying a shared asset
             targetMaterial = meshRenderer.material;
         }
-        Debug.Log("[PlayerColorEffects] Component initialized.");
         targetMaterial.SetFloat(jumpLerpID, 0);
     }
 
     public void StartSlowdownEffect()
     {
-        Debug.Log("[PlayerColorEffects] StartSlowdownEffect triggered.");
         if (targetMaterial == null)
         {
-            Debug.LogWarning("[PlayerColorEffects] targetMaterial is null in StartSlowdownEffect.");
             return;
         }
 
@@ -91,7 +86,6 @@ public class PlayerColorEffects : MonoBehaviour
     // Public method called by the Animator via an Animation Event.
     public void TriggerJumpEffect()
     {
-        Debug.Log("[PlayerColorEffects] Animator jump trigger activated.");
         StartSlowdownEffect();
     }
 } 

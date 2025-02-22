@@ -453,6 +453,16 @@ public class NoiseMovement : MonoBehaviour
         yawNoiseOffset = Random.Range(0f, 1000f);
         pitchNoiseOffset = Random.Range(0f, 1000f);
         rollNoiseOffset = Random.Range(0f, 1000f);
+
+        // Reset turn animation
+        if (target != null)
+        {
+            PlayerAnimatorController animController = target.GetComponent<PlayerAnimatorController>();
+            if (animController != null)
+            {
+                animController.ResetTurnState();
+            }
+        }
     }
 
     public void TransitionToDeathView()

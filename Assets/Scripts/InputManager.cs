@@ -41,34 +41,24 @@ public class InputManager : MonoBehaviour
     // Methods that UI can call
     public void SetJumpPressed()
     {
-        Debug.Log("SetJumpPressed - Before: " + isJumpPressed);
         isJumpPressed = true;
-        Debug.Log("SetJumpPressed - After: " + isJumpPressed);
         onJumpPressed.Invoke();
     }
 
     public void SetJumpHeld()
     {
-        Debug.Log("Jump Held");
         isJumpHeld = true;
         onJumpHeld.Invoke();
     }
 
     public void SetJumpReleased()
     {
-        Debug.Log("Jump Released");
         isJumpReleased = true;
         onJumpReleased.Invoke();
     }
 
     void LateUpdate()
     {
-        // Add debug before resetting
-        if (isJumpPressed || isJumpHeld || isJumpReleased)
-        {
-            Debug.Log($"Resetting states - Was Pressed: {isJumpPressed}, Held: {isJumpHeld}, Released: {isJumpReleased}");
-        }
-        
         // Reset states at end of frame
         isJumpPressed = false;
         isJumpHeld = false;

@@ -83,6 +83,8 @@ namespace RoofTops
         [SerializeField] private float turnDuration = 2f;
         [SerializeField] private float turnStartDelay = 0.5f;
 
+        private readonly int dashLayerIndex = 5; // Add with other layer indices
+
         void Awake()
         {
             animator = GetComponent<Animator>();
@@ -101,7 +103,6 @@ namespace RoofTops
         {
             yield return new WaitForSeconds(2f);  // Same delay as particles
             animator.SetTrigger(TurnTrigger);
-            Debug.Log("Turn trigger set after delay");
         }
 
         void Start()
@@ -493,6 +494,8 @@ namespace RoofTops
                 StopCoroutine(airStateCoroutine);
                 airStateCoroutine = null;
             }
+
+            animator.SetLayerWeight(dashLayerIndex, 0f);
         }
 
         // Add this method to trigger the turn
@@ -503,23 +506,36 @@ namespace RoofTops
 
         private IEnumerator PerformTurn()
         {
-            Debug.Log("Starting turn sequence");
             yield return new WaitForSeconds(turnStartDelay);
 
             // Set layer weight to 1
             animator.SetLayerWeight(TurnLayerIndex, 1f);
-            Debug.Log($"Turn layer weight set to: {animator.GetLayerWeight(TurnLayerIndex)}");
 
             // Trigger the turn animation
             animator.SetTrigger(TurnTrigger);
-            Debug.Log("Turn trigger set");
 
             yield return new WaitForSeconds(turnDuration);
 
             // Reset layer weight
             animator.SetLayerWeight(TurnLayerIndex, 0f);
             animator.ResetTrigger(TurnTrigger);
-            Debug.Log("Turn animation complete");
+        }
+
+        // Add this near the other public methods
+        public void ResetTurnState()
+        {
+            // Reset the turn layer weight and trigger
+            if (animator != null)
+            {
+                animator.SetLayerWeight(TurnLayerIndex, 1f);
+                animator.ResetTrigger(TurnTrigger);
+                StartCoroutine(DelayedTurn());
+            }
+        }
+
+        public void SetDashLayerWeight(float weight)
+        {
+            animator.SetLayerWeight(dashLayerIndex, Mathf.Clamp01(weight));
         }
     }
 } 
