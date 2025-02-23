@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 4318173805327468339}
   - component: {fileID: 8232280477481094983}
   m_Layer: 5
-  m_Name: ONsxcreenUI
+  m_Name: ScreenUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -32,7 +32,8 @@ Transform:
   m_LocalPosition: {x: 11.99, y: 5.1, z: 3.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6626550076306912872}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 27.824, y: -59.982, z: 0}
 --- !u!20 &4283650962030238608
@@ -67,14 +68,14 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 800
+  far clip plane: 1200
   field of view: 36
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 6822967
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -83,7 +84,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 1
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!81 &2431337873245921151
@@ -110,7 +111,8 @@ MonoBehaviour:
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
-  m_Cameras: []
+  m_Cameras:
+  - {fileID: 1540617054861106129}
   m_RendererIndex: 0
   m_VolumeLayerMask:
     serializedVersion: 2
@@ -151,53 +153,194 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  baseLookSpeed: 0.001
+  baseLookSpeed: 0.05
   yawLookSpeed: 6.37
-  pitchLookSpeed: 1.99
+  pitchLookSpeed: 3
   rollLookSpeed: 22.1
-  firstFrequency: 0.025
-  firstIntensity: 4.32
+  firstFrequency: 0.05
+  firstIntensity: 7
   firstNoiseOffset: {x: 865.7304, y: 44.936897, z: 574.7674}
   secondFrequency: 0.1
-  secondIntensity: 0.5
+  secondIntensity: 0.7
   firstNoiseOffset2: {x: 19.569279, y: 181.43558, z: 757.95795}
-  minYOffset: -0.52
-  maxYOffset: 0.81
-  minXOffset: -0.45
-  maxXOffset: 1.86
-  minZOffset: -1.43
-  maxZOffset: 0.44
+  minYOffset: -0.3
+  maxYOffset: 0.82
+  minXOffset: -0.25
+  maxXOffset: 1
+  minZOffset: -1.12
+  maxZOffset: 0.72
   fitType: 2
-  yawFrequency: 0.98
-  minYawAngle: -2
-  maxYawAngle: 2.16
+  yawFrequency: 1.25
+  minYawAngle: -1
+  maxYawAngle: 1
   pitchFrequency: 0.5
-  minPitchAngle: -3
-  maxPitchAngle: 5.55
-  rollFrequency: 0.87
-  minRollAngle: -5.76
-  maxRollAngle: 2.11
-  speedNoiseFrequency: 0.35
-  minSpeedMultiplier: 0.5
-  maxSpeedMultiplier: 2.38
+  minPitchAngle: -1
+  maxPitchAngle: 1
+  rollFrequency: 1
+  minRollAngle: -4.6
+  maxRollAngle: 2.98
+  speedNoiseFrequency: 0.09
+  minSpeedMultiplier: 0.24
+  maxSpeedMultiplier: 3.33
   useInitialBlend: 1
   initialBlendPosition: {x: 108.4, y: 21.3, z: -20.6}
-  blendDuration: 2
+  blendDuration: 3
   blendFOV: 1
   initialFOV: 16
-  midFOV: 11
+  midFOV: 10
   finalFOV: 32
-  midFOVDelay: 0.5
-  finalFOVDelay: 4
-  midBlendDuration: 0.5
-  finalBlendDuration: 3
+  midFOVDelay: 0.25
+  finalFOVDelay: 2
+  midBlendDuration: 0.8
+  finalBlendDuration: 2
   useInitialLookAtOffset: 1
-  midLookAtOffset: {x: 0, y: 0.4, z: -4}
-  initialLookAtOffset: {x: 4.81, y: 9.4, z: 10.1}
+  midLookAtOffset: {x: 0.5, y: -0.5, z: -4}
+  initialLookAtOffset: {x: 4.81, y: 2.61, z: 10.1}
   initialNoiseMultiplier: 0.1
   deathCameraTarget: {fileID: 0}
-  deathVisualObject: {fileID: 0}
-  deathTransitionSpeed: 0.5
+  deathBlendDuration: 2
+  deathFOV: 20
   deathNoiseIntensity: 0.1
-  deathBlendDuration: 0.5
-  deathFOV: 27
+  deathOffset: {x: 24, y: 2.79, z: -3.5}
+  deathVisualObject: {fileID: 0}
+--- !u!1 &8998823456681487413
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6626550076306912872}
+  - component: {fileID: 1540617054861106129}
+  - component: {fileID: 7717718985527971003}
+  - component: {fileID: 8045808955482198954}
+  m_Layer: 0
+  m_Name: OverlayCam
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6626550076306912872
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8998823456681487413}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.273, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6668147963063031311}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &1540617054861106129
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8998823456681487413}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 4
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1200
+  field of view: 32
+  orthographic: 0
+  orthographic size: 1
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 1048576
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 1
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 0
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!114 &7717718985527971003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8998823456681487413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 0
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 1
+  m_Cameras: []
+  m_RendererIndex: 0
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+--- !u!114 &8045808955482198954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8998823456681487413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e79e83ebf475b3244aa9ebe2c4258768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
