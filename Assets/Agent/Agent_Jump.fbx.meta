@@ -19,21 +19,14 @@ ModelImporter:
     animationImportErrors: 
     animationImportWarnings: "\nClip 'jump' has import animation warnings that might
       lower retargeting quality:\nNote: Activate translation DOF on avatar to improve
-      retargeting quality.\n\t'agent:Spine2' has translation animation that will
-      be discarded.\n\t'agent:Neck' has translation animation that will be discarded.\n\t'agent:LeftShoulder'
-      has translation animation that will be discarded.\n\t'agent:LeftArm' has translation
-      animation that will be discarded.\n\t'agent:LeftForeArm' has translation animation
-      that will be discarded.\n\t'agent:LeftHand' has translation animation that
-      will be discarded.\n\t'agent:RightShoulder' has translation animation that
-      will be discarded.\n\t'agent:RightArm' has translation animation that will
-      be discarded.\n\t'agent:RightForeArm' has translation animation that will be
-      discarded.\n\t'agent:RightHand' has translation animation that will be discarded.\n\t'agent:LeftLeg'
-      has translation animation that will be discarded.\n\t'agent:LeftFoot' has translation
-      animation that will be discarded.\n\t'agent:LeftToeBase' has translation animation
-      that will be discarded.\n\t'agent:RightLeg' has translation animation that
-      will be discarded.\n\t'agent:RightFoot' has translation animation that will
-      be discarded.\n\t'agent:RightToeBase' has translation animation that will be
-      discarded.\n"
+      retargeting quality.\n\t'agent:Spine' has translation animation that will be
+      discarded.\n\t'agent:Spine1' has translation animation that will be discarded.\n\t'agent:Spine2'
+      has translation animation that will be discarded.\n\t'agent:Neck' has translation
+      animation that will be discarded.\n\t'agent:LeftShoulder' has translation animation
+      that will be discarded.\n\t'agent:RightShoulder' has translation animation
+      that will be discarded.\n\t'agent:LeftUpLeg' has translation animation that
+      will be discarded.\n\t'agent:RightUpLeg' has translation animation that will
+      be discarded.\n"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -51,21 +44,21 @@ ModelImporter:
       takeName: jump
       internalID: -2993534804863918692
       firstFrame: 1
-      lastFrame: 25
+      lastFrame: 32
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 0
+      cycleOffset: 0.68
       loop: 0
-      hasAdditiveReferencePose: 1
-      loopTime: 0
-      loopBlend: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
       loopBlendOrientation: 0
-      loopBlendPositionY: 1
-      loopBlendPositionXZ: 1
-      keepOriginalOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 1
       keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
+      keepOriginalPositionXZ: 1
       heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000

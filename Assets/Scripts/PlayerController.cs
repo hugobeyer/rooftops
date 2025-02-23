@@ -131,13 +131,6 @@ namespace RoofTops
                 colorEffects = meshObject.GetComponent<PlayerColorEffects>();
             }
             
-            if (GetComponent<Rigidbody>() != null || 
-                GetComponent<ParkourController>() != null || 
-                GetComponent<SimpleParkourVault>() != null)
-            {
-                // No debug logs here
-            }
-            
             if (modulePool == null)
             {
                 modulePool = ModulePool.Instance;
