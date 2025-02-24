@@ -15,7 +15,7 @@ namespace RoofTops
         public GameObject pauseIndicator;
         
         [Header("Time Control")]
-        [Range(0.1f, 2f)] public float timeSpeed = 1f;
+        [Range(0.1f, 32f)] public float timeSpeed = 1f;
         
         [Header("Speed Settings")]
         public float initialGameSpeed = 2f;    // Starting speed when game begins
@@ -221,6 +221,12 @@ namespace RoofTops
                 // Remove Debug.Log
                 // Debug.Log("Found Unity Ads Manager");
             }
+
+            // Disable the UsePath feature at startup
+            if (targetMaterial != null)
+            {
+                targetMaterial.SetFloat("_UsePath", 0f);
+            }
         }
 
         void Start()
@@ -334,6 +340,12 @@ namespace RoofTops
 
         public void ResetGame()
         {
+            // 4) Destroy the leftover player if it still exists
+            if (player != null)
+            {
+                Destroy(player);
+            }
+
             // Reset game state
             HasGameStarted = false;
             IsPaused = false;
@@ -347,6 +359,15 @@ namespace RoofTops
                 {
                     animController.ResetAnimationStates();
                     animController.ResetTurnState();
+                    animController.SetBool("Jump", false);
+                    
+                    // Now get the actual Animator component
+                    Animator anim = animController.GetComponent<Animator>();
+                    if (anim != null)
+                    {
+                        anim.ResetTrigger("JumpTrigger");
+                        anim.Play("Run", 0, 0f);
+                    }
                 }
             }
 
@@ -467,10 +488,32 @@ namespace RoofTops
                     moduleSpeedStartTime = Time.time;
                 }
 
-                // Reveal the player now that the game has started.
+                // 5) Make sure the player is enabled with default animation
                 if (player != null)
                 {
                     player.SetActive(true);
+
+                    PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
+                    if (animController != null)
+                    {
+                        animController.ResetAnimationStates();
+                        animController.ResetTurnState();
+                        
+                        // 1) Explicitly set the player to grounded
+                        animController.SetBool("IsGrounded", true); 
+                        // If you have a custom method like ForceGrounded(), you can call it here:
+                        // animController.ForceGrounded();
+
+                        animController.SetBool("Jump", false);
+                        
+                        // Now get the actual Animator component
+                        Animator anim = animController.GetComponent<Animator>();
+                        if (anim != null)
+                        {
+                            anim.ResetTrigger("JumpTrigger");
+                            anim.Play("Run", 0, 0f);
+                        }
+                    }
                 }
                 
                 // Reveal the UI group now that the game has started.
@@ -482,6 +525,12 @@ namespace RoofTops
                 if (VistaPool.Instance != null)
                 {
                     VistaPool.Instance.ResetVistas();
+                }
+
+                // Now enable the UsePath feature
+                if (targetMaterial != null)
+                {
+                    targetMaterial.SetFloat("_UsePath", 1f);
                 }
             }
         }
@@ -527,7 +576,17 @@ namespace RoofTops
             // Save stats
             RecordFinalDistance(finalDistance);
             
-            // Spawn ragdoll for visual effect
+            // 1) Make sure the player's animator is reset before going ragdoll
+            if (player != null)
+            {
+                PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
+                if (animController != null)
+                {
+                    animController.ResetAnimationStates(); // Clear any custom states
+                }
+            }
+
+            // Switch to ragdoll
             SwitchToRagdoll();
             
             // Hide gameplay UI
@@ -539,7 +598,7 @@ namespace RoofTops
                 musicSource.Stop();
             }
 
-            // Show death UI after a short delay
+            // 2) Show death UI, then reload after a delay
             StartCoroutine(ShowDeathUI());
         }
 

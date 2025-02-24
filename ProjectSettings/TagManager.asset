@@ -12,6 +12,8 @@ TagManager:
   - StepUpAllowance
   - DeathTrigger
   - Ground
+  - PropSpot
+  - SpawnPoints
   layers:
   - Default
   - TransparentFX

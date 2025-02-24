@@ -59,7 +59,7 @@ namespace RoofTops
         public float dashSpeedMultiplier = 1.5f;
         public float dashDuration = 0.3f;      // Total dash duration
         public float dashCooldown = 1f;        
-        public float doubleTapThreshold = 0.3f;
+        //public float doubleTapThreshold = 0.3f;
 
         private float lastJumpPressTime;
         private bool canDash = true;
@@ -162,10 +162,13 @@ namespace RoofTops
 
         void Update()
         {
-            //if (isVaulting || GameManager.Instance.IsPaused)
-            //    return;
+            // Prevent any jump or dash logic if the game hasn't started
+            if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
+            {
+                return;
+            }
 
-            // Always handle jump input, even before game starts
+            // Now proceed with normal handling
             HandleJumpInput();
             HandleDashInput();
 
@@ -305,13 +308,9 @@ namespace RoofTops
 
         void HandleDashInput()
         {
-            if (InputManager.Instance.isJumpPressed)
+            if (InputManager.Instance.isJumpPressed && !cc.isGrounded && CanDash())
             {
-                if (Time.time - lastJumpPressTime < doubleTapThreshold && CanDash())
-                {
-                    StartDash();
-                }
-                lastJumpPressTime = Time.time;
+                StartDash();
             }
         }
 
