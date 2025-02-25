@@ -85,7 +85,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _Angle: 0.8
+    - _Angle: 0.67
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -114,7 +114,7 @@ Material:
     - _ReceiveShadows: 1
     - _Rotate: 6.4
     - _Rotate_Overtime: 1
-    - _Rotate_Speed: 5
+    - _Rotate_Speed: 6
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -125,8 +125,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 0.24655321, b: 0, a: 1}
-    - _Color_2: {r: 0.59748423, g: 0, b: 0.18633263, a: 0}
+    - _Color: {r: 0.836478, g: 0, b: 0, a: 1}
+    - _Color_2: {r: 0.3595396, g: 0, b: 0.08659065, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _Vector3: {r: -0.68, g: -1.32, b: -0.62, a: 0}

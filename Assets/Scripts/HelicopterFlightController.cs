@@ -250,13 +250,22 @@ public class HelicopterFlightController : MonoBehaviour
         float investigationBoost = lateralFactor * 0.3f; // Adjust this to control extra turning
         float desiredYaw = Mathf.Lerp(searchlightYaw, rawYaw, investigationBoost);
         
-        // RESPECT MAX YAW ANGLE: Clamp the desired yaw to respect the max yaw angle parameter
-        // Calculate the yaw relative to forward direction
-        float yawRelativeToForward = Mathf.DeltaAngle(forwardYaw, desiredYaw);
-        // Clamp it to the maxYawAngle
-        yawRelativeToForward = Mathf.Clamp(yawRelativeToForward, -maxYawAngle, maxYawAngle);
-        // Convert back to world yaw
-        float targetYaw = forwardYaw + yawRelativeToForward;
+        // RESPECT MAX YAW ANGLE: Only restrict the yaw if maxYawAngle is less than 180 degrees
+        float targetYaw;
+        if (maxYawAngle < 180f)
+        {
+            // Calculate the yaw relative to forward direction
+            float yawRelativeToForward = Mathf.DeltaAngle(forwardYaw, desiredYaw);
+            // Clamp it to the maxYawAngle
+            yawRelativeToForward = Mathf.Clamp(yawRelativeToForward, -maxYawAngle, maxYawAngle);
+            // Convert back to world yaw
+            targetYaw = forwardYaw + yawRelativeToForward;
+        }
+        else
+        {
+            // When maxYawAngle is 180 or greater, allow full rotation in any direction
+            targetYaw = desiredYaw;
+        }
         
         // Calculate pitch - add slight downward tilt when investigating
         float basePitch = Mathf.Clamp(-dz * 0.2f, -15f, 15f);

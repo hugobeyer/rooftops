@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.Events; // Add this for UnityEvent
 
 namespace RoofTops
 {
@@ -30,6 +31,14 @@ namespace RoofTops
         [Header("Speed Sync")]
         public float baseMoveSpeed = 6f;
 
+        [Header("AI Learning Events")]
+        // Events for AI learning system
+        public UnityEvent onJump = new UnityEvent();
+        public UnityEvent<float> onLand = new UnityEvent<float>(); // float for landing quality 0-1
+
+        [Header("Debug")]
+        [SerializeField] private bool showJumpMetrics = false;
+
         [Header("Charge Jump State")]
         public bool isChargingJump { get; private set; }
         public float currentChargedJumpForce { get; private set; }
@@ -44,6 +53,12 @@ namespace RoofTops
         public ModulePool modulePool;
         private Vector3 _velocity = Vector3.zero;
         private PlayerColorEffects colorEffects;
+
+        // Jump tracking for quality calculation
+        private Vector3 jumpStartPosition;
+        private Vector3 lastPlatformCenter;
+        private float lastPlatformWidth = 1f;
+        private bool wasInAir = false;
 
         [Header("Jump Pad State")]
         private bool isOnJumpPad = false;
@@ -137,6 +152,12 @@ namespace RoofTops
             }
             
             playerAnimator = GetComponent<PlayerAnimatorController>();
+            
+            // Initialize events if null
+            if (onJump == null)
+                onJump = new UnityEvent();
+            if (onLand == null)
+                onLand = new UnityEvent<float>();
         }
 
         void Start()
@@ -167,6 +188,25 @@ namespace RoofTops
             {
                 return;
             }
+
+            // Track air state for landing detection
+            bool isGroundedNow = cc.isGrounded;
+            if (!isGroundedNow && isGroundedNow != wasInAir)
+            {
+                // Just took off
+                jumpStartPosition = transform.position;
+                // Fire jump event
+                onJump.Invoke();
+                
+                if (showJumpMetrics)
+                    Debug.Log("Jump started at: " + jumpStartPosition);
+            }
+            else if (isGroundedNow && isGroundedNow != wasInAir)
+            {
+                // Just landed
+                HandleJumpMetrics();
+            }
+            wasInAir = !isGroundedNow;
 
             // Now proceed with normal handling
             HandleJumpInput();
@@ -236,6 +276,51 @@ namespace RoofTops
                 dashTimer -= Time.deltaTime;
                 if (dashTimer <= 0) EndDash();
             }
+        }
+
+        private void HandleJumpMetrics()
+        {
+            // Calculate jump distance
+            float jumpDistance = Vector3.Distance(new Vector3(jumpStartPosition.x, 0, jumpStartPosition.z), 
+                                                 new Vector3(transform.position.x, 0, transform.position.z));
+            
+            // Calculate landing quality (how centered the landing was)
+            float landingQuality = CalculateLandingQuality();
+            
+            // Invoke the landing event with quality
+            onLand.Invoke(landingQuality);
+            
+            if (showJumpMetrics)
+                Debug.Log($"Jump metrics - Distance: {jumpDistance:F2}m, Quality: {landingQuality:F2}");
+        }
+
+        private float CalculateLandingQuality()
+        {
+            // Cast a ray down to find the platform 
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, 2f, groundLayer))
+            {
+                // Try to find the platform's center and width from the collider
+                if (hit.collider != null)
+                {
+                    // For box colliders
+                    if (hit.collider is BoxCollider boxCollider)
+                    {
+                        Vector3 center = hit.collider.transform.position + boxCollider.center;
+                        float width = boxCollider.size.x * hit.collider.transform.lossyScale.x;
+                        lastPlatformCenter = center;
+                        lastPlatformWidth = width;
+                        
+                        // Calculate distance from platform center in the X direction
+                        float distFromCenter = Mathf.Abs(transform.position.x - center.x);
+                        // Calculate quality as 1 when at center, 0 when at edge
+                        return Mathf.Clamp01(1f - (distFromCenter / (width * 0.5f)));
+                    }
+                }
+            }
+            
+            // If no hit or quality calculation failed, use a default value (0.5)
+            return 0.5f;
         }
 
         void HandleJumpInput()

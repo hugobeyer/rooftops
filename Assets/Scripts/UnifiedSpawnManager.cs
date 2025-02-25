@@ -28,6 +28,11 @@ namespace RoofTops
         [Tooltip("Probability of spawning a prop (0 to 1).")]
         [SerializeField] private float propFrequency = 0.5f;
         
+        // Add accessors to allow DifficultyManager to modify these values
+        public float BonusFrequency { get => bonusFrequency; set => bonusFrequency = value; }
+        public float JumpPadFrequency { get => jumpPadFrequency; set => jumpPadFrequency = value; }
+        public float PropFrequency { get => propFrequency; set => propFrequency = value; }
+        
         [Header("Debug")]
         [SerializeField] private bool debugLogging = true;
         
@@ -305,6 +310,19 @@ namespace RoofTops
             
             if (debugLogging)
                 Debug.Log($"Spawned {itemsSpawnedCount} items on module {module.name} (type: {moduleType})");
+        }
+
+        // Method to update spawn frequencies externally (called by DifficultyManager)
+        public void UpdateSpawnFrequencies(float newBonusFrequency, float newJumpPadFrequency, float newPropFrequency)
+        {
+            bonusFrequency = Mathf.Clamp01(newBonusFrequency);
+            jumpPadFrequency = Mathf.Clamp01(newJumpPadFrequency);
+            propFrequency = Mathf.Clamp01(newPropFrequency);
+            
+            if (debugLogging)
+            {
+                Debug.Log($"UnifiedSpawnManager: Updated frequencies - Bonus: {bonusFrequency}, JumpPad: {jumpPadFrequency}, Prop: {propFrequency}");
+            }
         }
     }
 } 

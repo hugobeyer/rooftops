@@ -83,7 +83,7 @@ MonoBehaviour:
   minPitch: 0.8
   maxPitch: 1.2
   collectVFXPrefab: {fileID: 8018644839658931153, guid: 68b0c040f2a22e044b0568fb4c12a0e1, type: 3}
-  vfxYOffset: 0.5
+  vfxYOffset: 0.25
   explosionDuration: 0.89
 --- !u!23 &5632531033701751950
 MeshRenderer:

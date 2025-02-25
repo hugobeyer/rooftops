@@ -38,10 +38,10 @@ namespace RoofTops
         private void Start()
         {
             // Find the GameManager in the scene
-            gameManager = FindObjectOfType<GameManager>();
+            gameManager = FindFirstObjectByType<GameManager>();
             
             // Find the MemcardDisplay
-            memcardDisplay = FindObjectOfType<MemcardDisplay>();
+            memcardDisplay = FindFirstObjectByType<MemcardDisplay>();
             
             // Try to get game data from GameManager first
             if (gameManager != null && gameManager.gameData != null)

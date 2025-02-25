@@ -213,16 +213,17 @@ namespace RoofTops
             canSpawnBonusAndJumpPads = originalSpawnState;
         }
 
-        public void Update()
+        void Update()
         {
-            if (GameManager.Instance.IsPaused || !isMoving) return;
-
+            if (!isMoving)
+                return;
+            
             float deltaTime = Time.deltaTime;
             if (!GameManager.Instance.HasGameStarted)
             {
                 gameSpeed = GameManager.Instance.initialGameSpeed;
             }
-            else
+            else if (DifficultyManager.Instance == null) // Only use GameManager if DifficultyManager doesn't exist
             {
                 gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
             }
@@ -439,7 +440,6 @@ namespace RoofTops
         public void SetMovement(bool moving)
         {
             isMoving = moving;
-            if (moving) gameSpeed = GameManager.Instance.initialGameSpeed;
         }
 
         public GameObject GetNextModule()
@@ -485,7 +485,6 @@ namespace RoofTops
         public void StopMovement()
         {
             isMoving = false;
-            gameSpeed = 0;
         }
 
         // New: Full pool reset for game restarts
@@ -540,6 +539,10 @@ namespace RoofTops
             return maxHeight;
         }
 
-        public void SetGameSpeed(float speed) => _gameSpeed = speed;
+        // Method to set game speed externally (used by DifficultyManager)
+        public void SetGameSpeed(float newSpeed)
+        {
+            gameSpeed = newSpeed;
+        }
     }
 }

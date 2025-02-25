@@ -17,3 +17,6 @@ MonoBehaviour:
   totalBonusCollected: 0
   lastRunBonusCollected: 0
   bestRunBonusCollected: 0
+  totalMemcardsCollected: 2863
+  lastRunMemcardsCollected: 2863
+  bestRunMemcardsCollected: 2863

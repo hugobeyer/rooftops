@@ -4,6 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using RoofTops;
+using UnityEngine.Events;
 
 public class RoofTopsMenu : Editor
 {
@@ -281,5 +282,398 @@ public class RoofTopsMenu : Editor
         }
 
         return button;
+    }
+
+    [MenuItem("RoofTops/Setup Achievement System")]
+    private static void SetupAchievementSystem()
+    {
+        // Find canvas or create one if it doesn't exist
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.Log("No canvas found. Creating a new canvas.");
+            canvas = CreateCanvas();
+        }
+        
+        // Create Achievement System GameObject
+        GameObject achievementSystemObj = new GameObject("AchievementSystem");
+        AchievementSystem achievementSystem = achievementSystemObj.AddComponent<AchievementSystem>();
+        Debug.Log("Created Achievement System GameObject");
+        
+        // Create Achievement Tracker
+        GameObject trackerObj = new GameObject("AchievementTracker");
+        trackerObj.AddComponent<AchievementTracker>();
+        Debug.Log("Created Achievement Tracker GameObject");
+        
+        // Create Achievement UI Prefabs
+        CreateAchievementUIPrefabs(canvas);
+        
+        // Select the Achievement System in the hierarchy
+        Selection.activeGameObject = achievementSystemObj;
+        
+        // Save the prefabs
+        SaveAchievementPrefabs();
+        
+        Debug.Log("Achievement System setup complete!");
+    }
+    
+    private static Canvas CreateCanvas()
+    {
+        GameObject canvasObj = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        Canvas canvas = canvasObj.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        
+        // Add EventSystem if it doesn't exist
+        if (FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject eventSystem = new GameObject("EventSystem", 
+                typeof(UnityEngine.EventSystems.EventSystem),
+                typeof(UnityEngine.EventSystems.StandaloneInputModule));
+        }
+        
+        return canvas;
+    }
+    
+    private static void CreateAchievementUIPrefabs(Canvas canvas)
+    {
+        // Create Achievement Panel
+        GameObject achievementPanel = new GameObject("AchievementPanel", typeof(RectTransform), typeof(CanvasGroup));
+        achievementPanel.transform.SetParent(canvas.transform, false);
+        RectTransform panelRect = achievementPanel.GetComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0, 0);
+        panelRect.anchorMax = new Vector2(1, 1);
+        panelRect.offsetMin = new Vector2(50, 50);
+        panelRect.offsetMax = new Vector2(-50, -50);
+        
+        // Add background image
+        Image panelBg = achievementPanel.AddComponent<Image>();
+        panelBg.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+        
+        // Create header
+        GameObject header = new GameObject("Header", typeof(RectTransform));
+        header.transform.SetParent(achievementPanel.transform, false);
+        RectTransform headerRect = header.GetComponent<RectTransform>();
+        headerRect.anchorMin = new Vector2(0, 1);
+        headerRect.anchorMax = new Vector2(1, 1);
+        headerRect.pivot = new Vector2(0.5f, 1);
+        headerRect.sizeDelta = new Vector2(0, 60);
+        
+        // Add header text
+        GameObject headerText = new GameObject("HeaderText", typeof(TextMeshProUGUI));
+        headerText.transform.SetParent(header.transform, false);
+        TextMeshProUGUI headerTmp = headerText.GetComponent<TextMeshProUGUI>();
+        headerTmp.text = "ACHIEVEMENTS";
+        headerTmp.fontSize = 36;
+        headerTmp.alignment = TextAlignmentOptions.Center;
+        headerTmp.color = Color.white;
+        RectTransform headerTextRect = headerText.GetComponent<RectTransform>();
+        headerTextRect.anchorMin = Vector2.zero;
+        headerTextRect.anchorMax = Vector2.one;
+        headerTextRect.offsetMin = Vector2.zero;
+        headerTextRect.offsetMax = Vector2.zero;
+        
+        // Create close button
+        GameObject closeButton = CreateButton(header, "CloseButton", new Vector2(40, -30), "X");
+        closeButton.GetComponent<RectTransform>().anchorMin = new Vector2(1, 0.5f);
+        closeButton.GetComponent<RectTransform>().anchorMax = new Vector2(1, 0.5f);
+        closeButton.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f);
+        closeButton.GetComponent<RectTransform>().sizeDelta = new Vector2(40, 40);
+        
+        // Create scroll view for achievements
+        GameObject scrollView = new GameObject("ScrollView", typeof(ScrollRect));
+        scrollView.transform.SetParent(achievementPanel.transform, false);
+        ScrollRect scrollRect = scrollView.GetComponent<ScrollRect>();
+        RectTransform scrollRectTransform = scrollView.GetComponent<RectTransform>();
+        scrollRectTransform.anchorMin = new Vector2(0, 0);
+        scrollRectTransform.anchorMax = new Vector2(1, 1);
+        scrollRectTransform.offsetMin = new Vector2(10, 10);
+        scrollRectTransform.offsetMax = new Vector2(-10, -70);
+        
+        // Create viewport
+        GameObject viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Mask), typeof(Image));
+        viewport.transform.SetParent(scrollView.transform, false);
+        viewport.GetComponent<Image>().color = new Color(1, 1, 1, 0.05f);
+        viewport.GetComponent<Mask>().showMaskGraphic = false;
+        RectTransform viewportRect = viewport.GetComponent<RectTransform>();
+        viewportRect.anchorMin = Vector2.zero;
+        viewportRect.anchorMax = Vector2.one;
+        viewportRect.offsetMin = Vector2.zero;
+        viewportRect.offsetMax = Vector2.zero;
+        
+        // Create content container
+        GameObject content = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        content.transform.SetParent(viewport.transform, false);
+        VerticalLayoutGroup layout = content.GetComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(10, 10, 10, 10);
+        layout.spacing = 10;
+        layout.childAlignment = TextAnchor.UpperCenter;
+        layout.childControlHeight = false;
+        layout.childControlWidth = true;
+        layout.childForceExpandHeight = false;
+        layout.childForceExpandWidth = true;
+        
+        ContentSizeFitter fitter = content.GetComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        
+        RectTransform contentRect = content.GetComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0, 1);
+        contentRect.anchorMax = new Vector2(1, 1);
+        contentRect.pivot = new Vector2(0.5f, 1);
+        contentRect.sizeDelta = new Vector2(0, 0);
+        
+        // Set up scroll rect references
+        scrollRect.viewport = viewportRect;
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        
+        // Create achievement item prefab
+        GameObject achievementItem = CreateAchievementItemPrefab();
+        
+        // Create notification prefab
+        GameObject notificationPrefab = CreateNotificationPrefab();
+        
+        // Create notification container
+        GameObject notificationContainer = new GameObject("NotificationContainer", typeof(RectTransform), typeof(VerticalLayoutGroup));
+        notificationContainer.transform.SetParent(canvas.transform, false);
+        RectTransform notificationContainerRect = notificationContainer.GetComponent<RectTransform>();
+        notificationContainerRect.anchorMin = new Vector2(1, 1);
+        notificationContainerRect.anchorMax = new Vector2(1, 1);
+        notificationContainerRect.pivot = new Vector2(1, 1);
+        notificationContainerRect.anchoredPosition = new Vector2(-20, -20);
+        notificationContainerRect.sizeDelta = new Vector2(300, 400);
+        
+        VerticalLayoutGroup notificationLayout = notificationContainer.GetComponent<VerticalLayoutGroup>();
+        notificationLayout.padding = new RectOffset(0, 0, 0, 0);
+        notificationLayout.spacing = 10;
+        notificationLayout.childAlignment = TextAnchor.UpperRight;
+        notificationLayout.childControlHeight = false;
+        notificationLayout.childControlWidth = false;
+        notificationLayout.childForceExpandHeight = false;
+        notificationLayout.childForceExpandWidth = false;
+        
+        // Create toggle button for achievement panel
+        GameObject toggleButton = CreateButton(canvas.gameObject, "AchievementToggle", new Vector2(100, -50), "🏆");
+        toggleButton.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
+        toggleButton.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
+        toggleButton.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
+        toggleButton.GetComponent<RectTransform>().sizeDelta = new Vector2(60, 60);
+        
+        // Add AchievementUI component
+        AchievementUI achievementUI = canvas.gameObject.AddComponent<AchievementUI>();
+        achievementUI.achievementListContainer = content.transform;
+        achievementUI.achievementItemPrefab = achievementItem;
+        achievementUI.achievementNotificationPrefab = notificationPrefab;
+        achievementUI.notificationContainer = notificationContainer.transform;
+        achievementUI.achievementPanelToggleButton = toggleButton.GetComponent<Button>();
+        achievementUI.achievementPanel = achievementPanel;
+        
+        // Hide panel by default
+        achievementPanel.SetActive(false);
+    }
+    
+    private static GameObject CreateAchievementItemPrefab()
+    {
+        GameObject item = new GameObject("AchievementItem", typeof(RectTransform), typeof(Image));
+        RectTransform itemRect = item.GetComponent<RectTransform>();
+        itemRect.sizeDelta = new Vector2(0, 80);
+        
+        Image itemBg = item.GetComponent<Image>();
+        itemBg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+        
+        // Title
+        GameObject titleObj = new GameObject("Title", typeof(TextMeshProUGUI));
+        titleObj.transform.SetParent(item.transform, false);
+        TextMeshProUGUI titleText = titleObj.GetComponent<TextMeshProUGUI>();
+        titleText.text = "Achievement Title";
+        titleText.fontSize = 18;
+        titleText.fontStyle = FontStyles.Bold;
+        titleText.color = Color.white;
+        
+        RectTransform titleRect = titleObj.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0, 1);
+        titleRect.anchorMax = new Vector2(1, 1);
+        titleRect.pivot = new Vector2(0.5f, 1);
+        titleRect.offsetMin = new Vector2(60, -30);
+        titleRect.offsetMax = new Vector2(-10, -5);
+        
+        // Description
+        GameObject descObj = new GameObject("Description", typeof(TextMeshProUGUI));
+        descObj.transform.SetParent(item.transform, false);
+        TextMeshProUGUI descText = descObj.GetComponent<TextMeshProUGUI>();
+        descText.text = "Achievement description goes here";
+        descText.fontSize = 14;
+        descText.color = new Color(0.8f, 0.8f, 0.8f);
+        
+        RectTransform descRect = descObj.GetComponent<RectTransform>();
+        descRect.anchorMin = new Vector2(0, 0);
+        descRect.anchorMax = new Vector2(1, 1);
+        descRect.pivot = new Vector2(0.5f, 0.5f);
+        descRect.offsetMin = new Vector2(60, 5);
+        descRect.offsetMax = new Vector2(-10, -30);
+        
+        // Icon background
+        GameObject iconBg = new GameObject("IconBackground", typeof(RectTransform), typeof(Image));
+        iconBg.transform.SetParent(item.transform, false);
+        iconBg.GetComponent<Image>().color = new Color(0.1f, 0.1f, 0.1f);
+        
+        RectTransform iconBgRect = iconBg.GetComponent<RectTransform>();
+        iconBgRect.anchorMin = new Vector2(0, 0.5f);
+        iconBgRect.anchorMax = new Vector2(0, 0.5f);
+        iconBgRect.pivot = new Vector2(0.5f, 0.5f);
+        iconBgRect.anchoredPosition = new Vector2(30, 0);
+        iconBgRect.sizeDelta = new Vector2(50, 50);
+        
+        // Progress bar background
+        GameObject progressBg = new GameObject("ProgressBarBackground", typeof(RectTransform), typeof(Image));
+        progressBg.transform.SetParent(item.transform, false);
+        progressBg.GetComponent<Image>().color = new Color(0.1f, 0.1f, 0.1f);
+        
+        RectTransform progressBgRect = progressBg.GetComponent<RectTransform>();
+        progressBgRect.anchorMin = new Vector2(0, 0);
+        progressBgRect.anchorMax = new Vector2(1, 0);
+        progressBgRect.pivot = new Vector2(0.5f, 0);
+        progressBgRect.offsetMin = new Vector2(10, 2);
+        progressBgRect.offsetMax = new Vector2(-10, 7);
+        
+        // Progress bar fill
+        GameObject progressFill = new GameObject("ProgressBar", typeof(RectTransform), typeof(Image));
+        progressFill.transform.SetParent(progressBg.transform, false);
+        Image progressFillImage = progressFill.GetComponent<Image>();
+        progressFillImage.color = new Color(0.2f, 0.7f, 1f);
+        progressFillImage.type = Image.Type.Filled;
+        progressFillImage.fillMethod = Image.FillMethod.Horizontal;
+        progressFillImage.fillAmount = 0.5f;
+        
+        RectTransform progressFillRect = progressFill.GetComponent<RectTransform>();
+        progressFillRect.anchorMin = Vector2.zero;
+        progressFillRect.anchorMax = Vector2.one;
+        progressFillRect.offsetMin = Vector2.zero;
+        progressFillRect.offsetMax = Vector2.zero;
+        
+        // Completed icon
+        GameObject completedIcon = new GameObject("CompletedIcon", typeof(RectTransform), typeof(Image));
+        completedIcon.transform.SetParent(item.transform, false);
+        completedIcon.GetComponent<Image>().color = Color.green;
+        
+        RectTransform completedIconRect = completedIcon.GetComponent<RectTransform>();
+        completedIconRect.anchorMin = new Vector2(1, 1);
+        completedIconRect.anchorMax = new Vector2(1, 1);
+        completedIconRect.pivot = new Vector2(1, 1);
+        completedIconRect.anchoredPosition = new Vector2(-5, -5);
+        completedIconRect.sizeDelta = new Vector2(20, 20);
+        
+        return item;
+    }
+    
+    private static GameObject CreateNotificationPrefab()
+    {
+        GameObject notification = new GameObject("AchievementNotification", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+        notification.GetComponent<Image>().color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+        notification.GetComponent<CanvasGroup>().alpha = 1f;
+        
+        RectTransform notificationRect = notification.GetComponent<RectTransform>();
+        notificationRect.sizeDelta = new Vector2(300, 80);
+        
+        // Header
+        GameObject header = new GameObject("Header", typeof(RectTransform), typeof(Image));
+        header.transform.SetParent(notification.transform, false);
+        header.GetComponent<Image>().color = new Color(0.2f, 0.7f, 1f);
+        
+        RectTransform headerRect = header.GetComponent<RectTransform>();
+        headerRect.anchorMin = new Vector2(0, 1);
+        headerRect.anchorMax = new Vector2(1, 1);
+        headerRect.pivot = new Vector2(0.5f, 1);
+        headerRect.sizeDelta = new Vector2(0, 25);
+        
+        // Achievement unlocked text
+        GameObject unlockedText = new GameObject("UnlockedText", typeof(TextMeshProUGUI));
+        unlockedText.transform.SetParent(header.transform, false);
+        TextMeshProUGUI unlockedTmp = unlockedText.GetComponent<TextMeshProUGUI>();
+        unlockedTmp.text = "ACHIEVEMENT UNLOCKED!";
+        unlockedTmp.fontSize = 14;
+        unlockedTmp.fontStyle = FontStyles.Bold;
+        unlockedTmp.alignment = TextAlignmentOptions.Center;
+        unlockedTmp.color = Color.white;
+        
+        RectTransform unlockedRect = unlockedText.GetComponent<RectTransform>();
+        unlockedRect.anchorMin = Vector2.zero;
+        unlockedRect.anchorMax = Vector2.one;
+        unlockedRect.offsetMin = Vector2.zero;
+        unlockedRect.offsetMax = Vector2.zero;
+        
+        // Title
+        GameObject title = new GameObject("Title", typeof(TextMeshProUGUI));
+        title.transform.SetParent(notification.transform, false);
+        TextMeshProUGUI titleTmp = title.GetComponent<TextMeshProUGUI>();
+        titleTmp.text = "Achievement Title";
+        titleTmp.fontSize = 18;
+        titleTmp.fontStyle = FontStyles.Bold;
+        titleTmp.alignment = TextAlignmentOptions.Center;
+        titleTmp.color = Color.white;
+        
+        RectTransform titleRect = title.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0, 1);
+        titleRect.anchorMax = new Vector2(1, 1);
+        titleRect.pivot = new Vector2(0.5f, 1);
+        titleRect.anchoredPosition = new Vector2(0, -30);
+        titleRect.sizeDelta = new Vector2(-20, 25);
+        
+        // Description
+        GameObject description = new GameObject("Description", typeof(TextMeshProUGUI));
+        description.transform.SetParent(notification.transform, false);
+        TextMeshProUGUI descTmp = description.GetComponent<TextMeshProUGUI>();
+        descTmp.text = "Achievement description goes here";
+        descTmp.fontSize = 14;
+        descTmp.alignment = TextAlignmentOptions.Center;
+        descTmp.color = new Color(0.8f, 0.8f, 0.8f);
+        
+        RectTransform descRect = description.GetComponent<RectTransform>();
+        descRect.anchorMin = new Vector2(0, 0);
+        descRect.anchorMax = new Vector2(1, 0);
+        descRect.pivot = new Vector2(0.5f, 0);
+        descRect.anchoredPosition = new Vector2(0, 10);
+        descRect.sizeDelta = new Vector2(-20, 40);
+        
+        return notification;
+    }
+    
+    private static void SaveAchievementPrefabs()
+    {
+        // Create prefabs directory if it doesn't exist
+        if (!AssetDatabase.IsValidFolder("Assets/Prefabs"))
+        {
+            AssetDatabase.CreateFolder("Assets", "Prefabs");
+        }
+        
+        if (!AssetDatabase.IsValidFolder("Assets/Prefabs/UI"))
+        {
+            AssetDatabase.CreateFolder("Assets/Prefabs", "UI");
+        }
+        
+        // Find the objects we created
+        AchievementUI achievementUI = FindFirstObjectByType<AchievementUI>();
+        if (achievementUI == null)
+        {
+            Debug.LogError("Could not find AchievementUI component");
+            return;
+        }
+        
+        // Save achievement item prefab
+        if (achievementUI.achievementItemPrefab != null)
+        {
+            string itemPath = "Assets/Prefabs/UI/AchievementItem.prefab";
+            PrefabUtility.SaveAsPrefabAsset(achievementUI.achievementItemPrefab, itemPath);
+            Debug.Log($"Saved achievement item prefab to {itemPath}");
+        }
+        
+        // Save notification prefab
+        if (achievementUI.achievementNotificationPrefab != null)
+        {
+            string notificationPath = "Assets/Prefabs/UI/AchievementNotification.prefab";
+            PrefabUtility.SaveAsPrefabAsset(achievementUI.achievementNotificationPrefab, notificationPath);
+            Debug.Log($"Saved achievement notification prefab to {notificationPath}");
+        }
     }
 }
