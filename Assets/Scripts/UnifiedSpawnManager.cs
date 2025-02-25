@@ -12,6 +12,9 @@ namespace RoofTops
     public class UnifiedSpawnManager : MonoBehaviour
     {
         [Header("Spawn Settings")]
+        [Tooltip("Delay in seconds before starting to spawn items when game begins")]
+        [SerializeField] private float initialSpawnDelay = 2.0f;
+        
         [SerializeField] private GameObject bonusPrefab;
         [SerializeField] private GameObject jumpPadPrefab;
         [SerializeField] private GameObject[] propPrefabs;
@@ -34,6 +37,8 @@ namespace RoofTops
         private Dictionary<string, int> itemsSpawned = new Dictionary<string, int>();
 
         private ModulePool modulePool;
+        private bool initialDelayComplete = false;
+        private float initialDelayTimer = 0f;
 
         private void Start()
         {
@@ -45,6 +50,10 @@ namespace RoofTops
                 return;
             }
 
+            // Initialize delay
+            initialDelayTimer = 0f;
+            initialDelayComplete = false;
+
             // Subscribe to the module pool's OnModuleSpawned event
             modulePool.OnModuleSpawned += OnModuleReadyForSpawning;
             
@@ -53,6 +62,7 @@ namespace RoofTops
                 Debug.Log($"UnifiedSpawnManager: Initialized with {(bonusPrefab ? "bonus prefab" : "NO BONUS PREFAB")}, " +
                     $"{(jumpPadPrefab ? "jump pad prefab" : "NO JUMP PAD PREFAB")}, " +
                     $"{(propPrefabs?.Length > 0 ? propPrefabs.Length + " prop prefabs" : "NO PROP PREFABS")}");
+                Debug.Log($"Initial spawn delay set to {initialSpawnDelay} seconds");
                 
                 // Log all module prefabs for debugging
                 if (modulePool.modulePrefabs != null)
@@ -72,6 +82,21 @@ namespace RoofTops
             }
         }
         
+        private void Update()
+        {
+            // Handle initial delay
+            if (!initialDelayComplete)
+            {
+                initialDelayTimer += Time.deltaTime;
+                if (initialDelayTimer >= initialSpawnDelay)
+                {
+                    initialDelayComplete = true;
+                    if (debugLogging)
+                        Debug.Log($"Initial spawn delay of {initialSpawnDelay} seconds complete, spawning can now begin");
+                }
+            }
+        }
+        
         private void OnDestroy()
         {
             // Unsubscribe from the event when this script is destroyed
@@ -83,8 +108,8 @@ namespace RoofTops
         
         private void OnModuleReadyForSpawning(GameObject module)
         {
-            // Only spawn items if the game has started
-            if (GameManager.Instance == null || !GameManager.Instance.HasGameStarted)
+            // Only spawn items if the game has started and initial delay is complete
+            if (GameManager.Instance == null || !GameManager.Instance.HasGameStarted || !initialDelayComplete)
                 return;
                 
             if (module == null)

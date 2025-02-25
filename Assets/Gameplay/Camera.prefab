@@ -153,10 +153,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  baseLookSpeed: 0.05
-  yawLookSpeed: 6.37
+  baseLookSpeed: 1
+  yawLookSpeed: 5
   pitchLookSpeed: 3
-  rollLookSpeed: 22.1
+  rollLookSpeed: 12
   firstFrequency: 0.05
   firstIntensity: 7
   firstNoiseOffset: {x: 865.7304, y: 44.936897, z: 574.7674}
@@ -164,12 +164,12 @@ MonoBehaviour:
   secondIntensity: 0.7
   firstNoiseOffset2: {x: 19.569279, y: 181.43558, z: 757.95795}
   minYOffset: -0.3
-  maxYOffset: 0.82
-  minXOffset: -0.25
+  maxYOffset: 1.01
+  minXOffset: -0.03
   maxXOffset: 1
   minZOffset: -1.12
-  maxZOffset: 0.72
-  fitType: 2
+  maxZOffset: 0.5
+  fitType: 0
   yawFrequency: 1.25
   minYawAngle: -1
   maxYawAngle: 1
@@ -189,10 +189,10 @@ MonoBehaviour:
   initialFOV: 16
   midFOV: 10
   finalFOV: 32
-  midFOVDelay: 0.25
-  finalFOVDelay: 2
-  midBlendDuration: 0.8
-  finalBlendDuration: 2
+  midFOVDelay: 0.4
+  finalFOVDelay: 3
+  midBlendDuration: 0.5
+  finalBlendDuration: 3
   useInitialLookAtOffset: 1
   midLookAtOffset: {x: 0.5, y: -0.5, z: -4}
   initialLookAtOffset: {x: 4.81, y: 2.61, z: 10.1}

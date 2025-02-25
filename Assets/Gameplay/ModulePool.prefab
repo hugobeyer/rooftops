@@ -108,29 +108,29 @@ MonoBehaviour:
   - {fileID: 1098179306837945033, guid: d7aab6b6688587e48bc95e66fd59458e, type: 3}
   - {fileID: 3365558654541407720, guid: f25d1a353d8df2647aebc3ac2891dfa1, type: 3}
   numberOfModulesOnScreen: 10
-  initialPoolSizePerPrefab: 24
+  initialPoolSizePerPrefab: 5
   moduleMovement: {fileID: 1917743826473209279}
   moduleVolume: {fileID: 6693551532556919256}
   showDebugVisuals: 0
-  difficultyStartTime: 0
-  maxGapSize: 0
-  maxHeightVariation: 0
-  difficultyRampDuration: 200
+  difficultyStartTime: 1
+  maxGapSize: 20
+  maxHeightVariation: 9
+  difficultyRampDuration: 256
   gapDifficultyCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 1.4151154
-      outSlope: 1.4151154
+      inSlope: 3.6056771
+      outSlope: 3.6056771
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.08589205
-      value: 0.12154716
+      time: 0.021065086
+      value: 0.0759539
       inSlope: 0.7963376
       outSlope: 0.7963376
       tangentMode: 0
@@ -164,26 +164,35 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 98.98488
-      outSlope: 98.98488
+      inSlope: 1.3266389
+      outSlope: 1.3266389
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.00040456653
-      value: 0.04004597
-      inSlope: 0.4187279
-      outSlope: 0.4187279
+      time: 0.03016834
+      value: 0.040022492
+      inSlope: 0.71710885
+      outSlope: 0.71710885
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.5695192
-      outWeight: 0.34718844
+      outWeight: 0.15228164
+    - serializedVersion: 3
+      time: 0.27307755
+      value: 0.15611422
+      inSlope: 0.50878185
+      outSlope: 0.50878185
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.25560826
     - serializedVersion: 3
       time: 0.6806571
       value: 0.59338534
-      inSlope: 1.0433588
-      outSlope: 1.0433588
+      inSlope: 1.173067
+      outSlope: 1.173067
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334

@@ -1229,7 +1229,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 463
+  m_VersionIndex: 478
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2072,8 +2072,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6640243883467756669}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.25, y: -0.81, z: 0.781}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.287, y: -0.285, z: -0.6300002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2313,6 +2313,7 @@ MonoBehaviour:
   finalScoreText: {fileID: 1792794688146481969}
   newBestText: {fileID: 0}
   finalBonusText: {fileID: 2095182767894539751}
+  finalMemcardText: {fileID: 0}
   rooftopButton: {fileID: 396005131572837863}
   smartAdvanceButton: {fileID: 8711537460687440113}
   bonusSkipButton: {fileID: 3837014133579825887}
