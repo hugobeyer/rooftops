@@ -1163,20 +1163,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad9efabf59c8e724fbc9fd340536bfe5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patrolSpeed: 0.2
-  patrolDistance: 512
+  patrolSpeed: 0.5
   altitudeVariation: 12
-  maxBankAngle: 25
-  bankResponse: 25
-  yawSpeed: 100.7
-  maxYawAngle: 118.9
+  maxBankAngle: 43
+  bankResponse: 32
+  yawSpeed: 25
+  maxYawAngle: 45
   turbulence: 0.5
   bobFrequency: 0.3
   mainRotor: {fileID: 1846499310}
   mainRotorRPM: 1200
-  pathScale: 512
-  pathStretch: 1
-  turnIntensity: 12
+  pathScale: 256
+  pathStretch: 3
+  turnIntensity: 2
   minX: -19.7
   maxX: -4.69
   boundaryForce: 1
@@ -1795,15 +1794,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1387421001779836349, guid: cdc56f1d57a16cd4abcfa66aa48c3522, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -32.629185
+      value: -32.6
       objectReference: {fileID: 0}
     - target: {fileID: 1387421001779836349, guid: cdc56f1d57a16cd4abcfa66aa48c3522, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -3.6
       objectReference: {fileID: 0}
     - target: {fileID: 1387421001779836349, guid: cdc56f1d57a16cd4abcfa66aa48c3522, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -11.672366
+      value: -24.3
       objectReference: {fileID: 0}
     - target: {fileID: 1387421001779836349, guid: cdc56f1d57a16cd4abcfa66aa48c3522, type: 3}
       propertyPath: m_LocalRotation.w

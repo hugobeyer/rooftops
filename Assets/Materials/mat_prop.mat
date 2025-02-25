@@ -107,7 +107,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _Angle: 11.6
+    - _Angle: -2.1
     - _BUILTIN_AlphaClip: 0
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 2
@@ -150,7 +150,7 @@ Material:
     - _JumpLerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _POW: 5.37
+    - _POW: 1.15
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -177,8 +177,9 @@ Material:
     - baseColorTextureTexCoord: 0
     m_Colors:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
-    - _Color: {r: 0.08605269, g: 0.108329244, b: 0.11949676, a: 1}
-    - _ColorEdge: {r: 0.36477977, g: 0.32463104, b: 0.36477977, a: 1}
+    - _Color: {r: 0.027174534, g: 0.03773582, b: 0.03773582, a: 1}
+    - _ColorDestroy: {r: 0.13725491, g: 0.13725491, b: 0.18431373, a: 1}
+    - _ColorEdge: {r: 0.17799921, g: 0.18290408, b: 0.25157225, a: 1}
     - _ColorJump: {r: 0, g: 0, b: 0, a: 0}
     - _DashColor: {r: 2.1435473, g: 0.27934536, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
@@ -189,7 +190,7 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Vector3: {r: -3.32, g: -5.17, b: -4.03, a: 0}
+    - _Vector3: {r: 1.01, g: -1.02, b: 0.33, a: 0}
     - _col: {r: 0, g: 1, b: 1, a: 1}
     - baseColorFactor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

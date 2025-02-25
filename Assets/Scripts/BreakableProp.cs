@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace RoofTops
 {
@@ -9,6 +10,7 @@ namespace RoofTops
         [Tooltip("Distance from the top of the prop to allow stomping.")]
         public float topTolerance = 0.2f;
         
+        [Header("Animation")]
         [Tooltip("Reference to the Animator component for explosion animation.")]
         public Animator animator;
         
@@ -18,12 +20,37 @@ namespace RoofTops
         [Tooltip("Time to wait before destroying the object after animation starts.")]
         public float destroyDelay = 1.0f;
         
+        [Header("Dissolve Effect")]
         [Tooltip("Material with dissolve shader to animate during explosion")]
         public Material dissolveMaterial;
+        
+        [Tooltip("Name of the dissolve property in the shader")]
+        public string dissolvePropertyName = "_Dissolve";
+        
+        [Tooltip("Starting value for the dissolve effect")]
+        [Range(0f, 1f)]
+        public float dissolveStartValue = 0f;
+        
+        [Tooltip("Final value for the dissolve effect")]
+        [Range(0f, 1f)]
+        public float dissolveEndValue = 1f;
+        
+        [Header("Audio")]
+        [Tooltip("Reference to the AudioSource that will play when the prop is destroyed")]
+        public AudioSource destroyAudioSource;
+        
+        [Tooltip("Should the pitch be slightly randomized?")]
+        public bool randomizePitch = true;
+        
+        [Tooltip("Range for pitch randomization")]
+        [Range(0f, 1f)]
+        public float pitchVariation = 0.2f;
         
         private bool isExploding = false;
         private Material instanceMaterial;
         private float dissolveProgress = 0f;
+        private List<Renderer> renderers = new List<Renderer>();
+        private List<Material> originalMaterials = new List<Material>();
 
         private void Start()
         {
@@ -32,10 +59,28 @@ namespace RoofTops
                 animator = GetComponent<Animator>();
             }
             
-            // Create material instance if assigned (without Renderer)
-            if (dissolveMaterial != null)
+            // Store all renderers for later use
+            renderers.AddRange(GetComponentsInChildren<Renderer>());
+            
+            // Create material instance if assigned and set up renderers
+            if (dissolveMaterial != null && renderers.Count > 0)
             {
+                // Create a single instance of the dissolve material
                 instanceMaterial = Instantiate(dissolveMaterial);
+                instanceMaterial.SetFloat(dissolvePropertyName, dissolveStartValue);
+                
+                // Store original materials and apply the dissolve material
+                foreach (Renderer rend in renderers)
+                {
+                    // Store original materials
+                    Material[] mats = rend.materials;
+                    for (int i = 0; i < mats.Length; i++)
+                    {
+                        originalMaterials.Add(mats[i]);
+                    }
+                    
+                    Debug.Log($"Setting up dissolve material on {rend.name}");
+                }
             }
         }
 
@@ -90,6 +135,9 @@ namespace RoofTops
             
             isExploding = true;
             
+            // Play destruction sound
+            PlayDestructionSound();
+            
             // Disable the collider to prevent further interactions
             Collider col = GetComponent<Collider>();
             if (col != null)
@@ -97,9 +145,21 @@ namespace RoofTops
                 col.enabled = false;
             }
             
-            // Start dissolve animation coroutine
-            if (dissolveMaterial != null)
+            // Apply the dissolve material to all renderers
+            if (dissolveMaterial != null && instanceMaterial != null && renderers.Count > 0)
             {
+                // Apply dissolve material to all renderers
+                foreach (Renderer rend in renderers)
+                {
+                    Material[] newMaterials = new Material[rend.materials.Length];
+                    for (int i = 0; i < newMaterials.Length; i++)
+                    {
+                        newMaterials[i] = instanceMaterial;
+                    }
+                    rend.materials = newMaterials;
+                }
+                
+                // Start the dissolve animation
                 StartCoroutine(AnimateDissolve());
             }
             
@@ -112,6 +172,22 @@ namespace RoofTops
             else
             {
                 DestroyObject();
+            }
+        }
+        
+        // Play the destruction sound effect
+        private void PlayDestructionSound()
+        {
+            if (destroyAudioSource != null)
+            {
+                // Apply random pitch if enabled
+                if (randomizePitch)
+                {
+                    destroyAudioSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+                }
+                
+                // Play the assigned audio source
+                destroyAudioSource.Play();
             }
         }
         
@@ -145,15 +221,24 @@ namespace RoofTops
 
         private IEnumerator AnimateDissolve()
         {
+            Debug.Log("Starting dissolve animation!");
+            
             float elapsedTime = 0f;
             while (elapsedTime < destroyDelay)
             {
-                dissolveProgress = Mathf.Lerp(0f, 1f, elapsedTime / destroyDelay);
-                instanceMaterial.SetFloat("_Dissolve", dissolveProgress);
+                dissolveProgress = Mathf.Lerp(dissolveStartValue, dissolveEndValue, elapsedTime / destroyDelay);
+                instanceMaterial.SetFloat(dissolvePropertyName, dissolveProgress);
+                
+                if (elapsedTime % 0.2f < 0.01f)
+                {
+                    Debug.Log($"Dissolve progress: {dissolveProgress}");
+                }
+                
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            instanceMaterial.SetFloat("_Dissolve", 1f);
+            instanceMaterial.SetFloat(dissolvePropertyName, dissolveEndValue);
+            Debug.Log("Dissolve animation complete!");
         }
     }
 } 

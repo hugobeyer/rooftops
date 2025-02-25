@@ -4,7 +4,7 @@ public class HelicopterFlightController : MonoBehaviour
 {
     [Header("Z-Axis Patrol")]
     [SerializeField] private float patrolSpeed = 25f;
-    [SerializeField] private float patrolDistance = 200f;
+    //[SerializeField] private float patrolDistance = 200f;
     [SerializeField] private float altitudeVariation = 10f;
 
     [Header("Banking & Rotation")]
