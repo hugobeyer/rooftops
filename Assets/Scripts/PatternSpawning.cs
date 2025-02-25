@@ -19,6 +19,9 @@ namespace RoofTops
         public bool randomRotation = false;
 
         [Header("Spawn Settings")]
+        [Tooltip("Delay in seconds before starting to spawn coins when game begins")]
+        public float initialSpawnDelay = 2.0f;
+
         [Tooltip("The Z position where coins spawn")]
         public float startSpawnZ = 64f;
 
@@ -44,6 +47,8 @@ namespace RoofTops
         private float timeSinceLastSpawn = 0f;
         private float nextSpawnGap = 0f;
         private List<float> availableHeights = new List<float>();
+        private float initialDelayTimer = 0f;
+        private bool initialDelayComplete = false;
 
         private void Start()
         {
@@ -70,6 +75,10 @@ namespace RoofTops
             // Set initial spawn gap
             ResetSpawnGap();
             
+            // Initialize delay
+            initialDelayTimer = 0f;
+            initialDelayComplete = false;
+            
             Debug.Log("PatternSpawning started. Movement direction: -Z (forced)");
         }
 
@@ -77,6 +86,18 @@ namespace RoofTops
         {
             if (modulePool == null || modulePool.activeModules.Count == 0)
                 return;
+            
+            // Handle initial delay
+            if (!initialDelayComplete)
+            {
+                initialDelayTimer += Time.deltaTime;
+                if (initialDelayTimer >= initialSpawnDelay)
+                {
+                    initialDelayComplete = true;
+                    Debug.Log($"Initial spawn delay of {initialSpawnDelay} seconds complete, beginning spawning");
+                }
+                return; // Skip the rest of the update while in delay
+            }
                 
             // Update available heights from modules
             UpdateAvailableHeights();

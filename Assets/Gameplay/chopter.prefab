@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   patrolSpeed: 25
-  patrolDistance: 200
   altitudeVariation: 10
   maxBankAngle: 45
   bankResponse: 3
@@ -122,6 +121,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: chopter
       objectReference: {fileID: 0}
+    - target: {fileID: 2085459243184815043, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: dfb899777f589b74ab435d6ba0eaa540, type: 2}
     - target: {fileID: 8449996119470504636, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -129,7 +132,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -2377678898046858952, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2060931818763139049}
   m_SourcePrefab: {fileID: 100100000, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
 --- !u!4 &1511278716878161199 stripped
 Transform:
@@ -141,3 +147,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
   m_PrefabInstance: {fileID: 2639415491642008690}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8908647570990280010 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -2377678898046858952, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
+  m_PrefabInstance: {fileID: 2639415491642008690}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2060931818763139049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8908647570990280010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e88f19430386984599ca168f0f9e644, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationAxis: 0
+  customAxis: {x: 0, y: 1, z: 0}
+  rotationSpeed: 90

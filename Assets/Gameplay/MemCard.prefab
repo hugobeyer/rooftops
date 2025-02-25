@@ -78,7 +78,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b591659bd6c12ff4eac6c31ff0c53aa2, type: 3}
   - {fileID: 8300000, guid: e905a21ac90636e45b64e04401bc3b32, type: 3}
   - {fileID: 8300000, guid: 4bff21f75bd94914c94277f10d0b7867, type: 3}
-  soundVolume: 0.604
+  soundVolume: 0.775
   collectionEffectPrefab: {fileID: 137355038161490750, guid: 18f8a094f61422f4485f2bef3fb21bc9, type: 3}
   effectDuration: 1
 --- !u!1001 &3609561406441988674

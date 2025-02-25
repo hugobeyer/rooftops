@@ -68,7 +68,7 @@ public class HelicopterFlightController : MonoBehaviour
         // Calculate base position
         Vector3 targetPosition = new Vector3(
             initialPosition.x + x,
-            initialPosition.y + Mathf.PerlinNoise(pathTime * 0.5f, 0) * altitudeVariation,
+            initialPosition.y + (Mathf.PerlinNoise(pathTime *1.5f, 0) - .5f) * altitudeVariation * 2,
             initialPosition.z + z
         );
 
