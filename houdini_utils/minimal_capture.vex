@@ -1,0 +1,51 @@
+// Minimal Capture Setup
+// Sets the correct bone capture attribute for KineFX
+
+// Find closest bone
+int closest_bone = 0;
+float min_dist = 1e10;
+
+for (int i = 0; i < npoints(1); i++) {
+    float dist = distance(@P, point(1, "P", i));
+    if (dist < min_dist) {
+        min_dist = dist;
+        closest_bone = i;
+    }
+}
+
+// Get bone name
+string bone_name = point(1, "name", closest_bone);
+
+// Create capture weight arrays
+string bone_names[] = {};
+float bone_weights[] = {};
+
+// Add the closest bone with weight 1.0
+append(bone_names, bone_name);
+append(bone_weights, 1.0);
+
+// Create the capture string in the correct format
+string capture_str = "";
+for (int i = 0; i < len(bone_names); i++) {
+    if (i > 0) capture_str += " ";
+    capture_str += bone_names[i] + " " + bone_weights[i];
+}
+
+// Set all possible capture attributes
+s@boneCapture = capture_str;
+s@captureweights = capture_str;
+s@boneCapt = capture_str;
+
+// Also set the simple integer capture
+i@capt = closest_bone;
+
+// Set rest position
+v@rest = @P;
+
+// Create a detail attribute to store the bone names (sometimes needed)
+string bone_list = "";
+for (int i = 0; i < npoints(1); i++) {
+    if (i > 0) bone_list += " ";
+    bone_list += point(1, "name", i);
+}
+setdetailattrib(0, "bones", bone_list, "set"); 

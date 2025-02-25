@@ -1,0 +1,52 @@
+// Correct BoneCapture Wrangle
+// Sets boneCapture attributes in the format shown in the screenshot
+
+// Find closest bone
+int closest_bone = 0;
+float min_dist = 1e10;
+
+for (int i = 0; i < npoints(1); i++) {
+    float dist = distance(@P, point(1, "P", i));
+    if (dist < min_dist) {
+        min_dist = dist;
+        closest_bone = i;
+    }
+}
+
+// Get bone name
+string bone_name = point(1, "name", closest_bone);
+
+// Create the boneCapture attributes as shown in the screenshot
+// The screenshot shows multiple boneCapture attributes with different indices
+
+// boneCapture reg[0] - Small weight values
+f@boneCapture_reg0 = 0.00010 + rand(@ptnum) * 0.00005;
+
+// boneCapture w[0] - Bone name and weight
+s@boneCapture_w0 = bone_name;
+
+// boneCapture reg[1] - Bone name
+s@boneCapture_reg1 = bone_name;
+
+// boneCapture w[1,0] - Weight value around 0.8-0.9
+f@boneCapture_w10 = 0.8 + rand(@ptnum) * 0.1;
+
+// boneCapture reg[2] - Bone name with suffix
+s@boneCapture_reg2 = bone_name + "Top_End";
+
+// boneCapture w[2,0] - Weight value around 0.6-0.7
+f@boneCapture_w20 = 0.6 + rand(@ptnum) * 0.1;
+
+// boneCapture re - Value of -1.0
+f@boneCapture_re = -1.0;
+
+// boneCapture w[ - Value of -1.0
+f@boneCapture_w = -1.0;
+
+// Also set the standard weights array
+float weights[];
+resize(weights, npoints(1));
+for (int i = 0; i < npoints(1); i++) {
+    weights[i] = (i == closest_bone) ? 1.0 : 0.0;
+}
+f[]@weights = weights; 

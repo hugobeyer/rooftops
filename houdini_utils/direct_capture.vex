@@ -1,0 +1,44 @@
+// Direct Bone Capture Wrangle
+// Uses arrays to directly set capture weights
+
+// Get number of bones
+int num_bones = npoints(1);
+if (num_bones == 0) return;
+
+// Find closest bone
+int closest_bone = 0;
+float min_dist = 1e10;
+
+for (int i = 0; i < num_bones; i++) {
+    float dist = distance(@P, point(1, "P", i));
+    if (dist < min_dist) {
+        min_dist = dist;
+        closest_bone = i;
+    }
+}
+
+// Create arrays for capture
+string names[] = {};
+float weights[] = {};
+
+// Add the closest bone with full weight
+string bone_name = point(1, "name", closest_bone);
+append(names, bone_name);
+append(weights, 1.0);
+
+// Create the capture attributes
+// Method 1: Using string attributes
+string capture_str = bone_name + " 1.0";
+s@boneCapture = capture_str;
+s@captureweights = capture_str;
+s@boneCapt = capture_str;
+
+// Method 2: Using direct array attributes (more reliable)
+s[]@capturenames = names;
+f[]@captureweights = weights;
+
+// Method 3: Using integer capture
+i@capt = closest_bone;
+
+// Set rest position
+v@rest = @P; 

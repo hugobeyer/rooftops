@@ -1,0 +1,174 @@
+// Advanced Fracture Rig Wrangle
+// Creates a bone hierarchy for fractured pieces with intelligent traversal
+// Root at origin, with child bones forming a natural hierarchy based on proximity and direction
+
+// Parameters
+int create_root = chi("create_root");       // Toggle to create a root bone at origin
+float root_size = chf("root_size");         // Size of the root bone
+string piece_group = chs("piece_group");    // Group name for the fractured pieces
+string bone_prefix = chs("bone_prefix");    // Prefix for bone names
+float max_connection_dist = chf("max_connection_distance"); // Maximum distance for connections
+int use_direction = chi("use_direction");   // Consider direction when building hierarchy
+float direction_weight = chf("direction_weight"); // Weight of direction vs distance (0-1)
+
+// Initialize variables
+int num_pieces = npoints(0);
+int root_pt = -1;
+int[] processed; // Array to track processed points to avoid cycles
+
+// Create root bone at origin if enabled
+if (create_root) {
+    // Add a new point at the origin
+    root_pt = addpoint(0, {0,0,0});
+    
+    // Set attributes for the root bone
+    setpointattrib(0, "name", root_pt, bone_prefix + "_root", "set");
+    setpointattrib(0, "P", root_pt, {0,0,0}, "set");
+    
+    // Create identity orientation
+    vector4 ident = quaternion({0,0,0}, 1);
+    setpointattrib(0, "orient", root_pt, ident, "set");
+    
+    // Set parent to -1 (no parent)
+    setpointattrib(0, "parent", root_pt, -1, "set");
+    
+    // Set bone length/size
+    setpointattrib(0, "width", root_pt, root_size, "set");
+    
+    // Mark root as processed
+    append(processed, root_pt);
+}
+
+// First pass: Initialize all pieces with default attributes
+for (int i = 0; i < num_pieces; i++) {
+    // Skip the root point if it exists
+    if (i == root_pt) continue;
+    
+    // Skip points not in the specified group (if provided)
+    if (piece_group != "" && !inpointgroup(0, piece_group, i)) continue;
+    
+    // Get the center position of the piece
+    vector pos = point(0, "P", i);
+    
+    // Set bone name
+    string bone_name = bone_prefix + "_piece_" + itoa(i);
+    setpointattrib(0, "name", i, bone_name, "set");
+    
+    // Temporarily set parent to root (will be updated in hierarchy building)
+    setpointattrib(0, "parent", i, root_pt, "set");
+    
+    // Set default orientation (will be updated later)
+    vector4 ident = quaternion({0,0,0}, 1);
+    setpointattrib(0, "orient", i, ident, "set");
+    
+    // Set default width
+    setpointattrib(0, "width", i, 0.01, "set");
+    
+    // Store distance from origin for sorting
+    float dist_from_origin = length(pos);
+    setpointattrib(0, "dist_from_origin", i, dist_from_origin, "set");
+}
+
+// Sort points by distance from origin (closest first)
+// This is simulated here since VEX doesn't have direct sorting
+// In practice, you would use a Point SOP with a Sort by Attribute before this wrangle
+
+// Build hierarchy based on proximity and direction
+// Start with pieces closest to the root and work outward
+for (int i = 0; i < num_pieces; i++) {
+    // Skip the root and points not in the group
+    if (i == root_pt || (piece_group != "" && !inpointgroup(0, piece_group, i))) continue;
+    
+    vector pos_i = point(0, "P", i);
+    float min_score = 1e10;
+    int parent_idx = root_pt; // Default to root
+    
+    // Find best parent candidate
+    for (int j = 0; j < num_pieces; j++) {
+        // Skip self and points not in the group
+        if (i == j || (piece_group != "" && !inpointgroup(0, piece_group, j))) continue;
+        
+        // Only consider points that are already processed (to avoid cycles)
+        if (find(processed, j) < 0) continue;
+        
+        vector pos_j = point(0, "P", j);
+        float dist = distance(pos_i, pos_j);
+        
+        // Skip if beyond max connection distance
+        if (max_connection_dist > 0 && dist > max_connection_dist) continue;
+        
+        // Calculate score based on distance and optionally direction
+        float score = dist;
+        
+        if (use_direction) {
+            // Direction from origin to this point
+            vector dir_i = normalize(pos_i);
+            
+            // Direction from origin to potential parent
+            vector dir_j = normalize(pos_j);
+            
+            // Dot product gives similarity of directions (1 = same, -1 = opposite)
+            float dir_similarity = dot(dir_i, dir_j);
+            
+            // Convert to a score where lower is better
+            float dir_score = (1.0 - dir_similarity) * 2.0;
+            
+            // Combine distance and direction scores with weighting
+            score = dist * (1.0 - direction_weight) + dir_score * direction_weight * dist;
+        }
+        
+        // Check if this is better than current best
+        if (score < min_score) {
+            min_score = score;
+            parent_idx = j;
+        }
+    }
+    
+    // Set parent to best candidate
+    setpointattrib(0, "parent", i, parent_idx, "set");
+    
+    // Mark as processed so it can be a parent for other points
+    append(processed, i);
+    
+    // Calculate orientation based on vector from parent to this piece
+    vector parent_pos = point(0, "P", parent_idx);
+    vector dir = normalize(pos_i - parent_pos);
+    
+    if (length(dir) < 0.001) dir = {0,1,0}; // Default direction if too close to parent
+    
+    // Create orientation from direction vector
+    vector up = {0,1,0};
+    vector right = cross(up, dir);
+    if (length(right) < 0.001) right = {1,0,0}; // Handle case when dir is parallel to up
+    right = normalize(right);
+    vector new_up = cross(dir, right);
+    
+    // Create rotation matrix and convert to quaternion
+    matrix3 rot = set(right, new_up, dir);
+    vector4 orient = quaternion(rot);
+    
+    // Set orientation
+    setpointattrib(0, "orient", i, orient, "set");
+    
+    // Set bone width based on distance from parent
+    float width = distance(pos_i, parent_pos) * 0.1; // 10% of distance as width
+    setpointattrib(0, "width", i, max(width, 0.01), "set");
+}
+
+// Optional: Add visualization attributes for debugging
+if (chi("add_debug_vis")) {
+    for (int i = 0; i < num_pieces; i++) {
+        if (i == root_pt) continue;
+        
+        int parent = point(0, "parent", i);
+        if (parent >= 0) {
+            vector start = point(0, "P", parent);
+            vector end = point(0, "P", i);
+            
+            // Create a primitive to visualize the connection
+            int prim = addprim(0, "polyline");
+            addvertex(0, prim, parent);
+            addvertex(0, prim, i);
+        }
+    }
+} 

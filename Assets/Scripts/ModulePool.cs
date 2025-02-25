@@ -9,6 +9,10 @@ namespace RoofTops
     {
         public static ModulePool Instance { get; private set; }
 
+        // Add a delegate and event for module spawn/recycle notifications
+        public delegate void ModuleSpawnedDelegate(GameObject module);
+        public event ModuleSpawnedDelegate OnModuleSpawned;
+
         [Header("Module Settings")]
         public List<GameObject> modulePrefabs; // Assign all your module prefabs here
         public int numberOfModulesOnScreen = 5; // How many modules remain active at any time
@@ -177,6 +181,9 @@ namespace RoofTops
             );
             firstModule.SetActive(true);
             activeModules.Add(firstModule);
+            
+            // Notify that the first module is ready for items
+            OnModuleSpawned?.Invoke(firstModule);
 
             GameObject lastModule = firstModule;
             BoxCollider lastBC = firstBC;
@@ -195,6 +202,10 @@ namespace RoofTops
                     lastModuleEnd - (bc.center.z - bc.size.z / 2) * module.transform.localScale.z
                 );
                 activeModules.Add(module);
+                
+                // Notify that this module is ready for items
+                OnModuleSpawned?.Invoke(module);
+                
                 lastModule = module;
                 lastBC = bc;
             }
@@ -244,10 +255,53 @@ namespace RoofTops
                 float newZPosition = lastModuleEnd + gap - (bc.center.z - bc.size.z / 2) * firstModule.transform.localScale.z;
                 float newYPosition = firstModule.transform.position.y + heightVariation;
 
+                // Clean up existing spawned items on this module before recycling
+                CleanUpModuleSpawnItems(firstModule);
+
                 firstModule.transform.position = new Vector3(0, newYPosition, newZPosition);
                 activeModules.RemoveAt(0);
                 activeModules.Add(firstModule);
+                
+                // Notify that this module has been recycled and is ready for new items
+                OnModuleSpawned?.Invoke(firstModule);
             }
+        }
+        
+        private void CleanUpModuleSpawnItems(GameObject module)
+        {
+            if (module == null) return;
+            
+            string moduleType = module.name.Replace("(Clone)", "");
+            
+            // Track debugging info
+            int itemsRemoved = 0;
+            
+            Debug.Log($"About to clean module of type {moduleType}");
+            
+            // ONLY remove actual instantiated items (ones with "Clone" in name)
+            // This is the safest approach that won't break the modules
+            for (int i = module.transform.childCount - 1; i >= 0; i--)
+            {
+                if (i >= module.transform.childCount) continue; // Safety check
+                
+                Transform child = module.transform.GetChild(i);
+                if (child == null) continue;
+                
+                // Only remove objects that are clearly instantiated at runtime (have Clone in name)
+                // and are not SpawnPoints or essential components
+                if (child.name.Contains("(Clone)") && 
+                    !child.name.Contains("SpawnPoint") &&
+                    !child.CompareTag("SpawnPoints") &&
+                    !child.CompareTag(solidGroundTag) && 
+                    !child.CompareTag(triggerGroundTag))
+                {
+                    // This is a safe item to remove
+                    Destroy(child.gameObject);
+                    itemsRemoved++;
+                }
+            }
+            
+            Debug.Log($"Cleaned up {itemsRemoved} items from module {moduleType}");
         }
 
         void MaintainModuleCount()
@@ -271,6 +325,9 @@ namespace RoofTops
                 newModule.transform.position = new Vector3(0, newYPosition, newZPosition);
                 newModule.SetActive(true);
                 activeModules.Add(newModule);
+                
+                // Notify that this new module is ready for items
+                OnModuleSpawned?.Invoke(newModule);
             }
         }
 
@@ -342,6 +399,9 @@ namespace RoofTops
             if (poolDictionary[key].Count > 0)
             {
                 newModule = poolDictionary[key].Dequeue();
+                
+                // Make sure to clean up any leftover spawned items when retrieving from pool
+                CleanUpModuleSpawnItems(newModule);
             }
             else
             {

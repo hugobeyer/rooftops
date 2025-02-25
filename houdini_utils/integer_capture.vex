@@ -1,0 +1,17 @@
+// Integer Bone Capture
+// Simplest possible approach
+
+// Find closest bone
+int closest_bone = 0;
+float min_dist = 1e10;
+
+for (int i = 0; i < npoints(1); i++) {
+    float dist = distance(@P, point(1, "P", i));
+    if (dist < min_dist) {
+        min_dist = dist;
+        closest_bone = i;
+    }
+}
+
+// Set integer capture attribute
+i@capt = closest_bone; 

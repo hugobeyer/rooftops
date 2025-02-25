@@ -1,0 +1,37 @@
+// Simple Bone Capture Wrangle
+// Assigns each piece to a single bone using an integer capture attribute
+
+// For each point in the geometry
+int pt = @ptnum;
+vector pos = @P;
+
+// Get the number of bones (points in the second input)
+int num_bones = npoints(1);
+
+// If no bones in second input, just use point number as capture
+if (num_bones == 0) {
+    // Create or set the capture attribute
+    i@capt = pt;
+    return;
+}
+
+// Find the closest bone
+int closest_bone = 0;
+float min_dist = 1e10;
+
+for (int i = 0; i < num_bones; i++) {
+    // Get bone position
+    vector bone_pos = point(1, "P", i);
+    
+    // Calculate distance to bone
+    float dist = distance(pos, bone_pos);
+    
+    // Check if this is the closest bone so far
+    if (dist < min_dist) {
+        min_dist = dist;
+        closest_bone = i;
+    }
+}
+
+// Set the capture attribute to the closest bone index
+i@capt = closest_bone; 

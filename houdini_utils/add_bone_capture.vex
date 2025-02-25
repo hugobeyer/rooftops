@@ -1,0 +1,125 @@
+// Bone Capture Attribute Wrangle
+// Adds bone capture attributes to geometry for proper bone deformation
+// Run this on the geometry that needs to be deformed by the bones
+
+// Parameters
+float falloff_radius = chf("falloff_radius", 0.5);  // Radius of influence for each bone
+float max_bones = chi("max_bones", 1);              // Maximum number of bones per point
+int use_distance = chi("use_distance", 1);          // Use distance-based weighting
+
+// Get the number of bones (points in the first input)
+int num_bones = npoints(1);
+
+// Check if we have a second input with bones
+if (num_bones == 0) {
+    error("No bones found in second input. Connect a Bone SOP to the second input.");
+    return;
+}
+
+// Create capture attributes if they don't exist
+if (!haspointattrib(0, "boneCapture")) {
+    addpointattrib(0, "boneCapture", "");
+}
+
+// For each point in the geometry
+int pt = @ptnum;
+vector pos = @P;
+
+// Arrays to store bone indices and weights
+int bone_indices[];
+float bone_weights[];
+
+// Find the closest bones
+for (int i = 0; i < num_bones; i++) {
+    // Get bone position
+    vector bone_pos = point(1, "P", i);
+    
+    // Calculate distance to bone
+    float dist = distance(pos, bone_pos);
+    
+    // If within falloff radius, add to potential bones
+    if (dist <= falloff_radius) {
+        append(bone_indices, i);
+        
+        // Calculate weight based on distance (closer = higher weight)
+        float weight = 1.0;
+        if (use_distance) {
+            weight = 1.0 - (dist / falloff_radius);
+            weight = clamp(weight, 0.0, 1.0);
+        }
+        
+        append(bone_weights, weight);
+    }
+}
+
+// If no bones found within radius, use the closest bone
+if (len(bone_indices) == 0) {
+    float min_dist = 1e10;
+    int closest_bone = 0;
+    
+    for (int i = 0; i < num_bones; i++) {
+        vector bone_pos = point(1, "P", i);
+        float dist = distance(pos, bone_pos);
+        
+        if (dist < min_dist) {
+            min_dist = dist;
+            closest_bone = i;
+        }
+    }
+    
+    append(bone_indices, closest_bone);
+    append(bone_weights, 1.0);
+}
+
+// Limit to max_bones by keeping the highest weights
+if (len(bone_indices) > max_bones) {
+    // Sort by weight (simple bubble sort)
+    for (int i = 0; i < len(bone_weights); i++) {
+        for (int j = i + 1; j < len(bone_weights); j++) {
+            if (bone_weights[j] > bone_weights[i]) {
+                // Swap weights
+                float temp_w = bone_weights[i];
+                bone_weights[i] = bone_weights[j];
+                bone_weights[j] = temp_w;
+                
+                // Swap indices
+                int temp_i = bone_indices[i];
+                bone_indices[i] = bone_indices[j];
+                bone_indices[j] = temp_i;
+            }
+        }
+    }
+    
+    // Resize arrays to max_bones
+    bone_indices.resize(max_bones);
+    bone_weights.resize(max_bones);
+}
+
+// Normalize weights to sum to 1.0
+float total_weight = 0;
+for (int i = 0; i < len(bone_weights); i++) {
+    total_weight += bone_weights[i];
+}
+
+if (total_weight > 0) {
+    for (int i = 0; i < len(bone_weights); i++) {
+        bone_weights[i] /= total_weight;
+    }
+}
+
+// Create the boneCapture string
+string capture_str = "";
+for (int i = 0; i < len(bone_indices); i++) {
+    // Get bone name
+    string bone_name = point(1, "name", bone_indices[i]);
+    
+    // Add to capture string
+    if (i > 0) capture_str += " ";
+    capture_str += bone_name + " " + bone_weights[i];
+}
+
+// Set the boneCapture attribute
+setpointattrib(0, "boneCapture", pt, capture_str, "set");
+
+// Optional: Add visualization attributes
+setpointattrib(0, "capturedBones", pt, len(bone_indices), "set"); 

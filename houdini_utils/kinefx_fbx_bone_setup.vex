@@ -1,0 +1,107 @@
+// KineFX FBX Bone Setup Wrangle
+// Sets up all necessary attributes for proper bone export to FBX
+// Run this on your bone points
+
+// Required attributes for KineFX and FBX export:
+// - name: Bone name (string)
+// - parent: Parent index (int)
+// - orient: Orientation quaternion (vector4)
+// - rest: Rest position (vector)
+// - restlength: Rest length (float)
+// - restxform: Rest transform matrix (matrix3)
+// - type: Point type (string) - "bone" for bones
+// - transform: Current transform matrix (matrix3)
+
+// Get point number
+int pt = @ptnum;
+
+// Ensure we have a name attribute
+if (!haspointattrib(0, "name")) {
+    addpointattrib(0, "name", "");
+}
+
+// If name is not set, create a default name
+if (strcmp(s@name, "") == 0) {
+    s@name = "bone_" + itoa(pt);
+}
+
+// Ensure we have a parent attribute
+if (!haspointattrib(0, "parent")) {
+    addpointattrib(0, "parent", -1);
+}
+
+// If this is point 0, ensure it's the root (parent = -1)
+if (pt == 0) {
+    i@parent = -1;
+}
+
+// Ensure we have an orient attribute
+if (!haspointattrib(0, "orient")) {
+    addpointattrib(0, "orient", {0,0,0,1});
+}
+
+// If orient is not set, create identity quaternion
+if (length(@orient) < 0.001) {
+    @orient = quaternion({0,0,0}, 1);
+}
+
+// Add rest position attribute (if not exists)
+if (!haspointattrib(0, "rest")) {
+    addpointattrib(0, "rest", {0,0,0});
+    @rest = @P;
+} else if (length(@rest) < 0.001) {
+    @rest = @P;
+}
+
+// Calculate rest length based on parent-child distance
+float rest_length = 0.1; // Default length if no parent or child
+int parent_idx = i@parent;
+
+if (parent_idx >= 0) {
+    vector parent_pos = point(0, "P", parent_idx);
+    rest_length = distance(@P, parent_pos);
+} else {
+    // For root, find the average distance to its children
+    float total_dist = 0;
+    int child_count = 0;
+    
+    for (int i = 0; i < npoints(0); i++) {
+        if (i == pt) continue;
+        
+        if (point(0, "parent", i) == pt) {
+            vector child_pos = point(0, "P", i);
+            total_dist += distance(@P, child_pos);
+            child_count++;
+        }
+    }
+    
+    if (child_count > 0) {
+        rest_length = total_dist / child_count;
+    }
+}
+
+// Set rest length
+f@restlength = max(rest_length, 0.01);
+
+// Create rest transform matrix
+matrix3 rest_xform = ident();
+vector4 orient = @orient;
+rotate(rest_xform, orient);
+
+// Set rest transform
+3@restxform = rest_xform;
+
+// Set current transform (same as rest for initial setup)
+3@transform = rest_xform;
+
+// Set point type to "bone"
+s@type = "bone";
+
+// Add other useful KineFX attributes
+f@width = 0.05 * rest_length; // Bone width
+i@active = 1;                 // Active flag
+i@visible = 1;                // Visibility flag
+
+// Add FBX-specific attributes
+s@fbx_link_type = "bone";     // FBX link type
+s@fbx_node_type = "null";     // FBX node type

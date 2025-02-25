@@ -1,0 +1,31 @@
+// Simple Weights and BoneCapt Wrangle
+// Sets both weights and boneCapt attributes
+
+// Find closest bone
+int closest_bone = 0;
+float min_dist = 1e10;
+
+for (int i = 0; i < npoints(1); i++) {
+    float dist = distance(@P, point(1, "P", i));
+    if (dist < min_dist) {
+        min_dist = dist;
+        closest_bone = i;
+    }
+}
+
+// Get bone name
+string bone_name = point(1, "name", closest_bone);
+
+// Set boneCapt attribute
+s@boneCapt = bone_name + " 1.0";
+
+// Set weights attribute (array of floats)
+float weights[];
+resize(weights, npoints(1));
+
+// Set weight 1.0 for closest bone, 0 for others
+for (int i = 0; i < npoints(1); i++) {
+    weights[i] = (i == closest_bone) ? 1.0 : 0.0;
+}
+
+f[]@weights = weights; 

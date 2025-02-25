@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: mat_prop
-  m_Shader: {fileID: -6465566751694194690, guid: 245ddb26d2179a74faa970095b56d706, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 09a020581d5a6fd46a7da0d062cfd805, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -107,6 +107,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _Angle: 11.6
     - _BUILTIN_AlphaClip: 0
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 2
@@ -127,15 +128,16 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DashAngle: -3.73
+    - _DashAngle: 0.97
     - _DashLerp: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Dissolve: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnableExternalAlpha: 0
     - _EnvironmentReflections: 1
-    - _Float: 8.65
+    - _Float: 8.35
     - _FloorY: 0
     - _Fog_Offset: -0.9
     - _Fog_Spread: 133.34
@@ -148,7 +150,7 @@ Material:
     - _JumpLerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _POW: 2.61
+    - _POW: 5.37
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -169,15 +171,15 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     - _ZWriteControl: 0
-    - _step: 0.14
+    - _step: 0.42
     - alphaCutoff: -0.5
     - baseColorTextureRotation: 0
     - baseColorTextureTexCoord: 0
     m_Colors:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
-    - _Color: {r: 0.21320355, g: 0.26769745, b: 0.27672952, a: 1}
-    - _ColorEdge: {r: 0.34117648, g: 0.39607844, b: 0.38897306, a: 1}
-    - _ColorJump: {r: 0.5647059, g: 0.33343992, b: 0.11764705, a: 0}
+    - _Color: {r: 0.08605269, g: 0.108329244, b: 0.11949676, a: 1}
+    - _ColorEdge: {r: 0.36477977, g: 0.32463104, b: 0.36477977, a: 1}
+    - _ColorJump: {r: 0, g: 0, b: 0, a: 0}
     - _DashColor: {r: 2.1435473, g: 0.27934536, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.03945647, g: 0.14378726, b: 0.35849056, a: 0}
@@ -187,7 +189,7 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Vector3: {r: 0.06, g: 0.04, b: 0.05, a: 0}
+    - _Vector3: {r: -3.32, g: -5.17, b: -4.03, a: 0}
     - _col: {r: 0, g: 1, b: 1, a: 1}
     - baseColorFactor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

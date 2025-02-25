@@ -1,0 +1,84 @@
+// Simple Fracture Rig Wrangle
+// Creates a bone root at origin (point 0) and connects each piece directly to it
+
+// First, remove any existing parent attribute to avoid cycles
+if (haspointattrib(0, "parent")) {
+    removepointattrib(0, "parent");
+}
+
+// Get number of pieces
+int num_pieces = npoints(0);
+int root_pt = 0; // Ensure root is point 0
+
+// Check if point 0 exists and set it to origin
+if (num_pieces > 0) {
+    // Set point 0 to be at origin
+    setpointattrib(0, "P", root_pt, {0,0,0}, "set");
+    
+    // Set root attributes
+    setpointattrib(0, "name", root_pt, "root", "set");
+    
+    // Create identity orientation for root
+    vector4 ident = quaternion({0,0,0}, 1);
+    setpointattrib(0, "orient", root_pt, ident, "set");
+} else {
+    // If no points exist, create point 0
+    root_pt = addpoint(0, {0,0,0});
+    
+    // Set root attributes
+    setpointattrib(0, "name", root_pt, "root", "set");
+    
+    // Create identity orientation for root
+    vector4 ident = quaternion({0,0,0}, 1);
+    setpointattrib(0, "orient", root_pt, ident, "set");
+    
+    // Update number of pieces
+    num_pieces = npoints(0);
+}
+
+// Create parent attribute and set root's parent to -1 (no parent)
+addpointattrib(0, "parent", -1);
+setpointattrib(0, "parent", root_pt, -1, "set");
+
+// Process each piece to create bones
+for (int i = 0; i < num_pieces; i++) {
+    // Skip the root point
+    if (i == root_pt) continue;
+    
+    // Get the center position of the piece
+    vector pos = point(0, "P", i);
+    
+    // Get piece name if it exists, otherwise create one
+    string piece_name;
+    if (haspointattrib(0, "name")) {
+        piece_name = point(0, "name", i);
+    } else {
+        piece_name = "piece_" + itoa(i);
+        setpointattrib(0, "name", i, piece_name, "set");
+    }
+    
+    // Set parent to root
+    setpointattrib(0, "parent", i, root_pt, "set");
+    
+    // Calculate orientation based on vector from root to piece
+    vector dir = normalize(pos);
+    if (length(dir) < 0.001) dir = {0,1,0};
+    
+    // Create orientation quaternion
+    vector up = {0,1,0};
+    vector right = cross(up, dir);
+    if (length(right) < 0.001) right = {1,0,0};
+    right = normalize(right);
+    vector new_up = cross(dir, right);
+    
+    matrix3 rot = set(right, new_up, dir);
+    vector4 orient = quaternion(rot);
+    
+    // Set orientation
+    setpointattrib(0, "orient", i, orient, "set");
+    
+    // Create a line connecting root to this piece
+    int prim = addprim(0, "polyline");
+    addvertex(0, prim, root_pt);
+    addvertex(0, prim, i);
+} 

@@ -1,0 +1,24 @@
+// Minimal Bone Setup
+// Only sets essential attributes for bones
+
+// Set type to "bone"
+s@type = "bone";
+
+// Ensure parent attribute exists
+if (!haspointattrib(0, "parent")) {
+    i@parent = -1;
+} 
+
+// Set rest position to current position
+v@rest = @P;
+
+// Set rest transform from orientation
+// Convert quaternion to rotation matrix directly
+vector4 quat = @orient;
+matrix3 rest_xform = qconvert(quat);
+
+// Set rest transform
+3@restxform = rest_xform;
+
+// Set transform (same as rest)
+3@transform = rest_xform; 

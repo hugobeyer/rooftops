@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 namespace RoofTops
 {
@@ -7,9 +8,42 @@ namespace RoofTops
     {
         [Tooltip("Distance from the top of the prop to allow stomping.")]
         public float topTolerance = 0.2f;
+        
+        [Tooltip("Reference to the Animator component for explosion animation.")]
+        public Animator animator;
+        
+        [Tooltip("Name of the trigger parameter in the Animator to start the explosion.")]
+        public string explodeTriggerName = "explodeTrigger";
+        
+        [Tooltip("Time to wait before destroying the object after animation starts.")]
+        public float destroyDelay = 1.0f;
+        
+        [Tooltip("Material with dissolve shader to animate during explosion")]
+        public Material dissolveMaterial;
+        
+        private bool isExploding = false;
+        private Material instanceMaterial;
+        private float dissolveProgress = 0f;
+
+        private void Start()
+        {
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+            }
+            
+            // Create material instance if assigned (without Renderer)
+            if (dissolveMaterial != null)
+            {
+                instanceMaterial = Instantiate(dissolveMaterial);
+            }
+        }
 
         private void OnTriggerEnter(Collider other)
         {
+            // Don't process new collisions if already exploding
+            if (isExploding) return;
+            
             // Only handle collisions from the player
             if (!other.CompareTag("Player")) return;
 
@@ -31,15 +65,15 @@ namespace RoofTops
             {
                 // The player is on top; do nothing (or optionally break the prop here if you want).
                 // For example, to kill the prop on stomp, uncomment:
-                // Destroy(gameObject);
+                // TriggerExplosion();
             }
             else
             {
                 // Side/front collision
                 if (isPlayerDashing)
                 {
-                    // Destroy the prop if dashing
-                    Destroy(gameObject);
+                    // Trigger explosion animation and delayed destruction
+                    TriggerExplosion();
                 }
                 else
                 {
@@ -47,6 +81,44 @@ namespace RoofTops
                     player.HandleDeath();
                 }
             }
+        }
+        
+        // Trigger the explosion animation and schedule destruction
+        private void TriggerExplosion()
+        {
+            if (isExploding) return;
+            
+            isExploding = true;
+            
+            // Disable the collider to prevent further interactions
+            Collider col = GetComponent<Collider>();
+            if (col != null)
+            {
+                col.enabled = false;
+            }
+            
+            // Start dissolve animation coroutine
+            if (dissolveMaterial != null)
+            {
+                StartCoroutine(AnimateDissolve());
+            }
+            
+            // Trigger the animation if animator exists
+            if (animator != null)
+            {
+                animator.SetTrigger(explodeTriggerName);
+                Invoke("DestroyObject", destroyDelay);
+            }
+            else
+            {
+                DestroyObject();
+            }
+        }
+        
+        // Helper method to destroy the object
+        private void DestroyObject()
+        {
+            Destroy(gameObject);
         }
 
         // A helper method to check if the player is currently dashing
@@ -69,6 +141,19 @@ namespace RoofTops
                 return (bool)dashingField.GetValue(player);
             }
             return false;
+        }
+
+        private IEnumerator AnimateDissolve()
+        {
+            float elapsedTime = 0f;
+            while (elapsedTime < destroyDelay)
+            {
+                dissolveProgress = Mathf.Lerp(0f, 1f, elapsedTime / destroyDelay);
+                instanceMaterial.SetFloat("_Dissolve", dissolveProgress);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            instanceMaterial.SetFloat("_Dissolve", 1f);
         }
     }
 } 

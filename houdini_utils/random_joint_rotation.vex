@@ -1,0 +1,59 @@
+// Random Joint Rotation Wrangle
+// Applies random rotations to each joint in the rig
+// Run this AFTER creating the basic rig structure
+
+// Parameters (can be exposed as UI sliders if needed)
+float rot_x_min = chf("rot_x_min", -30);  // Min rotation X in degrees
+float rot_x_max = chf("rot_x_max", 30);   // Max rotation X in degrees
+float rot_y_min = chf("rot_y_min", -30);  // Min rotation Y in degrees
+float rot_y_max = chf("rot_y_max", 30);   // Max rotation Y in degrees
+float rot_z_min = chf("rot_z_min", -30);  // Min rotation Z in degrees
+float rot_z_max = chf("rot_z_max", 30);   // Max rotation Z in degrees
+int seed = chi("seed", 1234);             // Random seed for repeatability
+
+// Set the random seed for repeatability
+seed(seed);
+
+// Skip the root point (point 0)
+if (@ptnum == 0) return;
+
+// Get the current orientation
+vector4 current_orient = @orient;
+
+// Convert to a rotation matrix
+matrix3 current_rot = qconvert(current_orient);
+
+// Generate random rotation angles in degrees
+float rand_x = fit01(rand(@ptnum + 0.1), rot_x_min, rot_x_max);
+float rand_y = fit01(rand(@ptnum + 0.2), rot_y_min, rot_y_max);
+float rand_z = fit01(rand(@ptnum + 0.3), rot_z_min, rot_z_max);
+
+// Convert to radians
+float rad_x = radians(rand_x);
+float rad_y = radians(rand_y);
+float rad_z = radians(rand_z);
+
+// Create rotation matrices for each axis
+matrix3 rot_x = ident();
+rot_x = rotx(rad_x);
+
+matrix3 rot_y = ident();
+rot_y = roty(rad_y);
+
+matrix3 rot_z = ident();
+rot_z = rotz(rad_z);
+
+// Combine rotations (order matters - using XYZ order)
+matrix3 random_rot = rot_x * rot_y * rot_z;
+
+// Apply random rotation to current orientation
+matrix3 new_rot = current_rot * random_rot;
+
+// Convert back to quaternion
+vector4 new_orient = quaternion(new_rot);
+
+// Set the new orientation
+@orient = new_orient;
+
+// Optional: Visualize the random rotation with a debug attribute
+v@random_rot_debug = set(rand_x, rand_y, rand_z); 

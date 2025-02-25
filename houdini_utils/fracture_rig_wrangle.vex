@@ -1,0 +1,113 @@
+// Fracture Rig Wrangle
+// Creates a bone hierarchy for fractured pieces with root at origin
+// and child bones at the centers of each piece with correct traversal
+
+// Parameters
+int create_root = chi("create_root");  // Toggle to create a root bone at origin
+float root_size = chf("root_size");    // Size of the root bone
+string piece_group = chs("piece_group"); // Group name for the fractured pieces
+string bone_prefix = chs("bone_prefix"); // Prefix for bone names
+
+// Initialize variables
+int num_pieces = npoints(0);
+int root_pt = -1;
+
+// Create root bone at origin if enabled
+if (create_root) {
+    // Add a new point at the origin
+    root_pt = addpoint(0, {0,0,0});
+    
+    // Set attributes for the root bone
+    setpointattrib(0, "name", root_pt, bone_prefix + "_root", "set");
+    setpointattrib(0, "P", root_pt, {0,0,0}, "set");
+    
+    // Create identity orientation
+    vector4 ident = quaternion({0,0,0}, 1);
+    setpointattrib(0, "orient", root_pt, ident, "set");
+    
+    // Set parent to -1 (no parent)
+    setpointattrib(0, "parent", root_pt, -1, "set");
+    
+    // Set bone length/size
+    setpointattrib(0, "width", root_pt, root_size, "set");
+}
+
+// Process each piece (point) to create bones
+for (int i = 0; i < num_pieces; i++) {
+    // Skip the root point if it exists
+    if (i == root_pt) continue;
+    
+    // Skip points not in the specified group (if provided)
+    if (piece_group != "" && !inpointgroup(0, piece_group, i)) continue;
+    
+    // Get the center position of the piece
+    vector pos = point(0, "P", i);
+    
+    // Set bone name
+    string bone_name = bone_prefix + "_piece_" + itoa(i);
+    setpointattrib(0, "name", i, bone_name, "set");
+    
+    // Set parent to root (or -1 if no root)
+    setpointattrib(0, "parent", i, root_pt, "set");
+    
+    // Calculate orientation based on vector from root to piece
+    vector dir = normalize(pos);
+    if (length(dir) < 0.001) dir = {0,1,0}; // Default direction if too close to origin
+    
+    // Create orientation from direction vector
+    // This creates a quaternion that rotates from {0,1,0} to the direction vector
+    vector up = {0,1,0};
+    vector right = cross(up, dir);
+    if (length(right) < 0.001) right = {1,0,0}; // Handle case when dir is parallel to up
+    right = normalize(right);
+    vector new_up = cross(dir, right);
+    
+    // Create rotation matrix and convert to quaternion
+    matrix3 rot = set(right, new_up, dir);
+    vector4 orient = quaternion(rot);
+    
+    // Set orientation
+    setpointattrib(0, "orient", i, orient, "set");
+    
+    // Set bone width based on distance from origin (optional)
+    float width = length(pos) * 0.1; // 10% of distance as width
+    setpointattrib(0, "width", i, max(width, 0.01), "set");
+}
+
+// Optional: Create connections between pieces based on proximity
+// This section would create a more complex hierarchy where pieces
+// are connected to their nearest neighbors instead of all to the root
+
+// Uncomment and modify this section if you want a more complex hierarchy
+/*
+if (chi("create_hierarchy")) {
+    // For each piece, find the closest piece that could be its parent
+    for (int i = 0; i < num_pieces; i++) {
+        // Skip the root and points not in the group
+        if (i == root_pt || (piece_group != "" && !inpointgroup(0, piece_group, i))) continue;
+        
+        vector pos_i = point(0, "P", i);
+        float min_dist = 1e10;
+        int parent_idx = root_pt; // Default to root
+        
+        // Find closest potential parent
+        for (int j = 0; j < num_pieces; j++) {
+            // Skip self and points not in the group
+            if (i == j || (piece_group != "" && !inpointgroup(0, piece_group, j))) continue;
+            
+            vector pos_j = point(0, "P", j);
+            float dist = distance(pos_i, pos_j);
+            
+            // Check if this is closer than current closest
+            if (dist < min_dist) {
+                // Additional checks could be added here (e.g., only connect to pieces "below" this one)
+                min_dist = dist;
+                parent_idx = j;
+            }
+        }
+        
+        // Set parent to closest piece (or root if none found)
+        setpointattrib(0, "parent", i, parent_idx, "set");
+    }
+}
+*/ 
