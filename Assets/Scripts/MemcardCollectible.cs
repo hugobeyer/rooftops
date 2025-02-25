@@ -12,8 +12,8 @@ namespace RoofTops
         public int pointValue = 1;
 
         [Header("Effects")]
-        [Tooltip("Audio clip to play when collected")]
-        public AudioClip collectionSound;
+        [Tooltip("Audio clips to play when collected (will cycle through them in sequence)")]
+        public AudioClip[] collectionSounds;
 
         [Tooltip("Volume of the collection sound")]
         [Range(0f, 1f)]
@@ -31,6 +31,9 @@ namespace RoofTops
         private GameManager gameManager;
         // Reference to text display
         private MemcardDisplay memcardDisplay;
+
+        // Static track of which sound in the sequence to play next (shared across all memcards)
+        private static int currentSoundIndex = 0;
 
         private void Start()
         {
@@ -124,10 +127,28 @@ namespace RoofTops
         private void PlayCollectionSound()
         {
             // Play sound directly
-            if (collectionSound != null)
+            if (collectionSounds != null && collectionSounds.Length > 0)
             {
-                // Play sound at position without creating a permanent AudioSource
-                AudioSource.PlayClipAtPoint(collectionSound, transform.position, soundVolume);
+                // Create temporary audio source
+                GameObject tempAudio = new GameObject("TempAudio");
+                AudioSource audioSource = tempAudio.AddComponent<AudioSource>();
+                
+                // Get the current clip in the sequence
+                AudioClip currentClip = collectionSounds[currentSoundIndex];
+                
+                // Increment index for next collection and loop back to 0 after reaching max
+                currentSoundIndex = (currentSoundIndex + 1) % collectionSounds.Length;
+                
+                // Set properties
+                audioSource.clip = currentClip;
+                audioSource.volume = soundVolume;
+                audioSource.spatialBlend = 0.3f; // 30% 3D sound
+                
+                // Play sound
+                audioSource.Play();
+                
+                // Destroy after sound is done
+                Destroy(tempAudio, currentClip.length);
             }
         }
 

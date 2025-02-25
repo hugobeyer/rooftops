@@ -69,8 +69,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collectorTag: Player
   pointValue: 1
-  collectionSound: {fileID: 0}
-  soundVolume: 0.7
+  collectionSounds:
+  - {fileID: 8300000, guid: 71eca2b927eac80469e2367534f35728, type: 3}
+  - {fileID: 8300000, guid: a56a67b833f9f9548b98998cec052021, type: 3}
+  - {fileID: 8300000, guid: be4d62eccb5fcbf47b3bedc8fb3fd924, type: 3}
+  - {fileID: 8300000, guid: 36dc8eb34020d8c4a87fd5340069ff22, type: 3}
+  - {fileID: 8300000, guid: 9bf4850c97f07c048bd9c5a0d5e2d432, type: 3}
+  - {fileID: 8300000, guid: b591659bd6c12ff4eac6c31ff0c53aa2, type: 3}
+  - {fileID: 8300000, guid: e905a21ac90636e45b64e04401bc3b32, type: 3}
+  - {fileID: 8300000, guid: 4bff21f75bd94914c94277f10d0b7867, type: 3}
+  soundVolume: 0.604
   collectionEffectPrefab: {fileID: 137355038161490750, guid: 18f8a094f61422f4485f2bef3fb21bc9, type: 3}
   effectDuration: 1
 --- !u!1001 &3609561406441988674
