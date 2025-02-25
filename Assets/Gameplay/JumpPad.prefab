@@ -122,8 +122,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e101087a36c2bf74787af75d2db56db1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseJumpForce: 7
-  forceIncreaseRate: 0.025
+  baseJumpForce: 9
+  forceIncreaseRate: 0.02
   jumpPadSource: {fileID: 6382349415752984916}
   jumpPadSound: {fileID: 8300000, guid: ecbacaf77a483844aa75bc767bc03970, type: 3}
   jumpPadVolume: 1

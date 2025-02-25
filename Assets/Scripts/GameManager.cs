@@ -28,6 +28,7 @@ namespace RoofTops
 
         [Header("Audio")]
         public AudioSource musicSource;  // Main game music
+        public AudioSource audioSource;  // General audio source
         public UnityEngine.Audio.AudioMixer audioMixerForPitch;  // Just assign the mixer with Master exposed
         public string pitchParameter = "Pitch";
         [Range(0.0f, 1.0f)] public float defaultMusicVolume = 0.8f;
@@ -547,6 +548,20 @@ namespace RoofTops
             // {
             //     bonusText.text = gameData.lastRunBonusCollected.ToString();
             // }
+        }
+
+        // Method to handle memcard collection
+        public void OnMemcardCollected(int amount)
+        {
+            // Update the memcard counts in game data
+            gameData.lastRunMemcardsCollected += amount;
+            gameData.totalMemcardsCollected += amount;
+            
+            // Update best run if current run is better
+            if (gameData.lastRunMemcardsCollected > gameData.bestRunMemcardsCollected)
+            {
+                gameData.bestRunMemcardsCollected = gameData.lastRunMemcardsCollected;
+            }
         }
 
         // New method to record final run distance.

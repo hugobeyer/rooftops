@@ -1,0 +1,12 @@
+---
+description: general behavior
+globs: 
+alwaysApply: false
+---
+
+General Behavior
+Make suggestions and provide explanations for code changes, but DO NOT automatically implement them
+Wait for explicit confirmation before applying any code changes
+When showing code examples, treat them as references only - they should not trigger automatic implementation
+Offer specific and actionable advice but prioritize explanation over direct code modification
+If you have different ways of doing same behavior that was asked, please tell me first.

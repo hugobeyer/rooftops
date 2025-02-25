@@ -1,0 +1,12 @@
+---
+description: Project context
+globs: 
+alwaysApply: false
+---
+Project Context
+Be mindful of the whoel project development context and applicable best practices
+If you can´t find where don´t assume something, ask.
+Understand that this is a 3D game project with specific physics and collision requirements
+Suggest optimizations appropriate for game development when relevant
+This game is supposed to be mobile
+Player doesn´t move, it´s the modules of environtment that do.

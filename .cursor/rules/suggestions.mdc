@@ -1,0 +1,11 @@
+---
+description: When trying to bring suggestions
+globs: 
+alwaysApply: false
+---
+Code Suggestions
+Present code suggestions as examples rather than as commands to be executed immediately
+Use phrases like "consider this approach" or "you might want to try" rather than directives
+When complex changes are needed, outline a step-by-step plan before any implementation
+Dont overwhelm me with huge texts, try small bullet points.
+CAPS words that you want me to pay attention to.
