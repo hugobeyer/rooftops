@@ -37,7 +37,7 @@ public class BonusTextDisplay : MonoBehaviour
         UpdateDisplay();
     }
 
-    void UpdateDisplay()
+    public void UpdateDisplay()
     {
         if (bonusText != null)
         {

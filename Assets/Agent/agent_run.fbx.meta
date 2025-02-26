@@ -34,12 +34,12 @@ ModelImporter:
       name: run
       takeName: run
       internalID: 6200578666267062213
-      firstFrame: 1
+      firstFrame: 12.9
       lastFrame: 25
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 6
+      cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
@@ -48,9 +48,9 @@ ModelImporter:
       loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
-      keepOriginalPositionY: 0
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []

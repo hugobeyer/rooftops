@@ -2,7 +2,17 @@ fileFormatVersion: 2
 guid: d3ad7370d8eb5144da9ceccb00dd929a
 ScriptedImporter:
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bdg
+    second: {fileID: 2100000, guid: a2deab81943791346804cd6786f2e63a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: windows
+    second: {fileID: 2100000, guid: e7cd5fb035a64964fa95183fa9e1df46, type: 2}
   serializedVersion: 2
   userData: 
   assetBundleName: 
@@ -41,7 +51,8 @@ ScriptedImporter:
 '
   optimizeGameObjects: 0
   materials:
-  - {fileID: 266564896448798252, guid: d3ad7370d8eb5144da9ceccb00dd929a, type: 3}
+  - {fileID: 7692595935520778219, guid: d3ad7370d8eb5144da9ceccb00dd929a, type: 3}
+  - {fileID: 8884940142553567970, guid: d3ad7370d8eb5144da9ceccb00dd929a, type: 3}
   textures: []
   hasSceneData: 1
   hasAnimationData: 0

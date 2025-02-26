@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Goal Messaging System - Quick Reference</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #0c0c14;
+            color: #ffffff;
+        }
+        h1 {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2196F3;
+            margin-top: 30px;
+            border-bottom: 1px solid #2196F3;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #E91E63;
+            margin-top: 20px;
+        }
+        .divider {
+            border-top: 1px dashed #444;
+            margin: 5px 0 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background-color: #1a1a2e;
+        }
+        .id {
+            color: #FF9800;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: bold;
+        }
+        .range {
+            color: #9C27B0;
+            font-weight: bold;
+        }
+        .message {
+            color: #ffffff;
+        }
+        code {
+            background-color: #1a1a2e;
+            padding: 15px;
+            border-radius: 5px;
+            display: block;
+            margin: 15px 0;
+            border-left: 4px solid #FF9800;
+            font-family: 'Roboto Mono', monospace;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <h1>GOAL MESSAGING SYSTEM - QUICK REFERENCE</h1>
+
+    <h2>COLLECTION IDs</h2>
+    <div class="divider"></div>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th>Description</th>
+            <th>Values</th>
+        </tr>
+        <tr>
+            <td><span class="id">DIST_GOAL_ARRAY</span></td>
+            <td>Distance goals</td>
+            <td>[100, 250, 500, 1000, 2000, 5000]</td>
+        </tr>
+        <tr>
+            <td><span class="id">BONUS_GOAL_ARRAY</span></td>
+            <td>Bonus items</td>
+            <td>[5, 10, 25, 50, 100]</td>
+        </tr>
+        <tr>
+            <td><span class="id">SURVIVAL_GOAL_ARRAY</span></td>
+            <td>Survival time</td>
+            <td>[30, 60, 120, 300, 600]</td>
+        </tr>
+        <tr>
+            <td><span class="id">JUMP_GOAL_ARRAY</span></td>
+            <td>Jump count</td>
+            <td>[10, 25, 50, 100, 200]</td>
+        </tr>
+    </table>
+
+    <h2>MESSAGE IDs</h2>
+    <div class="divider"></div>
+    
+    <h3>GAME STATUS MESSAGES</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th>Message Template</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><span class="id">ZERO_TRIDOTS</span></td>
+            <td><span class="message">"Not enough Tridots!"</span></td>
+            <td>Displayed when player lacks sufficient Tridots</td>
+        </tr>
+        <tr>
+            <td><span class="id">LEVEL_UP</span></td>
+            <td><span class="message">"Level Up! You reached level {0}"</span></td>
+            <td>Shown when player levels up</td>
+        </tr>
+        <tr>
+            <td><span class="id">NEW_HIGHSCORE</span></td>
+            <td><span class="message">"New Highscore: {0}!"</span></td>
+            <td>Displayed when player achieves a new high score</td>
+        </tr>
+        <tr>
+            <td><span class="id">GAME_OVER</span></td>
+            <td><span class="message">"Game Over! Distance: {0}m"</span></td>
+            <td>Shown when the game ends</td>
+        </tr>
+        <tr>
+            <td><span class="id">BONUS_COLLECTED</span></td>
+            <td><span class="message">"+{0} Bonus!"</span></td>
+            <td>Displayed when collecting bonus items</td>
+        </tr>
+    </table>
+    
+    <h3>ANNOUNCEMENTS</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">RUN_START_GOAL_DISTANCE</span></td>
+            <td><span class="message">"Your goal: Run {0}m!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">RUN_START_GOAL_BONUS</span></td>
+            <td><span class="message">"Your goal: Collect {0} bonus items!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">RUN_START_GOAL_SURVIVAL</span></td>
+            <td><span class="message">"Your goal: Survive for {0} seconds!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">RUN_START_GOAL_JUMP</span></td>
+            <td><span class="message">"Your goal: Perform {0} jumps!"</span></td>
+        </tr>
+    </table>
+
+    <h3>ACHIEVEMENTS</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_ACHIEVED_DISTANCE</span></td>
+            <td><span class="message">"Goal achieved! You ran {0}m!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_ACHIEVED_BONUS</span></td>
+            <td><span class="message">"Goal achieved! You collected {0} bonus items!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_ACHIEVED_SURVIVAL</span></td>
+            <td><span class="message">"Goal achieved! You survived for {0} seconds!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_ACHIEVED_JUMP</span></td>
+            <td><span class="message">"Goal achieved! You performed {0} jumps!"</span></td>
+        </tr>
+    </table>
+
+    <h3>PROGRESS</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_PROGRESS_DISTANCE</span></td>
+            <td><span class="message">"{0}m out of {1}m"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_PROGRESS_BONUS</span></td>
+            <td><span class="message">"{0}/{1} bonus items"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_PROGRESS_SURVIVAL</span></td>
+            <td><span class="message">"{0}s/{1}s survived"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">GOAL_PROGRESS_JUMP</span></td>
+            <td><span class="message">"{0}/{1} jumps"</span></td>
+        </tr>
+    </table>
+
+    <h2>RANGE-BASED MESSAGES</h2>
+    <div class="divider"></div>
+
+    <h3>DISTANCE RANGES</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th><span class="range">Range</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">DIST_RANGE_BEGINNER</span></td>
+            <td><span class="range">(0-300)</span></td>
+            <td><span class="message">"Beginner goal: Run {0}m!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">DIST_RANGE_INTERMEDIATE</span></td>
+            <td><span class="range">(301-1000)</span></td>
+            <td><span class="message">"Intermediate goal: Run {0}m!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">DIST_RANGE_ADVANCED</span></td>
+            <td><span class="range">(1001-3000)</span></td>
+            <td><span class="message">"Advanced goal: Run {0}m!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">DIST_RANGE_EXPERT</span></td>
+            <td><span class="range">(3001+)</span></td>
+            <td><span class="message">"Expert goal: Run {0}m!"</span></td>
+        </tr>
+    </table>
+
+    <h3>BONUS RANGES</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th><span class="range">Range</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">BONUS_RANGE_EASY</span></td>
+            <td><span class="range">(1-10)</span></td>
+            <td><span class="message">"Easy goal: Collect {0} bonus items!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">BONUS_RANGE_MEDIUM</span></td>
+            <td><span class="range">(11-50)</span></td>
+            <td><span class="message">"Medium goal: Collect {0} bonus items!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">BONUS_RANGE_HARD</span></td>
+            <td><span class="range">(51+)</span></td>
+            <td><span class="message">"Hard goal: Collect {0} bonus items!"</span></td>
+        </tr>
+    </table>
+
+    <h3>SURVIVAL RANGES</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th><span class="range">Range</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">SURVIVAL_RANGE_SHORT</span></td>
+            <td><span class="range">(0-60)</span></td>
+            <td><span class="message">"Quick run: Survive {0} seconds!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">SURVIVAL_RANGE_MEDIUM</span></td>
+            <td><span class="range">(61-300)</span></td>
+            <td><span class="message">"Extended run: Survive {0} seconds!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">SURVIVAL_RANGE_LONG</span></td>
+            <td><span class="range">(301+)</span></td>
+            <td><span class="message">"Marathon: Survive {0} seconds!"</span></td>
+        </tr>
+    </table>
+
+    <h3>JUMP RANGES</h3>
+    <table>
+        <tr>
+            <th><span class="id">ID</span></th>
+            <th><span class="range">Range</span></th>
+            <th>Message Template</th>
+        </tr>
+        <tr>
+            <td><span class="id">JUMP_RANGE_FEW</span></td>
+            <td><span class="range">(1-25)</span></td>
+            <td><span class="message">"Casual jumper: Perform {0} jumps!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">JUMP_RANGE_MANY</span></td>
+            <td><span class="range">(26-100)</span></td>
+            <td><span class="message">"Active jumper: Perform {0} jumps!"</span></td>
+        </tr>
+        <tr>
+            <td><span class="id">JUMP_RANGE_EXTREME</span></td>
+            <td><span class="range">(101+)</span></td>
+            <td><span class="message">"Extreme jumper: Perform {0} jumps!"</span></td>
+        </tr>
+    </table>
+
+    <h2>GOAL SELECTION STRATEGIES</h2>
+    <div class="divider"></div>
+
+    <h3>SELECTION METHODS</h3>
+    <table>
+        <tr>
+            <th><span class="id">Method</span></th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><span class="id">BY PLAYER EXPERIENCE</span></td>
+            <td>
+                <code>
+                // New player: Distance goal (100m)<br>
+                // Intermediate: Mix of Distance and Bonus<br>
+                // Experienced: All goal types
+                </code>
+            </td>
+        </tr>
+        <tr>
+            <td><span class="id">BY PERFORMANCE</span></td>
+            <td>
+                <code>
+                // If good at distance but not bonuses:<br>
+                // Challenge with bonus goal
+                </code>
+            </td>
+        </tr>
+        <tr>
+            <td><span class="id">WEIGHTED RANDOM</span></td>
+            <td>
+                <code>
+                // Assign weights to each goal type<br>
+                // Adjust based on player history
+                </code>
+            </td>
+        </tr>
+        <tr>
+            <td><span class="id">VARIETY ENFORCEMENT</span></td>
+            <td>
+                <code>
+                // Avoid repeating same goal type<br>
+                // Prioritize unseen types
+                </code>
+            </td>
+        </tr>
+    </table>
+
+    <h3>VALUE DETERMINATION</h3>
+    <table>
+        <tr>
+            <th><span class="id">Method</span></th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><span class="id">INCREMENTAL</span></td>
+            <td>Start with base values, increase gradually</td>
+        </tr>
+        <tr>
+            <td><span class="id">PERCENTAGE</span></td>
+            <td>Increase from player's best (e.g., 120%)</td>
+        </tr>
+        <tr>
+            <td><span class="id">DIFFICULTY CURVE</span></td>
+            <td>Map player progress to predefined curve</td>
+        </tr>
+    </table>
+
+    <h2>USAGE EXAMPLES</h2>
+    <div class="divider"></div>
+
+    <code>
+        // Show goal message<br>
+        ShowGoalMessage("DIST_GOAL_ARRAY", 450);<br>
+        <br>
+        // Show achievement<br>
+        ShowGoalMessage("GOAL_ACHIEVED_DISTANCE", 450);<br>
+        <br>
+        // Show progress<br>
+        string progress = string.Format(GetMessageTemplate("GOAL_PROGRESS_DISTANCE"), 300, 500);<br>
+        GameMessageDisplay.Instance.ShowMessage(progress);<br>
+        <br>
+        // Show game status message<br>
+        GameMessageDisplay.Instance.ShowMessageByID("ZERO_TRIDOTS");
+    </code>
+</body>
+</html> 

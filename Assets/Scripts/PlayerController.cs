@@ -34,7 +34,6 @@ namespace RoofTops
         [Header("AI Learning Events")]
         // Events for AI learning system
         public UnityEvent onJump = new UnityEvent();
-        public UnityEvent<float> onLand = new UnityEvent<float>(); // float for landing quality 0-1
 
         [Header("Debug")]
         [SerializeField] private bool showJumpMetrics = false;
@@ -54,10 +53,8 @@ namespace RoofTops
         private Vector3 _velocity = Vector3.zero;
         private PlayerColorEffects colorEffects;
 
-        // Jump tracking for quality calculation
+        // Jump tracking for metrics
         private Vector3 jumpStartPosition;
-        private Vector3 lastPlatformCenter;
-        private float lastPlatformWidth = 1f;
         private bool wasInAir = false;
 
         [Header("Jump Pad State")]
@@ -74,6 +71,7 @@ namespace RoofTops
         public float dashSpeedMultiplier = 1.5f;
         public float dashDuration = 0.3f;      // Total dash duration
         public float dashCooldown = 1f;        
+        public int dashBonusCost = 1;          // Bonus points required to dash
         //public float doubleTapThreshold = 0.3f;
 
         private float lastJumpPressTime;
@@ -108,8 +106,12 @@ namespace RoofTops
         public Vector3 effectOffset = new Vector3(0, 0.5f, 0);
         private GameObject activeDashEffect;
         public AudioClip dashSound;
+        public AudioClip noDashSound;  // Sound to play when player can't dash
+        public GameObject noDashEffectPrefab;  // Particle effect for failed dash attempt
         [Range(0f, 1f)]
         public float dashVolume = 0.7f;
+        [Tooltip("Message to show when player doesn't have enough tridots to dash")]
+        public string notEnoughBonusMessage = "Need {0} tridots to dash!";
         private AudioSource audioSource;
 
         public bool IsGroundedOnCollider
@@ -156,8 +158,6 @@ namespace RoofTops
             // Initialize events if null
             if (onJump == null)
                 onJump = new UnityEvent();
-            if (onLand == null)
-                onLand = new UnityEvent<float>();
         }
 
         void Start()
@@ -197,6 +197,14 @@ namespace RoofTops
                 jumpStartPosition = transform.position;
                 // Fire jump event
                 onJump.Invoke();
+                
+                // Show dash hint if player has bonus points
+                if (GameManager.Instance != null && 
+                    GameManager.Instance.gameData != null && 
+                    GameManager.Instance.gameData.lastRunBonusCollected >= dashBonusCost)
+                {
+                    ShowDashHint();
+                }
                 
                 if (showJumpMetrics)
                     Debug.Log("Jump started at: " + jumpStartPosition);
@@ -284,43 +292,8 @@ namespace RoofTops
             float jumpDistance = Vector3.Distance(new Vector3(jumpStartPosition.x, 0, jumpStartPosition.z), 
                                                  new Vector3(transform.position.x, 0, transform.position.z));
             
-            // Calculate landing quality (how centered the landing was)
-            float landingQuality = CalculateLandingQuality();
-            
-            // Invoke the landing event with quality
-            onLand.Invoke(landingQuality);
-            
             if (showJumpMetrics)
-                Debug.Log($"Jump metrics - Distance: {jumpDistance:F2}m, Quality: {landingQuality:F2}");
-        }
-
-        private float CalculateLandingQuality()
-        {
-            // Cast a ray down to find the platform 
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit, 2f, groundLayer))
-            {
-                // Try to find the platform's center and width from the collider
-                if (hit.collider != null)
-                {
-                    // For box colliders
-                    if (hit.collider is BoxCollider boxCollider)
-                    {
-                        Vector3 center = hit.collider.transform.position + boxCollider.center;
-                        float width = boxCollider.size.x * hit.collider.transform.lossyScale.x;
-                        lastPlatformCenter = center;
-                        lastPlatformWidth = width;
-                        
-                        // Calculate distance from platform center in the X direction
-                        float distFromCenter = Mathf.Abs(transform.position.x - center.x);
-                        // Calculate quality as 1 when at center, 0 when at edge
-                        return Mathf.Clamp01(1f - (distFromCenter / (width * 0.5f)));
-                    }
-                }
-            }
-            
-            // If no hit or quality calculation failed, use a default value (0.5)
-            return 0.5f;
+                Debug.Log($"Jump metrics - Distance: {jumpDistance:F2}m");
         }
 
         void HandleJumpInput()
@@ -393,14 +366,68 @@ namespace RoofTops
 
         void HandleDashInput()
         {
-            if (InputManager.Instance.isJumpPressed && !cc.isGrounded && CanDash())
+            if (InputManager.Instance.isJumpPressed && !cc.isGrounded)
             {
-                StartDash();
+                if (CanDash())
+                {
+                    StartDash();
+                }
+                else if (canDash && !isOnJumpPad && dashTimer <= 0)
+                {
+                    // Player tried to dash but doesn't have enough bonus points
+                    ShowNotEnoughBonusEffect();
+                }
+            }
+        }
+
+        void ShowNotEnoughBonusEffect()
+        {
+            // Visual feedback that player doesn't have enough bonus
+            if (colorEffects != null)
+            {
+                colorEffects.StartSlowdownEffect();
+            }
+            
+            // Play the "can't dash" sound
+            if (audioSource != null && noDashSound != null)
+            {
+                audioSource.PlayOneShot(noDashSound, dashVolume);
+            }
+            
+            // Spawn the "no dash" particle effect
+            if (noDashEffectPrefab != null)
+            {
+                GameObject noDashEffect = Instantiate(noDashEffectPrefab, transform);
+                noDashEffect.transform.localPosition = effectOffset;
+                
+                // Destroy the effect after a short time
+                Destroy(noDashEffect, 1.0f);
+            }
+            
+            // Use the new GameMessageDisplay if available
+            if (GameMessageDisplay.Instance != null)
+            {
+                // Use the message ID system - if not found, it will use the first message as fallback
+                GameMessageDisplay.Instance.ShowMessageByID("ZERO_TRIDOTS", dashBonusCost);
+            }
+            else
+            {
+                // Fallback to Debug.Log
+                Debug.Log(string.Format(notEnoughBonusMessage, dashBonusCost));
             }
         }
 
         void StartDash()
         {
+            // Consume bonus points
+            if (GameManager.Instance != null)
+            {
+                // Use negative value to consume bonus points
+                GameManager.Instance.AddBonus(-dashBonusCost);
+                
+                // No need to manually update UI as GameManager.AddBonus should handle that
+            }
+            
             isDashing = true;
             canDash = false;
             dashTimer = dashDuration;
@@ -452,10 +479,16 @@ namespace RoofTops
 
         bool CanDash()
         {
+            // Check if player has enough bonus points to dash
+            bool hasEnoughBonus = GameManager.Instance != null && 
+                                  GameManager.Instance.gameData != null && 
+                                  GameManager.Instance.gameData.lastRunBonusCollected >= dashBonusCost;
+            
             return !cc.isGrounded && 
                    canDash && 
                    !isOnJumpPad &&
-                   dashTimer <= 0;
+                   dashTimer <= 0 &&
+                   hasEnoughBonus;
         }
 
         void HandleLanding()
@@ -709,6 +742,18 @@ namespace RoofTops
                 Destroy(activeDashEffect, 0.5f); // Optional delay for effect to finish
                 activeDashEffect = null;
             }
+        }
+
+        void ShowDashHint()
+        {
+            // This method would show a UI hint that the player can dash
+            // You could implement this with a UI popup or text hint
+            
+            // For now, just log it
+            Debug.Log($"Hint: Press Jump in mid-air to Dash (costs {dashBonusCost} tridots)");
+            
+            // You could also add a UI hint system later:
+            // HintSystem.Instance?.ShowHint($"Press Jump in mid-air to Dash (costs {dashBonusCost} tridots)");
         }
     }
 } 

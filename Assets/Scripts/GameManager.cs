@@ -7,6 +7,15 @@ using System.Linq;
 
 namespace RoofTops
 {
+    // Add the enum for different goal types
+    public enum GoalType
+    {
+        Distance,    // Reach a specific distance
+        Bonus,       // Collect a specific number of bonus items
+        Survival,    // Survive for a specific time
+        Jump         // Perform a specific number of jumps
+    }
+
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -158,6 +167,31 @@ namespace RoofTops
         public GameObject popupMessage;      // The GameObject to show briefly
         public float popupDisplayTime = 2f;  // How many seconds it stays visible
 
+        [Header("Goal Messages")]
+        [SerializeField] private bool showGoalOnStart = true;
+        [SerializeField] private float goalMessageDelay = 1.5f; // Delay before showing goal after game starts
+        [SerializeField] private float goalAchievedMessageDelay = 0.5f; // Delay before showing the goal achieved message
+        [SerializeField] private GoalType[] availableGoalTypes = new GoalType[] { GoalType.Distance, GoalType.Bonus }; // Available goal types
+        [SerializeField] private float[] distanceGoalTiers = new float[] { 500f, 750f, 1000f, 1300f, 1600f, 2000f, 2500f, 3000f }; // Distance goal tiers
+        [SerializeField] private float distanceGoalMultiplier = 1.2f; // Multiplier for distance goals based on best distance
+        [SerializeField] private float minDistanceGoal = 50f; // Minimum distance goal
+        [SerializeField] private float maxDistanceGoal = 3000f; // Maximum distance goal
+        [SerializeField] private int minBonusGoal = 5; // Minimum bonus goal
+        [SerializeField] private int maxBonusGoal = 30; // Maximum bonus goal
+        [SerializeField] private float minSurvivalGoal = 30f; // Minimum survival time in seconds
+        [SerializeField] private float maxSurvivalGoal = 120f; // Maximum survival time in seconds
+        [SerializeField] private int minJumpGoal = 5; // Minimum jump goal
+        [SerializeField] private int maxJumpGoal = 20; // Maximum jump goal
+
+        // Current goal tracking
+        private GoalType currentGoalType;
+        private float currentGoalValue;
+        private bool goalAchieved = false;
+
+        [Header("Distance Achievements")]
+        [SerializeField] private float[] distanceAchievementTiers = new float[] { 200f, 400f, 500f, 1000f, 2000f }; // Distance tiers in meters
+        [SerializeField] private bool[] distanceAchievementsUnlocked; // Tracks which achievements have been unlocked
+
         void Awake()
         {
             Instance = this;
@@ -228,6 +262,9 @@ namespace RoofTops
             {
                 targetMaterial.SetFloat("_UsePath", 0f);
             }
+
+            // Initialize the achievement tracking array
+            distanceAchievementsUnlocked = new bool[distanceAchievementTiers.Length];
         }
 
         void Start()
@@ -308,6 +345,16 @@ namespace RoofTops
                 Vector4 playerPos = player.transform.position;
                 targetMaterial.SetVector("_PlayerPosition", playerPos);
             }
+            
+            // Check if the goal has been achieved - only if we have a valid goal value
+            if (showGoalOnStart && !goalAchieved && currentGoalValue > 0)
+            {
+                // Only start checking after a short delay to ensure the goal is properly set up
+                if (Time.time > moduleSpeedStartTime + goalMessageDelay + 1.0f)
+                {
+                    CheckGoalProgress();
+                }
+            }
         }
 
         public void TogglePause()
@@ -351,6 +398,11 @@ namespace RoofTops
             HasGameStarted = false;
             IsPaused = false;
             Time.timeScale = timeSpeed;
+            
+            // Reset goal tracking
+            goalAchieved = false;
+            currentGoalValue = 0f;
+            accumulatedDistance = 0f;
             
             // Reset components
             if (player != null)
@@ -465,6 +517,12 @@ namespace RoofTops
             {
                 HasGameStarted = true;
                 
+                // Reset accumulated distance for the new run
+                accumulatedDistance = 0f;
+                
+                // Reset goal achieved flag
+                goalAchieved = false;
+                
                 // Hide the panel once the game actually starts
                 if (panelController != null && panelController.gameObject != null)
                 {
@@ -533,15 +591,83 @@ namespace RoofTops
                 {
                     targetMaterial.SetFloat("_UsePath", 1f);
                 }
+                
+                // Show goal message after a delay
+                if (showGoalOnStart)
+                {
+                    StartCoroutine(StartMessageSequence());
+                }
             }
+        }
+
+        /// <summary>
+        /// Coordinates the sequence of storyline and goal messages
+        /// </summary>
+        private IEnumerator StartMessageSequence()
+        {
+            // Wait for initial delay after game start
+            yield return new WaitForSeconds(goalMessageDelay);
+            
+            // Set distance goal based on player's progress
+            currentGoalType = GoalType.Distance;
+            
+            // Find the appropriate distance goal tier based on player's best distance
+            float bestDistance = gameData.bestDistance;
+            float selectedGoal = distanceGoalTiers[0]; // Default to first tier
+            
+            // Find the next goal tier above player's best distance
+            for (int i = 0; i < distanceGoalTiers.Length; i++)
+            {
+                if (bestDistance < distanceGoalTiers[i])
+                {
+                    selectedGoal = distanceGoalTiers[i];
+                    break;
+                }
+                
+                // If we've reached the end, use the highest tier
+                if (i == distanceGoalTiers.Length - 1)
+                {
+                    selectedGoal = distanceGoalTiers[i];
+                }
+            }
+            
+            currentGoalValue = selectedGoal;
+            
+            // Make sure goal is not already achieved
+            goalAchieved = false;
+            
+            // Log the goal setup
+            Debug.Log($"Setting up goal: Type = {currentGoalType}, Value = {currentGoalValue}");
+            
+            // Display the goal message
+            DisplayGoalMessage();
         }
 
         // New method to update bonus information centrally
         public void AddBonus(int amount)
         {
+            // Check if this is a bonus collection (positive amount) or consumption (negative amount)
+            bool isCollection = amount > 0;
+            
             // Update the game data
             gameData.lastRunBonusCollected += amount;
             gameData.totalBonusCollected += amount;
+
+            // Show dash info message if this is the first bonus collected and the message hasn't been shown before
+            if (isCollection && gameData.lastRunBonusCollected == amount && !gameData.hasShownDashInfo && HasGameStarted)
+            {
+                // Show the dash info message
+                if (GameMessageDisplay.Instance != null)
+                {
+                    GameMessageDisplay.Instance.ShowMessageByID("1ST_BONUS_DASH_INFO");
+                    
+                    // Mark the message as shown
+                    gameData.hasShownDashInfo = true;
+                    
+                    // Log for debugging
+                    Debug.Log("Showed dash info message for first bonus collection");
+                }
+            }
 
             // Immediately update the bonus text
             // if (bonusText != null)
@@ -591,13 +717,36 @@ namespace RoofTops
             // Save stats
             RecordFinalDistance(finalDistance);
             
-            // 1) Make sure the player's animator is reset before going ragdoll
+            // Make sure the player's animator is completely reset before going ragdoll
             if (player != null)
             {
                 PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
                 if (animController != null)
                 {
-                    animController.ResetAnimationStates(); // Clear any custom states
+                    // Reset all animation states
+                    animController.ResetAnimationStates();
+                    animController.ResetTurnState();
+                    
+                    // Reset all booleans to their default state
+                    animController.SetBool("IsGrounded", true);
+                    animController.SetBool("Jump", false);
+                    animController.SetBool("IsRunning", false);
+                    animController.SetBool("IsFalling", false);
+                    
+                    // Reset any other custom states
+                    Animator anim = animController.GetComponent<Animator>();
+                    if (anim != null)
+                    {
+                        // Reset all triggers
+                        anim.ResetTrigger("JumpTrigger");
+                        anim.ResetTrigger("LandTrigger");
+                        
+                        // Reset to idle state to ensure clean transition to ragdoll
+                        anim.Play("Idle", 0, 0f);
+                        
+                        // Ensure the animator is in a stable state
+                        anim.Update(0f);
+                    }
                 }
             }
 
@@ -613,7 +762,7 @@ namespace RoofTops
                 musicSource.Stop();
             }
 
-            // 2) Show death UI, then reload after a delay
+            // Show death UI, then reload after a delay
             StartCoroutine(ShowDeathUI());
         }
 
@@ -681,7 +830,10 @@ namespace RoofTops
                 var sourceAnimator = player.GetComponent<Animator>();
                 if (sourceAnimator != null)
                 {
+                    // Ensure the animator is completely disabled
                     sourceAnimator.enabled = false;
+                    sourceAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    sourceAnimator.updateMode = AnimatorUpdateMode.Normal;
                 }
 
                 // Spawn ragdoll at player position
@@ -786,6 +938,189 @@ namespace RoofTops
                 popupMessage.SetActive(true); 
                 yield return new WaitForSeconds(popupDisplayTime);
                 popupMessage.SetActive(false); 
+            }
+        }
+
+        /// <summary>
+        /// Displays a message when the goal is achieved
+        /// </summary>
+        private void DisplayGoalAchievedMessage()
+        {
+            if (GameMessageDisplay.Instance == null) return;
+            
+            // Add delay before showing the goal achieved message
+            StartCoroutine(ShowGoalAchievedMessageWithDelay());
+        }
+
+        /// <summary>
+        /// Shows the goal achieved message after a delay
+        /// </summary>
+        private IEnumerator ShowGoalAchievedMessageWithDelay()
+        {
+            yield return new WaitForSeconds(goalAchievedMessageDelay);
+            GameMessageDisplay.Instance.ShowMessageByID("GOAL_ACHIEVED", "");
+        }
+
+        #region Goal System
+
+        /// <summary>
+        /// Calculates an appropriate goal value based on the player's progress
+        /// </summary>
+        private void CalculateGoalValue()
+        {
+            switch (currentGoalType)
+            {
+                case GoalType.Distance:
+                    // Base goal on best distance, with a minimum
+                    float bestDistance = gameData.bestDistance;
+                    currentGoalValue = Mathf.Clamp(bestDistance * distanceGoalMultiplier, minDistanceGoal, maxDistanceGoal);
+                    // Round to nearest 10
+                    currentGoalValue = Mathf.Round(currentGoalValue / 10f) * 10f;
+                    break;
+                    
+                case GoalType.Bonus:
+                    // Set a reasonable bonus collection goal
+                    currentGoalValue = Random.Range(minBonusGoal, maxBonusGoal + 1);
+                    break;
+                    
+                case GoalType.Survival:
+                    // Set a survival time goal
+                    currentGoalValue = Random.Range(minSurvivalGoal, maxSurvivalGoal);
+                    // Round to nearest 5 seconds
+                    currentGoalValue = Mathf.Round(currentGoalValue / 5f) * 5f;
+                    break;
+                    
+                case GoalType.Jump:
+                    // Set a jump count goal
+                    currentGoalValue = Random.Range(minJumpGoal, maxJumpGoal + 1);
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// Displays the goal message using the GameMessageDisplay
+        /// </summary>
+        private void DisplayGoalMessage()
+        {
+            if (GameMessageDisplay.Instance == null) return;
+            
+            switch (currentGoalType)
+            {
+                case GoalType.Distance:
+                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_DISTANCE", currentGoalValue);
+                    break;
+                    
+                case GoalType.Bonus:
+                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_BONUS", (int)currentGoalValue);
+                    break;
+                    
+                case GoalType.Survival:
+                    int minutes = Mathf.FloorToInt(currentGoalValue / 60f);
+                    int seconds = Mathf.FloorToInt(currentGoalValue % 60f);
+                    string timeFormat = minutes > 0 ? $"{minutes}m {seconds}s" : $"{seconds}s";
+                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_SURVIVAL", timeFormat);
+                    break;
+                    
+                case GoalType.Jump:
+                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_JUMP", (int)currentGoalValue);
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// Checks if the current goal has been achieved
+        /// </summary>
+        public void CheckGoalProgress()
+        {
+            if (goalAchieved) return;
+            
+            bool achieved = false;
+            
+            switch (currentGoalType)
+            {
+                case GoalType.Distance:
+                    // Add debug logging to help diagnose the issue
+                    Debug.Log($"Goal check: Current distance = {accumulatedDistance}, Goal = {currentGoalValue}");
+                    achieved = accumulatedDistance >= currentGoalValue;
+                    break;
+                    
+                case GoalType.Bonus:
+                    achieved = gameData.lastRunBonusCollected >= currentGoalValue;
+                    break;
+                    
+                case GoalType.Survival:
+                    // You would need to track game time separately
+                    // achieved = gameTime >= currentGoalValue;
+                    break;
+                    
+                case GoalType.Jump:
+                    // You would need to track jump count
+                    // achieved = jumpCount >= currentGoalValue;
+                    break;
+            }
+            
+            if (achieved)
+            {
+                Debug.Log("Goal achieved!");
+                goalAchieved = true;
+                DisplayGoalAchievedMessage();
+            }
+        }
+
+        /// <summary>
+        /// Resets the goal system (for debugging)
+        /// </summary>
+        public void ResetGoalSystem()
+        {
+            Debug.Log("Resetting goal system");
+            goalAchieved = false;
+            currentGoalValue = 0f;
+            accumulatedDistance = 0f;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Checks if any distance achievements have been reached
+        /// </summary>
+        private void CheckDistanceAchievements()
+        {
+            // Skip if no achievements defined
+            if (distanceAchievementTiers == null || distanceAchievementTiers.Length == 0) return;
+            
+            // Make sure our tracking array is initialized
+            if (distanceAchievementsUnlocked == null || distanceAchievementsUnlocked.Length != distanceAchievementTiers.Length)
+            {
+                distanceAchievementsUnlocked = new bool[distanceAchievementTiers.Length];
+            }
+            
+            // Check each tier
+            bool achievementUnlocked = false;
+            string achievementValue = "";
+            
+            for (int i = 0; i < distanceAchievementTiers.Length; i++)
+            {
+                // Skip already unlocked achievements
+                if (distanceAchievementsUnlocked[i]) continue;
+                
+                // Check if this tier has been reached
+                if (accumulatedDistance >= distanceAchievementTiers[i])
+                {
+                    distanceAchievementsUnlocked[i] = true;
+                    achievementUnlocked = true;
+                    achievementValue = distanceAchievementTiers[i].ToString();
+                    
+                    // You could break here to only show one achievement at a time
+                    // or continue to potentially show multiple achievements at once
+                    break;
+                }
+            }
+            
+            // Show achievement message if any were unlocked
+            if (achievementUnlocked && GameMessageDisplay.Instance != null)
+            {
+                // Show achievement message
+                GameMessageDisplay.Instance.ShowMessageByID("DISTANCE_ACHIEVED", achievementValue);
             }
         }
     }

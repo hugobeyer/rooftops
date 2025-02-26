@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8195fa913ffb85b44ab78e313c7e3e39, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  bestDistance: 0
-  lastRunDistance: 0
+  bestDistance: 1255.6665
+  lastRunDistance: 1255.6665
   totalBonusCollected: 0
   lastRunBonusCollected: 0
   bestRunBonusCollected: 0
-  totalMemcardsCollected: 2863
-  lastRunMemcardsCollected: 2863
-  bestRunMemcardsCollected: 2863
+  totalMemcardsCollected: 0
+  lastRunMemcardsCollected: 0
+  bestRunMemcardsCollected: 0
+  hasShownDashInfo: 1

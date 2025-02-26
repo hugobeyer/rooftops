@@ -15,4 +15,7 @@ public class GameDataObject : ScriptableObject
     public int totalMemcardsCollected;   // All-time total memcards
     public int lastRunMemcardsCollected; // Memcards collected in last run
     public int bestRunMemcardsCollected; // Best run memcard count
+    
+    // Track tutorial messages shown
+    public bool hasShownDashInfo = false; // Whether the dash info message has been shown
 } 

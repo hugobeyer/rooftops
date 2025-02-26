@@ -20,8 +20,11 @@ public class RoofTopsMenu : Editor
             {
                 gameData.totalBonusCollected = 0;
                 gameData.lastRunBonusCollected = 0;
+                gameData.lastRunMemcardsCollected = 0;
+                gameData.totalMemcardsCollected = 0;
+                gameData.bestRunMemcardsCollected = 0;
                 EditorUtility.SetDirty(gameData);
-                Debug.Log($"Reset bonuses in {path}");
+                Debug.Log($"Reset bonuses and memcards in {path}");
             }
         }
         AssetDatabase.SaveAssets();
@@ -46,6 +49,9 @@ public class RoofTopsMenu : Editor
                 gameData.lastRunBonusCollected = 0;
                 gameData.bestDistance = 0;
                 gameData.lastRunDistance = 0;
+                gameData.lastRunMemcardsCollected = 0;
+                gameData.totalMemcardsCollected = 0;
+                gameData.bestRunMemcardsCollected = 0;
                 EditorUtility.SetDirty(gameData);
                 Debug.Log($"Reset all data in {path}");
             }
