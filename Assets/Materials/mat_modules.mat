@@ -166,8 +166,10 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SoapPass: 0.1
     - _SpecularHighlights: 1
+    - _Speed: 12
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _Step: 0.98
     - _Surface: 0
     - _Temperature: 0.75
     - _Tint: 0.13
@@ -203,8 +205,11 @@ Material:
     - _HeightFog_Color: {r: 0.59748423, g: 0, b: 0.02609908, a: 1}
     - _HeightFog_Warm: {r: 1, g: 0.12914951, b: 0, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Orientation: {r: 0, g: 2.04, b: 0.07, a: 0}
     - _PathColor: {r: 0.03530311, g: 0.5345911, b: 0.067049764, a: 1}
-    - _PlayerPosition: {r: 0, g: 0.07999992, b: 0, a: 0}
+    - _PlayerPosition: {r: 0, g: 0.5792719, b: 0, a: 0}
+    - _Proj0: {r: 0.27, g: 4.49, b: 0, a: 0}
+    - _Proj2: {r: 2.57, g: 0.39, b: 0, a: 0}
     - _Rings_Color: {r: 1, g: 1, b: 1, a: 0}
     - _ShadowOff: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

@@ -158,11 +158,22 @@ namespace RoofTops
         private Dictionary<string, MessageStyle> styleDict = new Dictionary<string, MessageStyle>();
 
         [Header("Debug Testing")]
-        [Tooltip("Enable keyboard shortcuts for testing animations")]
-        [SerializeField] private bool enableKeyboardTesting = true;
+        [SerializeField] private bool enableKeyboardTesting = false;
         [Tooltip("Test message to display when using keyboard shortcuts")]
-        [SerializeField] private string testMessage = "Test Message";
-         /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
+        [SerializeField] private string testMessage = "This is a test message";
+        
+        // Add key configuration for testing
+        [Header("Test Key Bindings")]
+        [SerializeField] private KeyCode testFadeInOutKey = KeyCode.T;
+        [SerializeField] private KeyCode testPulseKey = KeyCode.Y;
+        [SerializeField] private KeyCode testBlinkKey = KeyCode.U;
+        [SerializeField] private KeyCode testWarningKey = KeyCode.I;
+        [SerializeField] private KeyCode testZeroTridotsKey = KeyCode.O;
+        [SerializeField] private KeyCode testPopTransitionKey = KeyCode.P;
+        [SerializeField] private KeyCode testPopFadeKey = KeyCode.LeftBracket;
+        [SerializeField] private KeyCode testLongerTextKey = KeyCode.RightBracket;
+        [SerializeField] private KeyCode testLongerBarKey = KeyCode.Backslash;
+        
         private void Awake()
         {
             // Singleton pattern
@@ -424,8 +435,14 @@ namespace RoofTops
 
             // Build message dictionary for quick lookup
             BuildMessageDictionary();
+
+            // Register input actions with InputManager if testing is enabled
+            if (enableKeyboardTesting && InputManager.Exists())
+            {
+                RegisterTestInputActions();
+            }
         }
-                 /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
+        
         private void BuildMessageDictionary()
         {
             messageDict.Clear();
@@ -1776,70 +1793,135 @@ namespace RoofTops
             }
         }
 
-        private void Update()
+        private void RegisterTestInputActions()
         {
-            // Only process keyboard input if testing is enabled
-            if (!enableKeyboardTesting) return;
-
-            // Test different animation styles with keyboard shortcuts
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                // T key - Test FadeInOut animation with white bar
+            InputManager.Instance.RegisterAction("TestFadeInOut", testFadeInOutKey);
+            InputManager.Instance.RegisterAction("TestPulse", testPulseKey);
+            InputManager.Instance.RegisterAction("TestBlink", testBlinkKey);
+            InputManager.Instance.RegisterAction("TestWarning", testWarningKey);
+            InputManager.Instance.RegisterAction("TestZeroTridots", testZeroTridotsKey);
+            InputManager.Instance.RegisterAction("TestPopTransition", testPopTransitionKey);
+            InputManager.Instance.RegisterAction("TestPopFade", testPopFadeKey);
+            InputManager.Instance.RegisterAction("TestLongerText", testLongerTextKey);
+            InputManager.Instance.RegisterAction("TestLongerBar", testLongerBarKey);
+            
+            // Subscribe to events
+            InputManager.Instance.SubscribeToPressed("TestFadeInOut", () => {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.FadeInOut, Color.white, 2.0f, 2.0f);
                 Debug.Log("Testing FadeInOut animation with white bar");
-            }
-            else if (Input.GetKeyDown(KeyCode.Y))
-            {
-                // Y key - Test Pulse animation with green bar
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestPulse", () => {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Pulse, Color.green, 2.0f, 2.0f);
                 Debug.Log("Testing Pulse animation with green bar");
-            }
-            else if (Input.GetKeyDown(KeyCode.U))
-            {
-                // U key - Test Blink animation with blue bar
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestBlink", () => {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Blink, Color.blue, 2.0f, 2.0f);
                 Debug.Log("Testing Blink animation with blue bar");
-            }
-            else if (Input.GetKeyDown(KeyCode.I))
-            {
-                // I key - Test Warning animation with red bar
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestWarning", () => {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Warning, Color.red, 2.0f, 2.0f);
                 Debug.Log("Testing Warning animation with red bar");
-            }
-            else if (Input.GetKeyDown(KeyCode.O))
-            {
-                // O key - Test "Zero Tridots" message
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestZeroTridots", () => {
                 ShowMessageByID("ZERO_TRIDOTS", 3);
                 Debug.Log("Testing ZERO_TRIDOTS message");
-            }
-            else if (Input.GetKeyDown(KeyCode.P))
-            {
-                // P key - Test PopAndTransition animation (white to purple)
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestPopTransition", () => {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndTransition, new Color(0.5f, 0f, 0.5f), 2.0f, 2.0f);
                 Debug.Log("Testing PopAndTransition animation (white to purple)");
-            }
-            else if (Input.GetKeyDown(KeyCode.LeftBracket))
-            {
-                // [ key - Test PopAndFade animation with orange color
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestPopFade", () => {
                 Color orangeWithAlpha = new Color(1f, 0.5f, 0f, 0.7f); // Orange with 70% alpha
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndFade, orangeWithAlpha, 2.0f, 2.0f);
                 Debug.Log("Testing PopAndFade animation with orange color");
-            }
-            else if (Input.GetKeyDown(KeyCode.RightBracket))
-            {
-                // ] key - Test different durations (text longer than bar)
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestLongerText", () => {
                 Color blueWithAlpha = new Color(0f, 0.5f, 1f, 0.7f); // Blue with 70% alpha
                 ShowMessageWithVisualBar("Text stays longer than bar", BarAnimationStyle.FadeInOut, blueWithAlpha, 3.0f, 1.5f);
                 Debug.Log("Testing different durations - text: 3.0s, bar: 1.5s");
-            }
-            else if (Input.GetKeyDown(KeyCode.Backslash))
-            {
-                // \ key - Test different durations (bar longer than text)
+            });
+            
+            InputManager.Instance.SubscribeToPressed("TestLongerBar", () => {
                 Color greenWithAlpha = new Color(0f, 0.8f, 0.2f, 0.7f); // Green with 70% alpha
                 ShowMessageWithVisualBar("Bar stays longer than text", BarAnimationStyle.FadeInOut, greenWithAlpha, 1.5f, 3.0f);
                 Debug.Log("Testing different durations - text: 1.5s, bar: 3.0s");
-            }
+            });
         }
 
+        private void Update()
+        {
+            // Only process keyboard input if testing is enabled and InputManager doesn't exist
+            if (!enableKeyboardTesting) return;
+            
+            // Fallback to direct input if InputManager doesn't exist
+            if (!InputManager.Exists())
+            {
+                // Test different animation styles with keyboard shortcuts
+                if (Input.GetKeyDown(testFadeInOutKey))
+                {
+                    // T key - Test FadeInOut animation with white bar
+                    ShowMessageWithVisualBar(testMessage, BarAnimationStyle.FadeInOut, Color.white, 2.0f, 2.0f);
+                    Debug.Log("Testing FadeInOut animation with white bar");
+                }
+                else if (Input.GetKeyDown(testPulseKey))
+                {
+                    // Y key - Test Pulse animation with green bar
+                    ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Pulse, Color.green, 2.0f, 2.0f);
+                    Debug.Log("Testing Pulse animation with green bar");
+                }
+                else if (Input.GetKeyDown(testBlinkKey))
+                {
+                    // U key - Test Blink animation with blue bar
+                    ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Blink, Color.blue, 2.0f, 2.0f);
+                    Debug.Log("Testing Blink animation with blue bar");
+                }
+                else if (Input.GetKeyDown(testWarningKey))
+                {
+                    // I key - Test Warning animation with red bar
+                    ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Warning, Color.red, 2.0f, 2.0f);
+                    Debug.Log("Testing Warning animation with red bar");
+                }
+                else if (Input.GetKeyDown(testZeroTridotsKey))
+                {
+                    // O key - Test "Zero Tridots" message
+                    ShowMessageByID("ZERO_TRIDOTS", 3);
+                    Debug.Log("Testing ZERO_TRIDOTS message");
+                }
+                else if (Input.GetKeyDown(testPopTransitionKey))
+                {
+                    // P key - Test PopAndTransition animation (white to purple)
+                    ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndTransition, new Color(0.5f, 0f, 0.5f), 2.0f, 2.0f);
+                    Debug.Log("Testing PopAndTransition animation (white to purple)");
+                }
+                else if (Input.GetKeyDown(testPopFadeKey))
+                {
+                    // [ key - Test PopAndFade animation with orange color
+                    Color orangeWithAlpha = new Color(1f, 0.5f, 0f, 0.7f); // Orange with 70% alpha
+                    ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndFade, orangeWithAlpha, 2.0f, 2.0f);
+                    Debug.Log("Testing PopAndFade animation with orange color");
+                }
+                else if (Input.GetKeyDown(testLongerTextKey))
+                {
+                    // ] key - Test different durations (text longer than bar)
+                    Color blueWithAlpha = new Color(0f, 0.5f, 1f, 0.7f); // Blue with 70% alpha
+                    ShowMessageWithVisualBar("Text stays longer than bar", BarAnimationStyle.FadeInOut, blueWithAlpha, 3.0f, 1.5f);
+                    Debug.Log("Testing different durations - text: 3.0s, bar: 1.5s");
+                }
+                else if (Input.GetKeyDown(testLongerBarKey))
+                {
+                    // \ key - Test different durations (bar longer than text)
+                    Color greenWithAlpha = new Color(0f, 0.8f, 0.2f, 0.7f); // Green with 70% alpha
+                    ShowMessageWithVisualBar("Bar stays longer than text", BarAnimationStyle.FadeInOut, greenWithAlpha, 1.5f, 3.0f);
+                    Debug.Log("Testing different durations - text: 1.5s, bar: 3.0s");
+                }
+            }
+        }
     }
 } 

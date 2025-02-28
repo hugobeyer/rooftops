@@ -98,7 +98,14 @@ namespace RoofTops
             InitializeVolumeBoundaries();
             SpawnInitialModules();
 
-            isMoving = true;
+            // Don't start moving until the game starts
+            isMoving = false;
+            
+            // Subscribe to game start event
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.onGameStarted.AddListener(OnGameStart);
+            }
         }
 
         void OnValidate()
@@ -218,12 +225,15 @@ namespace RoofTops
             if (!isMoving)
                 return;
             
-            float deltaTime = Time.deltaTime;
+            // Don't move modules if the game hasn't started
             if (!GameManager.Instance.HasGameStarted)
             {
                 gameSpeed = GameManager.Instance.initialGameSpeed;
+                return; // Add this return to prevent movement before game starts
             }
-            else if (DifficultyManager.Instance == null) // Only use GameManager if DifficultyManager doesn't exist
+            
+            float deltaTime = Time.deltaTime;
+            if (DifficultyManager.Instance == null) // Only use GameManager if DifficultyManager doesn't exist
             {
                 gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
             }
@@ -504,6 +514,12 @@ namespace RoofTops
 
         void OnDestroy()
         {
+            // Unsubscribe from events to prevent memory leaks
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.onGameStarted.RemoveListener(OnGameStart);
+            }
+            
             // Cleanup
             if (Instance == this) Instance = null;
         }
@@ -543,6 +559,15 @@ namespace RoofTops
         public void SetGameSpeed(float newSpeed)
         {
             gameSpeed = newSpeed;
+        }
+
+        // Add this method to handle game start
+        private void OnGameStart()
+        {
+            // Start moving when the game starts
+            isMoving = true;
+            // Reset the game start time
+            gameStartTime = Time.time;
         }
     }
 }

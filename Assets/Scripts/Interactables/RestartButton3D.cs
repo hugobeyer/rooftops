@@ -4,9 +4,23 @@ using RoofTops;
 
 public class RestartButton3D : MonoBehaviour
 {
+    void Awake()
+    {
+        // Register a restart action with InputManager if it exists
+        if (InputManager.Exists())
+        {
+            InputManager.Instance.RegisterAction("RestartGame", KeyCode.R);
+            InputManager.Instance.SubscribeToPressed("RestartGame", RestartGame);
+        }
+    }
+
     void Update()
     {
-        HandleTouchInput();
+        // Only handle direct touch input if InputManager doesn't exist
+        if (!InputManager.Exists())
+        {
+            HandleTouchInput();
+        }
     }
 
     private void HandleTouchInput()

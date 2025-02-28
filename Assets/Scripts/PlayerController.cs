@@ -231,7 +231,7 @@ namespace RoofTops
 
             if (isDead)
             {
-                if (Input.GetButtonDown("Jump"))
+                if (InputManager.Exists() && InputManager.Instance.isJumpPressed)
                 {
                     StartCoroutine(DelayedReset());
                 }

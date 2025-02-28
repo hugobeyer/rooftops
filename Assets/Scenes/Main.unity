@@ -5897,6 +5897,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hideInPlayMode: 1
+--- !u!1 &602698018 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5045842966926994929, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+  m_PrefabInstance: {fileID: 3034332311844430072}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &602698021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602698018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 803aa8e9921e61f438405d6e8a888aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeOnStart: 0
+  activateOnTitleScreen: 0
+  titleScreenDelay: 1
+  activateOnGameStart: 1
+  gameStartDelay: 10
+  activateOnDeath: 0
+  deathDelay: 0.3
+  deactivateOnDeath: 1
+  deathDeactivationDelay: 0
+  autoDeactivate: 0
+  activeTime: 3
 --- !u!1 &652290826
 GameObject:
   m_ObjectHideFlags: 0
@@ -22818,7 +22846,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3451246489965969203, guid: bad3ae7975276b64aa965f3d0b7ee1fe, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -3.75
       objectReference: {fileID: 0}
     - target: {fileID: 3451246489965969203, guid: bad3ae7975276b64aa965f3d0b7ee1fe, type: 3}
       propertyPath: m_LocalRotation.w
@@ -23707,6 +23735,34 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2019784924}
   m_CullTransparentMesh: 1
+--- !u!1 &2063497217 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7754860259413638732, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+  m_PrefabInstance: {fileID: 3034332311844430072}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2063497220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2063497217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 803aa8e9921e61f438405d6e8a888aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeOnStart: 0
+  activateOnTitleScreen: 0
+  titleScreenDelay: 1
+  activateOnGameStart: 1
+  gameStartDelay: 10
+  activateOnDeath: 0
+  deathDelay: 0.3
+  deactivateOnDeath: 1
+  deathDeactivationDelay: 0
+  autoDeactivate: 0
+  activeTime: 3
 --- !u!1001 &694860052606830843
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23721,7 +23777,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1706896920531967638, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.06
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 1706896920531967638, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -23759,10 +23815,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 5568182176569987806, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5604537859979555465, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
       propertyPath: leftFootstepAudio
       value: 
@@ -23775,58 +23827,6 @@ PrefabInstance:
       propertyPath: modulePool
       value: 
       objectReference: {fileID: 1044673812}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 0.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: InitialModule.startSpeed.scalar
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: InitialModule.startSpeed.minScalar
-      value: 0.005
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.8490566
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.7929345
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.67016727
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: ClampVelocityModule.magnitude.scalar
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: EmissionModule.m_Bursts.Array.data[0].cycleCount
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: EmissionModule.m_Bursts.Array.data[1].cycleCount
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: EmissionModule.m_Bursts.Array.data[0].repeatInterval
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: EmissionModule.m_Bursts.Array.data[1].repeatInterval
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: EmissionModule.m_Bursts.Array.data[0].countCurve.scalar
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9182323729612332185, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-      propertyPath: EmissionModule.m_Bursts.Array.data[1].countCurve.scalar
-      value: 5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -24760,7 +24760,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5566530197493532802, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
       propertyPath: spawnDelay
-      value: 20
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5611248997960039739, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+      propertyPath: enableSelfTuning
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5611248997960039739, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+      propertyPath: enableAIAdjustment
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6796467322250125783, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
       propertyPath: m_LocalPosition.x
@@ -24818,10 +24826,20 @@ PrefabInstance:
       propertyPath: heightOffset
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7587263312455769781, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+      propertyPath: initialSpawnDelay
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7754860259413638732, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2063497220}
+    - targetCorrespondingSourceObject: {fileID: 5045842966926994929, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 602698021}
   m_SourcePrefab: {fileID: 100100000, guid: b0b34b19b27b3c74295f8f8462e92c98, type: 3}
 --- !u!1 &3522104340728716519 stripped
 GameObject:
