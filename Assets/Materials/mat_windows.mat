@@ -133,7 +133,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _Explode: 0.369
+    - _Explode: 0.6
     - _FadeLerp: 0.0024859905
     - _Float: -2.28
     - _Float_1: 0.52
@@ -166,7 +166,7 @@ Material:
     - _Rotate_Overtime: 0
     - _Rotate_Speed: 19.4
     - _Saturation: 0.83
-    - _Size: 8.6
+    - _Size: 8.21
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SoapPass: -0.47
@@ -181,7 +181,7 @@ Material:
     - _Use_Rings: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _aaa: 0.82
+    - _aaa: 0.03
     - _aggg: -32.4
     - _fuzz: 0.6
     - _mix: 0.84
@@ -202,7 +202,7 @@ Material:
     - _Color3: {r: 0.14191271, g: 0.04008041, b: 0.030792361, a: 0}
     - _ColorEdge: {r: 0.7484276, g: 0.51721543, b: 0.18592995, a: 0}
     - _ColorJump: {r: 0, g: 0, b: 0, a: 0}
-    - _Color_2: {r: 14.614358, g: 6.4510927, b: 5.376979, a: 1}
+    - _Color_2: {r: 5.9921584, g: 2.6450682, b: 2.2046614, a: 1}
     - _ConeColor: {r: 1, g: 1, b: 1, a: 0}
     - _ConeDir: {r: 0, g: 0, b: 0, a: 0}
     - _ConeOffset: {r: 3.7, g: 2.16, b: 0, a: 0}

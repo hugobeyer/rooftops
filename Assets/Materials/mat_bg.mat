@@ -39,19 +39,19 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _BrightFilter: 0
+    - _BrightFilter: 0.42
     - _Cone: 0
     - _Cone_1: 0
     - _Distance: 5
     - _Float: 0.71
     - _Float_1: -0.57
     - _Fog_Offset: -136.5
-    - _Fog_Spread: 267.8
+    - _Fog_Spread: 212.99
     - _Fuzz: 0
-    - _HeightFogSpread: 279.5
-    - _HeightFog_Offset: -8.92
+    - _HeightFogSpread: 271.4
+    - _HeightFog_Offset: -14.5
     - _HeightFog_Spread: 680.54
-    - _Height_Exponential: 6.83
+    - _Height_Exponential: 4.9
     - _Lerp: 0
     - _Offst: 0
     - _Outline: 0
@@ -59,10 +59,10 @@ Material:
     - _Range: 0
     - _Rings: 5
     - _Ringsojt: 0
-    - _Saturation: 1
-    - _SoapPass: 0.19
-    - _Temperature: 0
-    - _Tint: 0
+    - _Saturation: 0.97
+    - _SoapPass: 0.36
+    - _Temperature: -0.74
+    - _Tint: 0.17
     - _UsePath: 0
     - _UseVertexColor: 0
     - _Use_Rings: 0
@@ -72,21 +72,21 @@ Material:
     - _rrrtr: 0
     - _rrrtr_1: 0
     m_Colors:
-    - _BaseColor: {r: 0.39599997, g: 0.4948, b: 0.552, a: 1}
-    - _BrightColor: {r: 1, g: 1, b: 1, a: 0}
+    - _BaseColor: {r: 0.24821006, g: 0.31446534, b: 0.25295138, a: 1}
+    - _BrightColor: {r: 0.47798735, g: 0.34721717, b: 0.34721717, a: 0}
     - _BrightMask: {r: 1, g: 1, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ConeColor: {r: 0, g: 0, b: 0, a: 0}
     - _ConeDir: {r: 1, g: 1, b: 1, a: 0}
     - _ConeOffset: {r: 0, g: 0, b: 0, a: 0}
     - _ConePos: {r: 0, g: 0, b: 0, a: 0}
-    - _DarkColor: {r: 0.21439017, g: 0.25157225, b: 0.24250345, a: 0}
-    - _DarkMask: {r: 0, g: 0, b: 0, a: 0}
-    - _DashCOlor: {r: 0, g: 0, b: 0, a: 0}
+    - _DarkColor: {r: 0, g: 0, b: 0, a: 0}
+    - _DarkMask: {r: 0.11949676, g: 0, b: 0, a: 0}
+    - _DashCOlor: {r: 0.11949676, g: 0.08079183, b: 0.08079183, a: 0}
     - _FOGS_COlor: {r: 0.16245393, g: 0.340243, b: 0.46540874, a: 0}
-    - _Fog_Color: {r: 0.02352941, g: 0.07493784, b: 0.22745098, a: 0}
-    - _HeightFog_Color: {r: 0.98742133, g: 0.96292555, b: 0.76695925, a: 1}
-    - _HeightFog_Warm: {r: 0.7987421, g: 0.65713024, b: 0.35918272, a: 0}
+    - _Fog_Color: {r: 0, g: 0, b: 0, a: 0}
+    - _HeightFog_Color: {r: 10.549725, g: 6.3130503, b: 0, a: 1}
+    - _HeightFog_Warm: {r: 1.1736262, g: 0.39716426, b: 0, a: 0}
     - _PathColor: {r: 0, g: 0, b: 0, a: 0}
     - _PlayerPosition: {r: 0, g: 0, b: 0, a: 0}
     - _Rings_Color: {r: 0, g: 0, b: 0, a: 0}

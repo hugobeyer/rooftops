@@ -11,9 +11,9 @@ namespace RoofTops
         private PlayerController playerController;
         private bool canJumpTrigger = true;
 #pragma warning disable 0414
-        private bool canFallTrigger = false;         
+        private bool canFallTrigger = false;
         private bool wasGrounded;
-        private bool jumpButtonWasReleased = false; 
+        private bool jumpButtonWasReleased = false;
 #pragma warning restore 0414
         private bool wasJumpButtonPressed = false;  // Track previous frame's button state
         private bool holdingJump = false;  // Track if jump button has been held since last jump
@@ -22,7 +22,6 @@ namespace RoofTops
         private static readonly int jumpTriggerHash = Animator.StringToHash("jumpTrigger");
         private readonly int runSpeedMultiplierHash = Animator.StringToHash("runSpeedMultiplier");
         private static readonly int groundedBoolHash = Animator.StringToHash("groundedBool");
-        private readonly int fallTriggerHash = Animator.StringToHash("fallTrigger");
         private readonly int jumpSpeedMultiplierHash = Animator.StringToHash("jumpSpeedMultiplier");
         private readonly int armActionTriggerHash = Animator.StringToHash("armActionTrigger");
         private readonly int armLayerIndex = 1;  // The index of your Arms layer (0 is Base layer)
@@ -30,13 +29,12 @@ namespace RoofTops
         private readonly int armJumpStateHash = Animator.StringToHash("ArmsJumpAction");  // Add this with your exact state name
         private readonly int spineLayerIndex = 2;  // The index of your Spine layer
         private readonly int spineKnockTriggerHash = Animator.StringToHash("spineKnockTrigger");
-        private readonly int fallLayerIndex = 3;  // Fall layer index
         private readonly int airStateHash = Animator.StringToHash("AirState");  // Hash for the air state
         private static readonly int airBoolHash = Animator.StringToHash("airBool");  // New parameter for air state
         private readonly float baseSpineWeight = 0.3f;    // Base weight for spine animation
 #pragma warning disable 0414
-        private float maxSpineWeight = 1.0f;        
-        private float spineWeightThreshold = 0.5f;  
+        private float maxSpineWeight = 1.0f;
+        private float spineWeightThreshold = 0.5f;
 #pragma warning restore 0414
         private readonly int jumpMirrorBoolHash = Animator.StringToHash("jumpMirrorBool");
         private static readonly int smallJumpBoolHash = Animator.StringToHash("smallJumpBool");
@@ -80,45 +78,106 @@ namespace RoofTops
 
         // Add with your other serialized fields
         [Header("Turn Animation")]
-        [SerializeField] private float turnDuration = 2f;
-        [SerializeField] private float turnStartDelay = 0.5f;
+        [SerializeField] public float turnDuration = 2f;
+        [SerializeField] public float turnStartDelay = 0.5f;
 
         private readonly int dashLayerIndex = 5; // Add with other layer indices
-        private readonly int watchLayerIndex = 6; // Add the Watch layer index
-        
+        private int watchLayerIndex = 6; // Removed readonly to allow runtime updates
+
         [Header("Watch Animation")]
         [SerializeField] private float watchStartDelay = 1.0f;
         [SerializeField] private float watchDuration = 3.0f;
         [SerializeField] private float watchFadeInTime = 0.5f;
         [SerializeField] private float watchFadeOutTime = 0.5f;
-        private readonly int watchTriggerHash = Animator.StringToHash("watchTrigger");
+        [SerializeField] public GameObject watchParticleEffect; // Reference to particle effect in the scene
+
+        // Add a flag to track when watch animation is playing
+        private bool isWatchAnimationPlaying = false;
 
         // Add these variables at the class level, near the other private fields
         private bool isDelayedGroundCheckActive = false;
         private int groundedFrameCounter = 0;
         private const int GROUNDED_FRAME_THRESHOLD = 3; // Number of frames to maintain grounded state
 
+        // Add a reference to track the active watch animation coroutine
+        private Coroutine activeWatchCoroutine = null;
+
         void Awake()
         {
             animator = GetComponent<Animator>();
             playerController = GetComponent<PlayerController>();
             cc = GetComponent<CharacterController>();
-            
+
             // Initialize the Spine layer with 0 weight
             animator.SetLayerWeight(spineLayerIndex, 0);
-            
-            // Set Turn layer weight and start delayed trigger
-            animator.SetLayerWeight(TurnLayerIndex, 1f);
-            StartCoroutine(DelayedTurn());
-            
+
+            // Initialize Turn layer with 0 weight (but don't start the animation yet)
+            animator.SetLayerWeight(TurnLayerIndex, 0f);
+
             // Initialize Watch layer with 0 weight
             animator.SetLayerWeight(watchLayerIndex, 0f);
+            
+            // Verify layer indices by checking layer names
+            VerifyLayerIndices();
+        }
+        
+        private void VerifyLayerIndices()
+        {
+            // Log all available layers for debugging
+            Debug.Log($"[LAYERS] Animator has {animator.layerCount} layers:");
+            
+            for (int i = 0; i < animator.layerCount; i++)
+            {
+                string layerName = animator.GetLayerName(i);
+                Debug.Log($"[LAYERS] Layer {i}: {layerName}");
+                
+                // Check if this is the Watch layer
+                if (layerName.Contains("Watch"))
+                {
+                    if (i != watchLayerIndex)
+                    {
+                        Debug.LogWarning($"[WATCH] Watch layer found at index {i}, but watchLayerIndex is set to {watchLayerIndex}. Updating to correct index.");
+                        watchLayerIndex = i;
+                    }
+                    else
+                    {
+                        Debug.Log($"[WATCH] Watch layer confirmed at index {watchLayerIndex}");
+                    }
+                }
+            }
         }
 
         private IEnumerator DelayedTurn()
         {
-            yield return new WaitForSeconds(2f);  // Same delay as particles
+            // Initial delay before showing turn
+            yield return new WaitForSeconds(turnStartDelay);  // Use the public variable instead of hardcoded value
+            
+            // Set layer weight to 1 (turn it on)
+            animator.SetLayerWeight(TurnLayerIndex, 1f);
+            
+            // Wait a frame to ensure the layer weight is applied
+            yield return null;
+            
+            // ONLY NOW trigger the turn animation (after the layer is visible)
             animator.SetTrigger(TurnTrigger);
+            
+            // Wait for the animation to play
+            yield return new WaitForSeconds(turnDuration);
+            
+            // Fade out the turn layer smoothly
+            float fadeOutDuration = 0.5f; // How long the fade out takes
+            float elapsed = 0f;
+            
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.deltaTime;
+                float weight = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+                animator.SetLayerWeight(TurnLayerIndex, weight);
+                yield return null;
+            }
+            
+            // Ensure it's completely off
+            animator.SetLayerWeight(TurnLayerIndex, 0f);
         }
 
         void Start()
@@ -126,74 +185,137 @@ namespace RoofTops
             // Subscribe to game start event
             if (GameManager.Instance != null)
             {
+                Debug.Log("[WATCH] Subscribing to GameManager.onGameStarted event");
                 GameManager.Instance.onGameStarted.AddListener(OnGameStart);
+                
+                // Start the watch animation with proper timing
+                StartCoroutine(DelayedWatch());
+            }
+            else
+            {
+                Debug.LogError("[WATCH] GameManager.Instance is null, cannot subscribe to onGameStarted event");
             }
         }
 
         void OnGameStart()
         {
-            // Wait before triggering turn
-            StartCoroutine(DelayedTurn());
+            Debug.Log("[WATCH] OnGameStart called - game has officially started");
             
-            // Start the watch animation sequence
-            StartCoroutine(PlayWatchAnimation());
+            // Use a delayed call to start the turn animation
+            // This ensures it doesn't happen immediately when pressing play
+            StartCoroutine(DelayedStartTurn());
+            
+            // Trigger the watch animation
+            TriggerWatchAnimation();
+        }
+        
+        private IEnumerator DelayedWatch()
+        {
+            // Set the flag to indicate animation is playing
+            isWatchAnimationPlaying = true;
+            
+            // Initial delay before showing watch
+            yield return new WaitForSeconds(watchStartDelay);
+            
+            Debug.Log("[WATCH] Setting watch layer weight to 1");
+            
+            // Enable the particle effect if assigned
+            if (watchParticleEffect != null)
+            {
+                Debug.Log("[WATCH] Enabling watch particle effect");
+                watchParticleEffect.SetActive(true);
+                
+                // Make sure any particle system is enabled and playing
+                ParticleSystem particleSystem = watchParticleEffect.GetComponent<ParticleSystem>();
+                if (particleSystem != null)
+                {
+                    particleSystem.Play();
+                    Debug.Log("[WATCH] Started particle system");
+                }
+            }
+            
+            // Fade in the watch layer smoothly
+            float fadeInDuration = watchFadeInTime;
+            float elapsed = 0f;
+            
+            while (elapsed < fadeInDuration)
+            {
+                elapsed += Time.deltaTime;
+                float weight = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
+                animator.SetLayerWeight(watchLayerIndex, weight);
+                yield return null;
+            }
+            
+            // Ensure it's at full weight
+            animator.SetLayerWeight(watchLayerIndex, 1f);
+            
+            // Wait for the animation to play
+            yield return new WaitForSeconds(watchDuration);
+            
+            Debug.Log("[WATCH] Fading out watch layer");
+            
+            // Fade out the watch layer smoothly
+            float fadeOutDuration = watchFadeOutTime;
+            elapsed = 0f;
+            
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.deltaTime;
+                float weight = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+                animator.SetLayerWeight(watchLayerIndex, weight);
+                yield return null;
+            }
+            
+            // Ensure it's completely off
+            animator.SetLayerWeight(watchLayerIndex, 0f);
+            
+            // Disable the particle effect if assigned
+            if (watchParticleEffect != null)
+            {
+                Debug.Log("[WATCH] Disabling watch particle effect");
+                
+                // Stop any particle system first
+                ParticleSystem particleSystem = watchParticleEffect.GetComponent<ParticleSystem>();
+                if (particleSystem != null)
+                {
+                    particleSystem.Stop();
+                    Debug.Log("[WATCH] Stopped particle system");
+                }
+                
+                watchParticleEffect.SetActive(false);
+            }
+            
+            // Reset the flag when animation is complete
+            isWatchAnimationPlaying = false;
+            
+            // Clear the active coroutine reference
+            activeWatchCoroutine = null;
+            
+            Debug.Log("[WATCH] Watch animation complete");
+        }
+        
+        private IEnumerator DelayedStartTurn()
+        {
+            // Add a delay before even starting the turn animation sequence
+            // This prevents it from appearing immediately when pressing play
+            yield return new WaitForSeconds(2.0f);
+            
+            // Now start the actual turn animation sequence
+            StartCoroutine(DelayedTurn());
         }
 
         void Update()
         {
-            // SUPER OBVIOUS DEBUG - should appear in console if Update is running
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                Debug.LogError("T KEY PRESSED - ATTEMPTING TO ACTIVATE WATCH LAYER");
-                
-                // Try to directly set the layer weight without any coroutines
-                if (animator != null)
-                {
-                    // Log all layers to verify they exist
-                    for (int i = 0; i < animator.layerCount; i++)
-                    {
-                        Debug.LogError($"LAYER {i}: {animator.GetLayerName(i)}");
-                    }
-                    
-                    // Force the watch layer on immediately
-                    if (watchLayerIndex < animator.layerCount)
-                    {
-                        Debug.LogError($"SETTING WATCH LAYER ({watchLayerIndex}) WEIGHT TO 1");
-                        animator.SetLayerWeight(watchLayerIndex, 1f);
-                        
-                        // Also try to trigger the animation
-                        animator.SetTrigger(watchTriggerHash);
-                    }
-                    else
-                    {
-                        Debug.LogError($"WATCH LAYER INDEX {watchLayerIndex} IS OUT OF RANGE. ANIMATOR HAS {animator.layerCount} LAYERS");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("ANIMATOR IS NULL!");
-                }
-            }
-            
-            // Toggle layer off with Y key
-            if (Input.GetKeyDown(KeyCode.Y))
-            {
-                Debug.LogError("Y KEY PRESSED - ATTEMPTING TO DEACTIVATE WATCH LAYER");
-                if (animator != null && watchLayerIndex < animator.layerCount)
-                {
-                    Debug.LogError($"SETTING WATCH LAYER ({watchLayerIndex}) WEIGHT TO 0");
-                    animator.SetLayerWeight(watchLayerIndex, 0f);
-                }
-            }
-            
+            // Remove all key input detection
+
             // Only check for pause, allow animations when game starts
             if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
-            
+
             bool isGroundedNow = playerController.IsGroundedOnCollider;
-            
+
             // Check if we're close to ground
             isNearGround = Physics.Raycast(transform.position, Vector3.down, groundProximityThreshold);
-            
+
             // Safety check - if we're grounded but still in air state, force exit air state
             if ((isGroundedNow || isNearGround))
             {
@@ -201,11 +323,11 @@ namespace RoofTops
                 {
                     animator.SetBool(airBoolHash, false);
                 }
-                
+
                 // Force reset all jump-related states
                 animator.ResetTrigger(jumpTriggerHash);
                 canJumpTrigger = true;
-                
+
                 // Stop any air state transitions immediately
                 if (airStateCoroutine != null)
                 {
@@ -213,14 +335,14 @@ namespace RoofTops
                     airStateCoroutine = null;
                 }
             }
-            
+
             // Additional safety check - ensure we go to air state after jump animation
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
             if (!isGroundedNow && !isNearGround && stateInfo.IsName("JumpStart") && stateInfo.normalizedTime >= 0.8f)
             {
                 animator.SetBool(airBoolHash, true);
             }
-            
+
             bool isFalling = !isGroundedNow && cc.velocity.y < 0;
 
             // Update falling state before handling jump
@@ -236,18 +358,24 @@ namespace RoofTops
             // Handle jump animation only if not falling
             if (wasGrounded != isGroundedNow)
             {
-                if (!isGroundedNow && !isFalling) // Just left ground from a jump (not a fall)
+                if (!isGroundedNow) // Just left ground
                 {
-                    if (canJumpTrigger)
+                    if (!isFalling && canJumpTrigger) // It's a jump (not a fall)
                     {
                         animator.SetTrigger(jumpTriggerHash);
                         canJumpTrigger = false;
-                        
+
                         if (airStateCoroutine != null)
                         {
                             StopCoroutine(airStateCoroutine);
                         }
                         airStateCoroutine = StartCoroutine(DelayAirState());
+                    }
+                    else // It's a fall
+                    {
+                        // Explicitly set falling state when going off an edge
+                        animator.SetBool(airBoolHash, true);
+                        animator.SetBool(IsFalling, true);
                     }
                 }
                 else // Just landed
@@ -257,7 +385,7 @@ namespace RoofTops
                     animator.SetBool(IsFalling, false);
                 }
             }
-            
+
             // Check if we just landed
             if (!wasGrounded && isGroundedNow)
             {
@@ -265,52 +393,52 @@ namespace RoofTops
                 isDelayedGroundCheckActive = true;
                 groundedFrameCounter = 0;
             }
-            
+
             // Handle the delayed ground check
             if (isDelayedGroundCheckActive)
             {
                 groundedFrameCounter++;
-                
+
                 // Force grounded state to be true for a few frames after landing
                 isGroundedNow = true;
-                
+
                 // After threshold frames, return to normal ground detection
                 if (groundedFrameCounter >= GROUNDED_FRAME_THRESHOLD)
                 {
                     isDelayedGroundCheckActive = false;
                 }
             }
-            
+
             // Update animator parameters with potentially modified grounded state
             animator.SetBool(groundedBoolHash, isGroundedNow);
-            
+
             // While airborne, ensure spine weight is zero.
             if (!isGroundedNow)
             {
                 animator.SetLayerWeight(spineLayerIndex, 0f);
             }
-            
+
             // Track max height during jump
             if (!isGroundedNow)
             {
                 maxJumpHeight = Mathf.Max(maxJumpHeight, transform.position.y);
-                
+
                 // Check if we're in air state and trigger arm animation
                 if (stateInfo.shortNameHash == airStateHash && animator.GetLayerWeight(armLayerIndex) == 0)
                 {
                     StartCoroutine(BlendArmAnimation());
                 }
             }
-            
+
             HandleJumpTrigger();
             UpdateRunSpeed();
             HandleLandingImpact();
-            
+
             wasGrounded = isGroundedNow;  // Store for next frame
 
             // Update grounded and falling states
             bool isFallingNow = !isGroundedNow && cc.velocity.y < 0;  // Falling when not grounded and moving down
-            
+
             animator.SetBool(IsGrounded, isGroundedNow);
             animator.SetBool(IsFalling, isFallingNow);
 
@@ -324,40 +452,40 @@ namespace RoofTops
         void HandleJumpTrigger()
         {
             if (!InputManager.Exists()) return;
-            
+
             bool isJumpPressed = InputManager.Instance.isJumpPressed;
-            
+
             // Change Input.GetButtonDown check to use InputManager
             if (InputManager.Instance.isJumpPressed && playerController.IsGroundedOnCollider && !holdingJump && canJumpTrigger)
             {
                 jumpStartTime = Time.time;
                 animator.SetBool(smallJumpBoolHash, false); // Reset at start of jump
-                
+
                 // Randomize mirror state for this jump
                 animator.SetBool(jumpMirrorBoolHash, Random.value > 0.5f);
-                
+
                 // Record jump start height
                 jumpStartHeight = transform.position.y;
                 maxJumpHeight = jumpStartHeight;
-                
+
                 var (distance, airTime) = playerController.PredictJumpTrajectory();
                 float animationLength = 1f;
                 float jumpSpeedRatio = animationLength / airTime;
-                
+
                 // Set the main jump animation speed (base layer)
                 animator.SetFloat(jumpSpeedMultiplierHash, jumpSpeedRatio);
                 animator.SetTrigger(jumpTriggerHash);
-                
+
                 holdingJump = true;
             }
-            
+
             // Add explicit ground state synchronization
             if (playerController.IsGroundedOnCollider)
             {
                 animator.SetBool(airBoolHash, false);
                 animator.SetBool(groundedBoolHash, true);
             }
-            
+
             // If we're releasing the button
             if (wasJumpButtonPressed && !isJumpPressed)
             {
@@ -366,17 +494,17 @@ namespace RoofTops
                 {
                     animator.SetBool(smallJumpBoolHash, true);
                 }
-                
+
                 holdingJump = false;
             }
-            
+
             wasJumpButtonPressed = isJumpPressed;
         }
 
         private IEnumerator DelayAirState()
         {
             yield return new WaitForSeconds(0.3f);
-            
+
             // If we're not grounded after the delay, ALWAYS go to air state
             if (!playerController.IsGroundedOnCollider || !animator.GetBool(groundedBoolHash))
             {
@@ -388,7 +516,7 @@ namespace RoofTops
         private IEnumerator WaitForJumpPeakThenAnimate()
         {
             yield return new WaitForSeconds(currentJumpTimeToApex);
-            
+
             // Only start the animation if we're still in the air
             if (!playerController.IsGroundedOnCollider)
             {
@@ -400,17 +528,17 @@ namespace RoofTops
         {
             // Initial delay before starting blend
             yield return new WaitForSeconds(0.2f);  // Adjust this delay as needed
-            
+
             // Start with zero weight
             animator.SetLayerWeight(armLayerIndex, 0);
-            
+
             // Trigger the animation
             animator.SetTrigger(armJumpTriggerHash);
-            
+
             // Blend in
             float blendInTime = 0.2f;
             float elapsed = 0;
-            
+
             while (elapsed < blendInTime)
             {
                 elapsed += Time.deltaTime;
@@ -425,11 +553,11 @@ namespace RoofTops
                 animator.SetLayerWeight(armLayerIndex, 1f);
                 yield return null;
             }
-            
+
             // Blend out
             float blendOutTime = 0.3f;
             elapsed = 0;
-            
+
             while (elapsed < blendOutTime)
             {
                 elapsed += Time.deltaTime;
@@ -437,7 +565,7 @@ namespace RoofTops
                 animator.SetLayerWeight(armLayerIndex, weight);
                 yield return null;
             }
-            
+
             animator.SetLayerWeight(armLayerIndex, 0);
         }
 
@@ -481,16 +609,16 @@ namespace RoofTops
                     // Calculate and set target weight immediately
                     float normalizedFraction = Mathf.InverseLerp(jumpActivationThreshold, jumpHeightForMaxSpineWeight, jumpHeight);
                     spineTargetWeight = Mathf.Lerp(baseSpineWeight, 1f, normalizedFraction);
-                    
+
                     animator.SetTrigger(spineKnockTriggerHash);
                     animator.SetLayerWeight(spineLayerIndex, spineTargetWeight);
-                    
+
                     // Schedule the reset
                     spineResetTime = Time.time + spineResetDelay;
                     isResettingSpine = false;
                 }
             }
-            
+
             // Handle smooth reset
             if (Time.time >= spineResetTime && animator.GetLayerWeight(spineLayerIndex) > 0)
             {
@@ -499,20 +627,11 @@ namespace RoofTops
                     isResettingSpine = true;
                     spineTargetWeight = animator.GetLayerWeight(spineLayerIndex);  // Start from current weight
                 }
-                
+
                 float resetProgress = (Time.time - spineResetTime) / spineResetDuration;
                 float currentWeight = Mathf.Lerp(spineTargetWeight, 0, resetProgress);
                 animator.SetLayerWeight(spineLayerIndex, currentWeight);
             }
-        }
-
-        public void TriggerFallAnimation()
-        {
-            // Set layer weight to 1 for full override
-            animator.SetLayerWeight(fallLayerIndex, 1f);
-            
-            // Trigger the fall animation
-            animator.SetTrigger(fallTriggerHash);
         }
 
         public void TriggerJumpAnimation(float jumpForce)
@@ -523,11 +642,11 @@ namespace RoofTops
                 // Record jump start height
                 jumpStartHeight = transform.position.y;
                 maxJumpHeight = jumpStartHeight;
-                
+
                 var (distance, airTime) = playerController.PredictJumpTrajectory();
                 float animationLength = 1f;
                 float jumpSpeedRatio = animationLength / airTime;
-                
+
                 // Set the main jump animation speed (base layer)
                 animator.SetFloat(jumpSpeedMultiplierHash, jumpSpeedRatio);
                 animator.SetTrigger(jumpTriggerHash);
@@ -563,21 +682,19 @@ namespace RoofTops
             animator.SetBool(smallJumpBoolHash, false);
             animator.ResetTrigger(jumpTriggerHash);
             animator.ResetTrigger(spineKnockTriggerHash);
-            animator.ResetTrigger(watchTriggerHash);
-            
+
             // Reset layer weights
             animator.SetLayerWeight(spineLayerIndex, 0f);
             animator.SetLayerWeight(armLayerIndex, 0f);
-            animator.SetLayerWeight(fallLayerIndex, 0f);
             animator.SetLayerWeight(watchLayerIndex, 0f);
-            
+
             // Reset variables
             canJumpTrigger = true;
             holdingJump = false;
             isResettingSpine = false;
             maxJumpHeight = 0f;
             jumpStartHeight = 0f;
-            
+
             // Stop any running coroutines
             if (airStateCoroutine != null)
             {
@@ -606,7 +723,19 @@ namespace RoofTops
 
             yield return new WaitForSeconds(turnDuration);
 
-            // Reset layer weight
+            // Fade out the turn layer smoothly
+            float fadeOutDuration = 0.5f; // How long the fade out takes
+            float elapsed = 0f;
+            
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.deltaTime;
+                float weight = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+                animator.SetLayerWeight(TurnLayerIndex, weight);
+                yield return null;
+            }
+
+            // Ensure it's completely off
             animator.SetLayerWeight(TurnLayerIndex, 0f);
             animator.ResetTrigger(TurnTrigger);
         }
@@ -617,8 +746,10 @@ namespace RoofTops
             // Reset the turn layer weight and trigger
             if (animator != null)
             {
-                animator.SetLayerWeight(TurnLayerIndex, 1f);
+                // Don't set the weight to 1 immediately - this was causing the immediate visibility
+                animator.SetLayerWeight(TurnLayerIndex, 0f);
                 animator.ResetTrigger(TurnTrigger);
+                // Start the delayed turn which will handle the weight properly
                 StartCoroutine(DelayedTurn());
             }
         }
@@ -628,68 +759,20 @@ namespace RoofTops
             animator.SetLayerWeight(dashLayerIndex, Mathf.Clamp01(weight));
         }
 
-        // Add this method to handle the watch animation sequence
-        private IEnumerator PlayWatchAnimation()
-        {
-            Debug.Log("[Watch Animation] Starting sequence...");
-            
-            // Initial delay before showing watch
-            Debug.Log($"[Watch Animation] Waiting for initial delay: {watchStartDelay} seconds");
-            yield return new WaitForSeconds(watchStartDelay);
-            
-            // Trigger the watch animation
-            Debug.Log("[Watch Animation] Triggering animation");
-            animator.SetTrigger(watchTriggerHash);
-            
-            // Verify the layer exists
-            if (watchLayerIndex >= animator.layerCount)
-            {
-                Debug.LogError($"[Watch Animation] Layer index {watchLayerIndex} is out of range! Animator only has {animator.layerCount} layers.");
-                yield break;
-            }
-            
-            Debug.Log($"[Watch Animation] Layer name at index {watchLayerIndex}: {animator.GetLayerName(watchLayerIndex)}");
-            
-            // Fade in the watch layer
-            Debug.Log("[Watch Animation] Starting fade in");
-            float elapsed = 0f;
-            while (elapsed < watchFadeInTime)
-            {
-                elapsed += Time.deltaTime;
-                float weight = Mathf.Lerp(0f, 1f, elapsed / watchFadeInTime);
-                animator.SetLayerWeight(watchLayerIndex, weight);
-                yield return null;
-            }
-            
-            // Ensure it's at full weight
-            Debug.Log("[Watch Animation] Reached full weight");
-            animator.SetLayerWeight(watchLayerIndex, 1f);
-            
-            // Hold for the duration
-            Debug.Log($"[Watch Animation] Holding for {watchDuration} seconds");
-            yield return new WaitForSeconds(watchDuration);
-            
-            // Fade out the watch layer
-            Debug.Log("[Watch Animation] Starting fade out");
-            elapsed = 0f;
-            while (elapsed < watchFadeOutTime)
-            {
-                elapsed += Time.deltaTime;
-                float weight = Mathf.Lerp(1f, 0f, elapsed / watchFadeOutTime);
-                animator.SetLayerWeight(watchLayerIndex, weight);
-                yield return null;
-            }
-            
-            // Ensure it's at zero weight
-            Debug.Log("[Watch Animation] Animation complete, reset to zero weight");
-            animator.SetLayerWeight(watchLayerIndex, 0f);
-            animator.ResetTrigger(watchTriggerHash);
-        }
-
-        // Add this method to manually trigger the watch animation
+        // Simple method to trigger the watch animation
         public void TriggerWatchAnimation()
         {
-            StartCoroutine(PlayWatchAnimation());
+            Debug.Log("[WATCH] Manually triggering watch animation");
+            
+            // Stop any existing watch animation
+            if (activeWatchCoroutine != null)
+            {
+                StopCoroutine(activeWatchCoroutine);
+                activeWatchCoroutine = null;
+            }
+            
+            // Start the watch animation
+            activeWatchCoroutine = StartCoroutine(DelayedWatch());
         }
     }
-} 
+}

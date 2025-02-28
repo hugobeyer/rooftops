@@ -14,22 +14,12 @@ namespace RoofTops
         public float jumpChargeRate = 7f;  // How fast the jump charges
         public float jumpForceGrowthRate = 0.1f;
         public float runSpeedMultiplier = 1f;
-        
+
         [Header("Jump Settings")]
         public float jumpCutFactor = 0.5f;
 
         [Header("Animation")]
         public float runSpeed = 1f;
-
-        [Header("Jump Tracking")]
-        public float simulationTimeStep = 0.1f;
-        public float simulationDuration = 2f;
-
-        [Header("Animation Sync")]
-        public float baseAnimationSpeed = 6f;
-
-        [Header("Speed Sync")]
-        public float baseMoveSpeed = 6f;
 
         [Header("AI Learning Events")]
         // Events for AI learning system
@@ -70,7 +60,7 @@ namespace RoofTops
         [Header("Dash Settings")]
         public float dashSpeedMultiplier = 1.5f;
         public float dashDuration = 0.3f;      // Total dash duration
-        public float dashCooldown = 1f;        
+        public float dashCooldown = 1f;
         public int dashTridotCost = 1;          // tridots points required to dash
         //public float doubleTapThreshold = 0.3f;
 
@@ -120,7 +110,7 @@ namespace RoofTops
 
                 // Additional sphere cast check
                 Vector3 origin = transform.position + Vector3.up * 0.1f; // Slight offset up
-                return Physics.SphereCast(origin, groundCheckRadius, Vector3.down, 
+                return Physics.SphereCast(origin, groundCheckRadius, Vector3.down,
                     out RaycastHit hit, groundCheckDistance, groundLayer);
             }
         }
@@ -134,25 +124,25 @@ namespace RoofTops
         void Awake()
         {
             cc = GetComponent<CharacterController>();
-            
+
             // Add audio source component
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
             audioSource.spatialBlend = 0f; // 2D sound
-            
+
             var meshObject = GetComponentInChildren<MeshRenderer>()?.gameObject;
             if (meshObject != null)
             {
                 colorEffects = meshObject.GetComponent<PlayerColorEffects>();
             }
-            
+
             if (modulePool == null)
             {
                 modulePool = ModulePool.Instance;
             }
-            
+
             playerAnimator = GetComponent<PlayerAnimatorController>();
-            
+
             // Initialize events if null
             if (onJump == null)
                 onJump = new UnityEvent();
@@ -195,16 +185,29 @@ namespace RoofTops
                 jumpStartPosition = transform.position;
                 // Fire jump event
                 onJump.Invoke();
-                
-            
-                // Show dash hint if player has tridots points
-                if (GameManager.Instance != null && 
-                    GameManager.Instance.gameData != null && 
-                    GameManager.Instance.gameData.lastRunTridotCollected >= dashTridotCost)
+
+                // Check if we've shown the dash hint before using PlayerPrefs
+                bool hasShownDashHint = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
+
+                // Show dash hint if player has tridots points AND hasn't seen the hint before
+                if (GameManager.Instance != null &&
+                    GameManager.Instance.gameData != null &&
+                    GameManager.Instance.gameData.lastRunTridotCollected >= dashTridotCost &&
+                    !hasShownDashHint)
                 {
                     ShowDashHint();
+                    
+                    // Save to PlayerPrefs that we've shown the dash info
+                    PlayerPrefs.SetInt("HasShownDashInfo", 1);
+                    PlayerPrefs.Save();
+                    
+                    // Also update GameManager's data for the current session
+                    if (GameManager.Instance.gameData != null)
+                    {
+                        GameManager.Instance.gameData.hasShownDashInfo = true;
+                    }
                 }
-                
+
                 if (showJumpMetrics)
                     Debug.Log("Jump started at: " + jumpStartPosition);
             }
@@ -225,14 +228,14 @@ namespace RoofTops
                 FindFirstObjectByType<DistanceTracker>()?.SaveDistance();
                 StartCoroutine(DelayedReset());
             }
-            
+
             if (isDead)
             {
                 if (Input.GetButtonDown("Jump"))
                 {
                     StartCoroutine(DelayedReset());
                 }
-                
+
                 if (!cc.isGrounded)
                 {
                     _velocity.y += Physics.gravity.y * Time.deltaTime;
@@ -241,16 +244,16 @@ namespace RoofTops
                 cc.Move(deathMove * Time.deltaTime);
                 return;
             }
-            
+
             jumpForce += jumpForceGrowthRate * Time.deltaTime;
-            
+
             if (modulePool != null)
             {
                 runSpeedMultiplier = modulePool.gameSpeed / GameManager.Instance.normalGameSpeed;
             }
-            
+
             if (cc.isGrounded) HandleLanding();
-            
+
             if (!cc.isGrounded)
             {
                 _velocity.y += Physics.gravity.y * Time.deltaTime;
@@ -260,7 +263,7 @@ namespace RoofTops
             _velocity.z = 0;
             Vector3 verticalMove = new Vector3(0, _velocity.y, 0);
             cc.Move(verticalMove * Time.deltaTime);
-            
+
             // Force position to X=0 and Z=0
             Vector3 pos = transform.position;
             pos.x = 0;
@@ -287,9 +290,9 @@ namespace RoofTops
         private void HandleJumpMetrics()
         {
             // Calculate jump distance
-            float jumpDistance = Vector3.Distance(new Vector3(jumpStartPosition.x, 0, jumpStartPosition.z), 
+            float jumpDistance = Vector3.Distance(new Vector3(jumpStartPosition.x, 0, jumpStartPosition.z),
                                                  new Vector3(transform.position.x, 0, transform.position.z));
-            
+
             if (showJumpMetrics)
                 Debug.Log($"Jump metrics - Distance: {jumpDistance:F2}m");
         }
@@ -297,7 +300,7 @@ namespace RoofTops
         void HandleJumpInput()
         {
             if (isOnJumpPad || !InputManager.Exists()) return;
-            
+
             bool jumpTapped = InputManager.Instance.isJumpPressed;
             bool jumpHeld = InputManager.Instance.isJumpHeld;
             bool jumpReleased = InputManager.Instance.isJumpReleased;
@@ -306,7 +309,7 @@ namespace RoofTops
             {
                 // Reset gravity when grounded
                 GameManager.Instance.ResetGravity();
-                
+
                 // Handle tap jump - only if not holding from previous jump
                 if (jumpTapped && !holdingJump)
                 {
@@ -356,7 +359,7 @@ namespace RoofTops
                 {
                     _velocity.y *= jumpCutFactor;
                 }
-                
+
                 isChargingJump = false;
                 holdingJump = false;
             }
@@ -372,7 +375,7 @@ namespace RoofTops
                     StartDash();
                     return;
                 }
-                
+
                 // IMPORTANT: Only show the message when player explicitly tries to dash in air
                 // by pressing jump while airborne AND all other dash conditions are met EXCEPT having enough TRIDOTS
                 if (canDash && !isOnJumpPad && dashTimer <= 0)
@@ -383,7 +386,7 @@ namespace RoofTops
                     {
                         currentTridots = GameManager.Instance.gameData.lastRunTridotCollected;
                     }
-                    
+
                     // ONLY show the message if we truly don't have enough TRIDOTS
                     // AND the player explicitly tried to dash by pressing jump in air
                     if (currentTridots < dashTridotCost)
@@ -398,29 +401,29 @@ namespace RoofTops
         {
             // We already checked that we don't have enough TRIDOTS in HandleDashInput,
             // so we can skip that check here and just show the effects
-            
+
             // Visual feedback that player doesn't have enough tridots
             if (colorEffects != null)
             {
                 colorEffects.StartSlowdownEffect();
             }
-            
+
             // Play the "can't dash" sound
             if (audioSource != null && noDashSound != null)
             {
                 audioSource.PlayOneShot(noDashSound, dashVolume);
             }
-            
+
             // Spawn the "no dash" particle effect
             if (noDashEffectPrefab != null)
             {
                 GameObject noDashEffect = Instantiate(noDashEffectPrefab, transform);
                 noDashEffect.transform.localPosition = effectOffset;
-                
+
                 // Destroy the effect after a short time
                 Destroy(noDashEffect, 1.0f);
             }
-            
+
             // Use the new GameMessageDisplay if available
             if (GameMessageDisplay.Instance != null)
             {
@@ -441,20 +444,20 @@ namespace RoofTops
             {
                 // Log before consumption
                 float beforeGameDataTridots = GameManager.Instance.gameData.lastRunTridotCollected;
-                
+
                 // Use negative value to consume tridots points
                 EconomyManager.Instance.AddTridots(-dashTridotCost);
-                
+
                 // Log after consumption
                 float afterGameDataTridots = GameManager.Instance.gameData.lastRunTridotCollected;
-                
+
                 Debug.Log($"DASH CONSUMED: Before={beforeGameDataTridots}, After={afterGameDataTridots}, Cost={dashTridotCost}");
             }
-            
+
             isDashing = true;
             canDash = false;
             dashTimer = dashDuration;
-            
+
             // Play dash sound
             if (dashSound != null)
             {
@@ -467,7 +470,7 @@ namespace RoofTops
             {
                 Debug.LogWarning("Dash sound is not assigned!"); // Debug warning
             }
-            
+
             // Create dash effect
             if (dashEffectPrefab != null)
             {
@@ -480,7 +483,7 @@ namespace RoofTops
             // Store original values
             originalGameSpeed = ModulePool.Instance.gameSpeed;
             originalGravity = Physics.gravity.y;
-            
+
             // Apply dash effects
             ModulePool.Instance.SetGameSpeed(originalGameSpeed * dashSpeedMultiplier);
             Physics.gravity = Vector3.zero;
@@ -507,7 +510,7 @@ namespace RoofTops
             bool notOnJumpPad = !isOnJumpPad;
             bool noDashInProgress = dashTimer <= 0;
             bool hasEnoughTridots = false;
-            
+
             if (EconomyManager.Instance != null)
             {
                 hasEnoughTridots = EconomyManager.Instance.GetCurrentTridots() >= dashTridotCost;
@@ -516,29 +519,7 @@ namespace RoofTops
             {
                 hasEnoughTridots = GameManager.Instance.gameData.lastRunTridotCollected >= dashTridotCost;
             }
-            
-            // Log detailed information about why dash might fail
-            if (!hasEnoughTridots)
-            {
-                Debug.Log($"Can't dash: Not enough TRIDOTS. Have {GameManager.Instance.gameData.lastRunTridotCollected}, need {dashTridotCost}");
-            }
-            else if (!isInAir)
-            {
-                Debug.Log("Can't dash: Not in air");
-            }
-            else if (!dashReady)
-            {
-                Debug.Log("Can't dash: Dash not ready");
-            }
-            else if (!notOnJumpPad)
-            {
-                Debug.Log("Can't dash: On jump pad");
-            }
-            else if (!noDashInProgress)
-            {
-                Debug.Log("Can't dash: Dash already in progress");
-            }
-            
+
             return isInAir && dashReady && notOnJumpPad && noDashInProgress && hasEnoughTridots;
         }
 
@@ -558,51 +539,26 @@ namespace RoofTops
             }
         }
 
-        void CheckFallingState()
-        {
-            bool isFalling = _velocity.y < 0 && WillFall();
-        }
+        // void ComputePredictedFlightTime()
+        // {
+        //     float verticalVelocity = _velocity.y;
+        //     float gravity = Physics.gravity.y;
+        //     predictedFlightTime = verticalVelocity > 0 ? (verticalVelocity / -gravity) * 2 : 0f;
+        // }
 
-        void ComputePredictedFlightTime()
-        {
-            float verticalVelocity = _velocity.y;
-            float gravity = Physics.gravity.y;
-            predictedFlightTime = verticalVelocity > 0 ? (verticalVelocity / -gravity) * 2 : 0f;
-        }
 
-        bool WillFall()
-        {
-            Vector3 position = transform.position;
-            Vector3 velocity = _velocity;
-            Vector3 gravity = Physics.gravity;
-
-            for (float t = 0; t < simulationDuration; t += simulationTimeStep)
-            {
-                Vector3 predictedPos = position + velocity * t + 0.5f * gravity * t * t;
-                
-                // Check for ground tags in predicted path
-                if (Physics.Raycast(predictedPos, Vector3.down, out RaycastHit hit, 1f))
-                {
-                    if (hit.collider.CompareTag("GroundCollider")) 
-                    {
-                        return false; // Ground found in path - won't fall
-                    }
-                }
-            }
-            return true; // No ground detected in path - will fall
-        }
 
         private IEnumerator DelayedReset()
         {
             // Hide the death message
             DeathMessageDisplay.Instance?.HideMessage();
-            
+
             // Reset camera
             FindFirstObjectByType<NoiseMovement>()?.ResetCamera();
-            
+
             // Wait for a full second
             yield return new WaitForSeconds(1.0f);
-            
+
             // Ask GameManager to perform the full reset
             GameManager.Instance.ResetGame();
         }
@@ -610,7 +566,7 @@ namespace RoofTops
         public void SetRunSpeedMultiplier(float multiplier, float duration = 0f)
         {
             runSpeedMultiplier = multiplier;
-            
+
             if (duration > 0f)
             {
                 StartCoroutine(ResetSpeedMultiplierAfter(duration));
@@ -626,32 +582,32 @@ namespace RoofTops
         // Removing dynamic toggling of the player's CapsuleCollider.
         // This ensures the inspector-assigned CapsuleCollider remains enabled,
         // so that IsGroundedOnTrigger correctly detects overlapping GroundedTrigger(s).
-        void UpdateColliderState()
-        {
-            // No changes made. The CapsuleCollider remains enabled.
-        }
+        // void UpdateColliderState()
+        // {
+        //     // No changes made. The CapsuleCollider remains enabled.
+        // }
 
         // This method allows external scripts (like the vault script) to set the vaulting state.
         //public void SetVaultingState(bool vaulting)
         //{
-            //isVaulting = vaulting;
+        //isVaulting = vaulting;
         //}
 
         public (float distance, float airTime) PredictJumpTrajectory()
         {
             float timeToApex = jumpForce / -Physics.gravity.y;  // Time to reach highest point
             float totalAirTime = timeToApex * 2;  // Total time in air (up + down)
-            
+
             // Distance covered = speed * time
             float predictedDistance = modulePool.gameSpeed * totalAirTime;
-            
+
             return (predictedDistance, totalAirTime);
         }
 
-        public float GetVerticalVelocity()
-        {
-            return _velocity.y;
-        }
+        // public float GetVerticalVelocity()
+        // {
+        //     return _velocity.y;
+        // }
 
         public void HandleDeath()
         {
@@ -664,18 +620,17 @@ namespace RoofTops
                 // For legacy input, just disable the controller
                 this.enabled = false;
                 GetComponent<PlayerAnimatorController>().ResetAnimationStates();
-                
+
                 // Only zero out horizontal velocity, keep vertical for falling
                 _velocity.x = 0;
                 _velocity.z = 0;
-                
-                GetComponent<PlayerAnimatorController>().TriggerFallAnimation();
-                
+
                 // Retrieve the final distance directly from GameManager.
                 float finalDistance = GameManager.Instance.CurrentDistance;
-                
+
                 // Show ad through GameAdsManager
-                GameAdsManager.Instance?.OnPlayerDeath(() => {
+                GameAdsManager.Instance?.OnPlayerDeath(() =>
+                {
                     GameManager.Instance.HandlePlayerDeath(finalDistance);
                 });
             }
@@ -696,9 +651,9 @@ namespace RoofTops
             jumpPadTimer = JUMP_PAD_DURATION;
             isChargingJump = false;
             holdingJump = false;
-            
 
-            
+
+
             // Tell the animator to trigger a jump but with different parameters
             var animator = GetComponent<PlayerAnimatorController>();
             if (animator != null)
@@ -724,14 +679,14 @@ namespace RoofTops
             fadeInTime = dashDuration * fadeInPortion;
             fadeOutTime = dashDuration * fadeOutPortion;
             fullEffectTime = dashDuration - fadeInTime - fadeOutTime;
-            
+
             float fadeOutStart = fadeInTime + fullEffectTime;
             float elapsed = 0f;
 
             while (elapsed < dashDuration && isDashing)
             {
                 elapsed += Time.deltaTime;
-                
+
                 if (elapsed < fadeInTime)
                 {
                     // Fade in
@@ -766,7 +721,7 @@ namespace RoofTops
                     tertiaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
                 }
                 if (playerAnimator != null) playerAnimator.SetDashLayerWeight(dashLerp);
-                
+
                 yield return null;
             }
 
@@ -788,7 +743,7 @@ namespace RoofTops
                 tertiaryDashMaterial.SetFloat(additionalShaderParamID, dashLerp);
             }
             if (playerAnimator != null) playerAnimator.SetDashLayerWeight(dashLerp);
-            
+
             // Clean up effect
             if (activeDashEffect != null)
             {
@@ -799,14 +754,18 @@ namespace RoofTops
 
         void ShowDashHint()
         {
-            // This method would show a UI hint that the player can dash
-            // You could implement this with a UI popup or text hint
-            
-            // For now, just log it
-            Debug.Log($"Hint: Press Jump in mid-air to Dash (costs {dashTridotCost} tridots)");
-            
-            // You could also add a UI hint system later:
-            // HintSystem.Instance?.ShowHint($"Press Jump in mid-air to Dash (costs {dashTridotCost} tridots)");
+            // Use the GameMessageDisplay system to show the dash hint
+            if (GameMessageDisplay.Instance != null)
+            {
+                // Show the dash hint using the message ID system
+                GameMessageDisplay.Instance.ShowMessageByID("1ST_BONUS_DASH_INFO", dashTridotCost);
+                Debug.Log($"[DASH] Showing dash hint message with ID: 1ST_BONUS_DASH_INFO (ONE TIME ONLY)");
+            }
+            else
+            {
+                // Fallback to Debug.Log if message system isn't available
+                Debug.Log($"[DASH] Hint: Press Jump in mid-air to Dash (costs {dashTridotCost} tridots)");
+            }
         }
     }
-} 
+}

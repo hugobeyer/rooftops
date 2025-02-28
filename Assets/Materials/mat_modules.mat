@@ -116,7 +116,7 @@ Material:
     - _BUILTIN_ZWriteControl: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BrightFilter: 1.53
+    - _BrightFilter: 0.22
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -126,7 +126,7 @@ Material:
     - _Cone_1: 6.3
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DashLerp: 1
+    - _DashLerp: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _Distance: 63.8
@@ -136,41 +136,41 @@ Material:
     - _FadeLerp: 0.0024859905
     - _Float: -2.28
     - _Float_1: 0.52
-    - _Fog_Offset: -144.1
-    - _Fog_Spread: 149
-    - _Fuzz: 1.47
+    - _Fog_Offset: -88.6
+    - _Fog_Spread: 78.1
+    - _Fuzz: 0.76
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightFogSpread: 98.57
-    - _HeightFog_Offset: -12
+    - _HeightFogSpread: 256.5
+    - _HeightFog_Offset: -4.51
     - _HeightFog_Spread: 285.58
-    - _Height_Exponential: 6.04
+    - _Height_Exponential: 73.1
     - _Hue: 0.613
-    - _Lerp: 1
+    - _Lerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Offst: 29.11
-    - _Outline: 0.62
+    - _Outline: 0.6
     - _Parallax: 0.005
-    - _PathRatio: 0.49
-    - _Path_Width: -1.86
+    - _PathRatio: 0.68
+    - _Path_Width: -2.78
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Range: -0.29
+    - _Range: 0.11
     - _ReceiveShadows: 1
     - _Rings: 24.28
     - _Ringsojt: -0.2
-    - _Saturation: 0.68
+    - _Saturation: 0.98
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
-    - _SoapPass: 0.03
+    - _SoapPass: 0.1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _Temperature: 0.53
-    - _Tint: -0.41
+    - _Temperature: 0.75
+    - _Tint: 0.13
     - _UsePath: 1
     - _UseVertexColor: 1
     - _Use_Rings: 1
@@ -184,27 +184,27 @@ Material:
     - _rrrtr: -68.89
     - _rrrtr_1: -15
     m_Colors:
-    - _BaseColor: {r: 0.4429603, g: 1, b: 0.03459108, a: 1}
-    - _BrightColor: {r: 0.15294117, g: 0.54708606, b: 0.63529414, a: 0}
-    - _BrightMask: {r: 0, g: 0.8050314, b: 0.64117545, a: 0}
+    - _BaseColor: {r: 0.42276418, g: 1, b: 0, a: 1}
+    - _BrightColor: {r: 0.053953465, g: 0.44960132, b: 0.55345905, a: 0}
+    - _BrightMask: {r: 0.84385777, g: 0.8742138, b: 0.71751505, a: 0}
     - _Colomask: {r: 0.6556392, g: 0.56012416, b: 0.7987421, a: 0}
     - _Color: {r: 0.16969258, g: 0.21274401, b: 0.32704395, a: 1}
     - _ConeColor: {r: 1, g: 1, b: 1, a: 0}
     - _ConeDir: {r: 0, g: 0, b: 0, a: 0}
     - _ConeOffset: {r: 3.7, g: 2.16, b: 0, a: 0}
     - _ConePos: {r: -0.62, g: 0.08, b: -0.56, a: 0}
-    - _DarkColor: {r: 0.35220122, g: 0.08971159, b: 0.20826796, a: 0}
-    - _DarkMask: {r: 0.31446534, g: 0.21031015, b: 0.07614409, a: 0}
-    - _DashCOlor: {r: 0.51572317, g: 0.30683905, b: 0.02757007, a: 0}
+    - _DarkColor: {r: 0.0012459848, g: 0.018546216, b: 0.044025064, a: 0}
+    - _DarkMask: {r: 0.08343073, g: 0.07564965, b: 0.3207547, a: 0}
+    - _DashCOlor: {r: 0.33962262, g: 0.18287371, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.10670064, g: 0.28292808, b: 0.40880498, a: 1}
     - _Fade: {r: 1, g: 1, b: 1, a: 0}
-    - _Fog_Color: {r: 0.59748423, g: 0.59748423, b: 0.59748423, a: 0}
-    - _HeightFog_Color: {r: 0.76729554, g: 0.5036671, b: 0.16166274, a: 1}
-    - _HeightFog_Warm: {r: 0.7987421, g: 0.5100151, b: 0.022605773, a: 0}
+    - _Fog_Color: {r: 0.10460419, g: 0.78736424, b: 0.8113208, a: 0}
+    - _HeightFog_Color: {r: 0.59748423, g: 0, b: 0.02609908, a: 1}
+    - _HeightFog_Warm: {r: 1, g: 0.12914951, b: 0, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
-    - _PathColor: {r: 0.10254725, g: 0.5345911, b: 0.42340174, a: 1}
-    - _PlayerPosition: {r: 0, g: 2.2494144, b: 0, a: 0}
+    - _PathColor: {r: 0.03530311, g: 0.5345911, b: 0.067049764, a: 1}
+    - _PlayerPosition: {r: 0, g: 0.07999992, b: 0, a: 0}
     - _Rings_Color: {r: 1, g: 1, b: 1, a: 0}
     - _ShadowOff: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

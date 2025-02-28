@@ -727,7 +727,7 @@ namespace RoofTops
                     animController.SetBool("IsGrounded", true);
                     animController.SetBool("Jump", false);
                     animController.SetBool("IsRunning", false);
-                    animController.SetBool("IsFalling", false);
+                    animController.SetBool("isFalling", false);
                     
                     // Reset any other custom states
                     Animator anim = animController.GetComponent<Animator>();

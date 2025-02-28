@@ -1,0 +1,11 @@
+=== DEBUG LOG STARTED: 2/28/2025 6:27:04 PM ===
+Game Version: 0.1.0
+Platform: WindowsEditor
+Device: A72 ION (Avell)
+OS: Windows 11  (10.0.22631) 64bit
+Log Path: C:\Unity\RoofTops\debug_log_20250228_182704.txt
+=================================
+
+[18:27:04.954] Debug logger initialized successfully
+[18:27:05.148] Application resumed
+[18:28:18.014] Application shutting down

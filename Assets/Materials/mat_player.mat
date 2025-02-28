@@ -128,7 +128,7 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _DashAngle: -3.73
-    - _DashLerp: 1
+    - _DashLerp: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -145,7 +145,7 @@ Material:
     - _GlossyReflections: 0
     - _HeightFog_Offset: -0.5
     - _HeightFog_Spread: 69.82
-    - _JumpLerp: 0
+    - _JumpLerp: 0.34588116
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _POW: 2.77
@@ -175,9 +175,9 @@ Material:
     - baseColorTextureTexCoord: 0
     m_Colors:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
-    - _Color: {r: 0.02575054, g: 0.028509006, b: 0.03773582, a: 1}
-    - _ColorEdge: {r: 0.06918234, g: 0.06422209, b: 0.048514653, a: 0}
-    - _ColorJump: {r: 0.5647059, g: 0.33343992, b: 0.11764705, a: 0}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _ColorEdge: {r: 0.14465404, g: 0.12327435, b: 0.08051497, a: 0}
+    - _ColorJump: {r: 0.106918216, g: 0.03746628, b: 0.004370851, a: 0}
     - _DashColor: {r: 2.1435473, g: 0.27934536, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FOGS_COlor: {r: 0.03945647, g: 0.14378726, b: 0.35849056, a: 0}

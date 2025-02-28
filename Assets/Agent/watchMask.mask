@@ -7,5 +7,63 @@ AvatarMask:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: watchMask
-  m_Mask: 00000000000000000100000000000000000000000000000001000000000000000100000000000000000000000000000000000000
-  m_Elements: []
+  m_Mask: 00000000000000000100000000000000000000000000000001000000000000000100000000000000000000000000000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: agent
+    m_Weight: 0
+  - m_Path: agent:Hips
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:LeftUpLeg
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:LeftUpLeg/agent:LeftLeg
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:LeftUpLeg/agent:LeftLeg/agent:LeftFoot
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:LeftUpLeg/agent:LeftLeg/agent:LeftFoot/agent:LeftToeBase
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:LeftUpLeg/agent:LeftLeg/agent:LeftFoot/agent:LeftToeBase/agent:LeftToe_End
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:RightUpLeg
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:RightUpLeg/agent:RightLeg
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:RightUpLeg/agent:RightLeg/agent:RightFoot
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:RightUpLeg/agent:RightLeg/agent:RightFoot/agent:RightToeBase
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:RightUpLeg/agent:RightLeg/agent:RightFoot/agent:RightToeBase/agent:RightToe_End
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:LeftShoulder
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:LeftShoulder/agent:LeftArm
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:LeftShoulder/agent:LeftArm/agent:LeftForeArm
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:LeftShoulder/agent:LeftArm/agent:LeftForeArm/agent:LeftHand
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:LeftShoulder/agent:LeftArm/agent:LeftForeArm/agent:LeftHand/agent:LeftHandMiddle1
+    m_Weight: 0
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:Neck
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:Neck/agent:Head
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:Neck/agent:Head/agent:HeadTop_End
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:RightShoulder
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:RightShoulder/agent:RightArm
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:RightShoulder/agent:RightArm/agent:RightForeArm
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:RightShoulder/agent:RightArm/agent:RightForeArm/agent:RightHand
+    m_Weight: 1
+  - m_Path: agent:Hips/agent:Spine/agent:Spine1/agent:Spine2/agent:RightShoulder/agent:RightArm/agent:RightForeArm/agent:RightHand/agent:RightHandMiddle1
+    m_Weight: 1
