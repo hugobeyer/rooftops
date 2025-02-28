@@ -355,7 +355,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: bonus skip
+  m_text: tridots skip
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dfc76c3805eeb984795040361276e9d6, type: 2}
   m_sharedMaterial: {fileID: -2845191903062604866, guid: dfc76c3805eeb984795040361276e9d6, type: 2}
@@ -446,7 +446,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5926368994828606443
 RectTransform:
   m_ObjectHideFlags: 0
@@ -883,7 +883,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Use your bonus to skip watching
+  m_text: Use your tridots to skip watching
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7dd0ef388b8ce474f8ac7bded21cac7e, type: 2}
   m_sharedMaterial: {fileID: 7044760607235212387, guid: 7dd0ef388b8ce474f8ac7bded21cac7e, type: 2}
@@ -976,7 +976,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1357449011186068104
 Transform:
   m_ObjectHideFlags: 0
@@ -1229,7 +1229,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 478
+  m_VersionIndex: 481
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1428,7 +1428,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &731367038710989353
 Transform:
   m_ObjectHideFlags: 0
@@ -2096,7 +2096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8348833982836744548
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2312,13 +2312,13 @@ MonoBehaviour:
   gameOverPanel: {fileID: 8241427927913672950}
   finalScoreText: {fileID: 1792794688146481969}
   newBestText: {fileID: 0}
-  finalBonusText: {fileID: 2095182767894539751}
+  finalTridotText: {fileID: 2095182767894539751}
   finalMemcardText: {fileID: 0}
   rooftopButton: {fileID: 396005131572837863}
   smartAdvanceButton: {fileID: 8711537460687440113}
-  bonusSkipButton: {fileID: 3837014133579825887}
+  tridotSkipButton: {fileID: 3837014133579825887}
   continueButton: {fileID: 9023427857494322064}
-  bonusSkipText: {fileID: 0}
+  tridotSkipText: {fileID: 0}
 --- !u!1 &8711537460687440113
 GameObject:
   m_ObjectHideFlags: 0
@@ -2337,7 +2337,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4464363673852286756
 Transform:
   m_ObjectHideFlags: 0
@@ -2447,7 +2447,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &403304876967674509
 Transform:
   m_ObjectHideFlags: 0

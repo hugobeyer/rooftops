@@ -1,28 +1,28 @@
 using UnityEngine;
 using TMPro;
 
-public class DisplayBonusStats : MonoBehaviour
+public class DisplayTridotStats : MonoBehaviour
 {
-    public TMP_Text bonusText;
-    private static int currentRunBonuses = 0;  // Just for this run
+    public TMP_Text tridotText;
+    private static int currentRunTridotes = 0;  // Just for this run
     
     void Start()
     {
-        if (bonusText == null)
+        if (tridotText == null)
         {
-            bonusText = GetComponent<TMP_Text>();
+            tridotText = GetComponent<TMP_Text>();
         }
-        currentRunBonuses = 0;  // Reset at start
+        currentRunTridotes = 0;  // Reset at start
     }
 
     void Update()
     {
-        // Just show current run's bonus count
-        bonusText.text = $"{currentRunBonuses}";
+        // Just show current run's tridots count
+        tridotText.text = $"{currentRunTridotes}";
     }
 
-    public static void AddBonus()
+    public static void AddTridot()
     {
-        currentRunBonuses++;
+        currentRunTridotes++;
     }
 } 

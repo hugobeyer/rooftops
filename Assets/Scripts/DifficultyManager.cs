@@ -24,7 +24,7 @@ namespace RoofTops
         [SerializeField] private float baseGameSpeed = 6f;
         [SerializeField] private float baseGapSize = 2.5f;
         [SerializeField] private float baseHeightVariation = 1.0f;
-        [SerializeField] private float baseBonusFrequency = 0.25f;
+        [SerializeField] private float baseTridotFrequency = 0.25f;
         [SerializeField] private float baseJumpPadFrequency = 0.005f;
         [SerializeField] private float basePropFrequency = 0.001f;
         
@@ -38,8 +38,8 @@ namespace RoofTops
         [Tooltip("How height variation increases with distance")]
         [SerializeField] private AnimationCurve heightVariationCurve = AnimationCurve.EaseInOut(0, 1, 10, 2.5f);
         
-        [Tooltip("How bonus frequency changes with distance")]
-        [SerializeField] private AnimationCurve bonusFrequencyCurve = AnimationCurve.EaseInOut(0, 1, 10, 0.7f);
+        [Tooltip("How tridots frequency changes with distance")]
+        [SerializeField] private AnimationCurve tridotFrequencyCurve = AnimationCurve.EaseInOut(0, 1, 10, 0.7f);
         
         [Tooltip("How jump pad frequency changes with distance")]
         [SerializeField] private AnimationCurve jumpPadFrequencyCurve = AnimationCurve.EaseInOut(0, 1, 10, 1.5f);
@@ -81,7 +81,7 @@ namespace RoofTops
         private float currentGameSpeed;
         private float currentGapSize;
         private float currentHeightVariation;
-        private float currentBonusFrequency;
+        private float currentTridotFrequency;
         private float currentJumpPadFrequency;
         private float currentPropFrequency;
         
@@ -262,7 +262,7 @@ namespace RoofTops
             currentGameSpeed = baseGameSpeed;
             currentGapSize = baseGapSize;
             currentHeightVariation = baseHeightVariation;
-            currentBonusFrequency = baseBonusFrequency;
+            currentTridotFrequency = baseTridotFrequency;
             currentJumpPadFrequency = baseJumpPadFrequency;
             currentPropFrequency = basePropFrequency;
             
@@ -373,7 +373,7 @@ namespace RoofTops
             float speedMultiplier = speedProgressionCurve.Evaluate(normalizedChunk);
             float gapMultiplier = gapProgressionCurve.Evaluate(normalizedChunk);
             float heightMultiplier = heightVariationCurve.Evaluate(normalizedChunk);
-            float bonusMultiplier = bonusFrequencyCurve.Evaluate(normalizedChunk);
+            float tridotMultiplier = tridotFrequencyCurve.Evaluate(normalizedChunk);
             float jumpPadMultiplier = jumpPadFrequencyCurve.Evaluate(normalizedChunk);
             float propMultiplier = propFrequencyCurve.Evaluate(normalizedChunk);
             
@@ -407,7 +407,7 @@ namespace RoofTops
                 gameSpeed = baseGameSpeed * speedMultiplier,
                 gapSize = Mathf.Min(baseGapSize * gapMultiplier, maxJumpableGap), // Cap based on jump capability
                 heightVariation = baseHeightVariation * heightMultiplier,
-                bonusFrequency = Mathf.Clamp(baseBonusFrequency * bonusMultiplier, 0.05f, 0.95f),
+                tridotFrequency = Mathf.Clamp(baseTridotFrequency * tridotMultiplier, 0.05f, 0.95f),
                 jumpPadFrequency = Mathf.Clamp(baseJumpPadFrequency * jumpPadMultiplier, 0.005f, 0.05f),
                 propFrequency = Mathf.Clamp(basePropFrequency * propMultiplier, 0.001f, 0.05f)
             };
@@ -461,7 +461,7 @@ namespace RoofTops
             chunk.gameSpeed *= RandomValue();
             chunk.gapSize *= RandomValue();
             chunk.heightVariation *= RandomValue();
-            chunk.bonusFrequency = Mathf.Clamp(chunk.bonusFrequency * RandomValue(), 0.05f, 0.95f);
+            chunk.tridotFrequency = Mathf.Clamp(chunk.tridotFrequency * RandomValue(), 0.05f, 0.95f);
             chunk.jumpPadFrequency = Mathf.Clamp(chunk.jumpPadFrequency * RandomValue(), 0.05f, 0.95f);
             chunk.propFrequency = Mathf.Clamp(chunk.propFrequency * RandomValue(), 0.05f, 0.95f);
         }
@@ -534,7 +534,7 @@ namespace RoofTops
             // For all other parameters, always use the new values
             currentGapSize = chunk.gapSize;
             currentHeightVariation = chunk.heightVariation;
-            currentBonusFrequency = chunk.bonusFrequency;
+            currentTridotFrequency = chunk.tridotFrequency;
             currentJumpPadFrequency = chunk.jumpPadFrequency;
             currentPropFrequency = chunk.propFrequency;
             
@@ -562,7 +562,7 @@ namespace RoofTops
             if (spawnManager != null)
             {
                 spawnManager.UpdateSpawnFrequencies(
-                    currentBonusFrequency,
+                    currentTridotFrequency,
                     currentJumpPadFrequency,
                     currentPropFrequency
                 );
@@ -1060,9 +1060,9 @@ namespace RoofTops
             return currentHeightVariation;
         }
 
-        public float GetCurrentBonusFrequency()
+        public float GetCurrentTridotFrequency()
         {
-            return currentBonusFrequency;
+            return currentTridotFrequency;
         }
 
         public float GetCurrentJumpPadFrequency()
@@ -1083,7 +1083,7 @@ namespace RoofTops
             public float gameSpeed;
             public float gapSize;
             public float heightVariation;
-            public float bonusFrequency;
+            public float tridotFrequency;
             public float jumpPadFrequency;
             public float propFrequency;
         }
@@ -1148,14 +1148,14 @@ namespace RoofTops
     // Extension method for UnifiedSpawnManager
     public static class SpawnManagerExtensions
     {
-        public static void UpdateSpawnFrequencies(this UnifiedSpawnManager spawnManager, float bonusFrequency, float jumpPadFrequency, float propFrequency)
+        public static void UpdateSpawnFrequencies(this UnifiedSpawnManager spawnManager, float tridotFrequency, float jumpPadFrequency, float propFrequency)
         {
             // Access the private fields via reflection (only if necessary)
-            var bonusField = spawnManager.GetType().GetField("bonusFrequency", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            var tridotField = spawnManager.GetType().GetField("tridotFrequency", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
             var jumpPadField = spawnManager.GetType().GetField("jumpPadFrequency", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
             var propField = spawnManager.GetType().GetField("propFrequency", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
 
-            if (bonusField != null) bonusField.SetValue(spawnManager, bonusFrequency);
+            if (tridotField != null) tridotField.SetValue(spawnManager, tridotFrequency);
             if (jumpPadField != null) jumpPadField.SetValue(spawnManager, jumpPadFrequency);
             if (propField != null) propField.SetValue(spawnManager, propFrequency);
         }

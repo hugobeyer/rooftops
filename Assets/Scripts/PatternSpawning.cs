@@ -49,6 +49,7 @@ namespace RoofTops
         private List<float> availableHeights = new List<float>();
         private float initialDelayTimer = 0f;
         private bool initialDelayComplete = false;
+        private bool isMoving = true; // Add flag to control movement
 
         private void Start()
         {
@@ -84,7 +85,7 @@ namespace RoofTops
 
         private void Update()
         {
-            if (modulePool == null || modulePool.activeModules.Count == 0)
+            if (modulePool == null || modulePool.activeModules.Count == 0 || !isMoving)
                 return;
             
             // Handle initial delay
@@ -238,6 +239,13 @@ namespace RoofTops
             {
                 activeCoins.Remove(coin);
             }
+        }
+        
+        // Add method to stop movement
+        public void StopMovement()
+        {
+            isMoving = false;
+            Debug.Log("PatternSpawning: Movement stopped");
         }
         
         private void OnDestroy()

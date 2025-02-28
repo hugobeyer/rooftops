@@ -17,20 +17,30 @@ namespace RoofTops
     }
 
     [System.Serializable]
-    public class GameMessage
+    public class MessageStyle
     {
-        public string messageID;
-        public string messageText = "Message text here";
+        public string styleName = "Default Style";
         public Color messageColor = Color.white;
         [Range(0.5f, 5f)]
         public float displayDuration = 2.0f;
         public bool showVisualBar = false;
         public BarAnimationStyle barAnimationStyle = BarAnimationStyle.FadeInOut;
         [Tooltip("Color of the visual bar (uses the assigned material but tints it with this color)")]
-        public Color barColor = Color.white; // New property for bar color
+        public Color barColor = Color.white;
         [Tooltip("Optional separate duration for the visual bar (if <= 0, uses the text duration)")]
         [Range(0f, 5f)]
-        public float barDuration = 0f; // Separate duration for the bar (0 means use text duration)
+        public float barDuration = 0f;
+    }
+
+    [System.Serializable]
+    public class GameMessage
+    {
+        public string messageID;
+        public string messageText = "Message text here";
+        [Tooltip("Style to use for this message. Required field - message will use the specified style's settings.")]
+        public string styleID = "";
+        
+        // All visual and timing settings are now handled by the MessageStyle system
     }
 
     public class GameMessageDisplay : MonoBehaviour
@@ -41,24 +51,75 @@ namespace RoofTops
         [SerializeField] private GameObject textObject;
         [SerializeField] private GameObject visualBarObject; // Visual bar element
         
+        // Additional text and visual bar objects
+        [Header("Additional Message Rows")]
+        [SerializeField] private GameObject textObject2; // Second text object
+        [SerializeField] private GameObject visualBarObject2; // Second visual bar element
+        [SerializeField] private GameObject textObject3; // Third text object
+        [SerializeField] private GameObject visualBarObject3; // Third visual bar element
+        [SerializeField] private GameObject textObject4; // Fourth text object
+        [SerializeField] private GameObject visualBarObject4; // Fourth visual bar element
+        [SerializeField] private GameObject textObject5; // Fifth text object
+        [SerializeField] private GameObject visualBarObject5; // Fifth visual bar element
+        
         [Header("Visual Bar Settings")]
         [SerializeField] private Material visualBarMaterial; // Custom material for the visual bar
+        
+        [Header("Common Animation Settings")]
+        [SerializeField] private float fadeInTime = 0.25f;
+        [SerializeField] private float fadeOutTime = 0.5f;
+        
+        [Header("Pulse & Blink Animation Settings")]
         [Tooltip("How many times the bar should pulse or blink per second")]
         [SerializeField] private float pulseFrequency = 2f; // Pulses per second
+        [Range(0.2f, 0.8f)]
+        [SerializeField] private float pulseMinAlpha = 0.5f; // Minimum alpha during pulse
+        [Range(0.8f, 1f)]
+        [SerializeField] private float pulseMaxAlpha = 1f; // Maximum alpha during pulse
+        
+        [Header("Warning Animation Settings")]
         [Tooltip("How many times the warning effect should flash per second")]
         [SerializeField] private float warningFrequency = 4f; // Flashes per second
+        [Range(0.0f, 0.5f)]
+        [SerializeField] private float warningMinAlpha = 0.2f; // Minimum alpha during warning
+        [Range(0.5f, 1f)]
+        [SerializeField] private float warningMaxAlpha = 1f; // Maximum alpha during warning
+        
+        [Header("Pop And Transition Animation Settings")]
+        [SerializeField] private float popBlinkDuration = 0.2f; // Duration of initial white blink
+        [SerializeField] private float popBlinkFrequency = 15f; // Blinks per second during pop
+        [SerializeField] private float popTransitionTime = 0.3f; // Time to transition from white to color
+        
+        [Header("Pop And Fade Animation Settings")]
+        [SerializeField] private float popHoldTime = 0.2f; // Time to hold at full alpha
+        [SerializeField] private float popFadeTime = 0.5f; // Time to fade to target alpha
 
         private TextMeshPro textMesh;
         private Renderer visualBarRenderer;
         private Material instancedBarMaterial; // Instanced material to avoid affecting other objects
 
+        // Additional TextMeshPro and Renderer references
+        private TextMeshPro textMesh2;
+        private Renderer visualBarRenderer2;
+        private Material instancedBarMaterial2;
+        private TextMeshPro textMesh3;
+        private Renderer visualBarRenderer3;
+        private Material instancedBarMaterial3;
+        private TextMeshPro textMesh4;
+        private Renderer visualBarRenderer4;
+        private Material instancedBarMaterial4;
+        private TextMeshPro textMesh5;
+        private Renderer visualBarRenderer5;
+        private Material instancedBarMaterial5;
+
         [Header("Common Message Settings")]
         [SerializeField] private float defaultDisplayTime = 2.0f;
-        [SerializeField] private float fadeInTime = 0.25f;
-        [SerializeField] private float fadeOutTime = 0.5f;
         [SerializeField] private Color defaultTextColor = Color.white;
         [SerializeField] private Color warningTextColor = new Color(1f, 0.5f, 0f); // Orange
         [SerializeField] private Color errorTextColor = Color.red;
+
+        [Header("Message Styles")]
+        [SerializeField] private List<MessageStyle> messageStyles = new List<MessageStyle>();
 
         [Header("Message Library")]
         [SerializeField] private List<GameMessage> messageLibrary = new List<GameMessage>();
@@ -69,12 +130,32 @@ namespace RoofTops
         [SerializeField] private string notEnoughTridotsMessage = "Need {0} tridots to dash!";
         [Tooltip("Message to show when player collects a tridot")]
         [SerializeField] private string tridotCollectedMessage = "Tridot collected! ({0})";
+        [Tooltip("Message to show when a new achievement tier is revealed")]
+        [SerializeField] private GameMessage newTierRevealedMessage;
 
+        // Track active coroutines for each message row
         private Coroutine activeMessageCoroutine;
         private Coroutine activeProgressBarCoroutine;
+        private Coroutine activeMessageCoroutine2;
+        private Coroutine activeProgressBarCoroutine2;
+        private Coroutine activeMessageCoroutine3;
+        private Coroutine activeProgressBarCoroutine3;
+        private Coroutine activeMessageCoroutine4;
+        private Coroutine activeProgressBarCoroutine4;
+        private Coroutine activeMessageCoroutine5;
+        private Coroutine activeProgressBarCoroutine5;
         
+        // Track which rows are currently in use
+        private bool isRow1Active = false;
+        private bool isRow2Active = false;
+        private bool isRow3Active = false;
+        private bool isRow4Active = false;
+        private bool isRow5Active = false;
+
         // Dictionary for quick message lookup by ID
         private Dictionary<string, GameMessage> messageDict = new Dictionary<string, GameMessage>();
+        // Dictionary for quick style lookup by ID
+        private Dictionary<string, MessageStyle> styleDict = new Dictionary<string, MessageStyle>();
 
         [Header("Debug Testing")]
         [Tooltip("Enable keyboard shortcuts for testing animations")]
@@ -110,6 +191,43 @@ namespace RoofTops
                 Debug.LogError("Text object not assigned to GameMessageDisplay!");
             }
 
+            // Initialize additional text objects
+            if (textObject2 != null)
+            {
+                textMesh2 = textObject2.GetComponent<TextMeshPro>();
+                if (textMesh2 == null)
+                {
+                    Debug.LogWarning("TextMeshPro component not found on the assigned text object 2!");
+                }
+            }
+            
+            if (textObject3 != null)
+            {
+                textMesh3 = textObject3.GetComponent<TextMeshPro>();
+                if (textMesh3 == null)
+                {
+                    Debug.LogWarning("TextMeshPro component not found on the assigned text object 3!");
+                }
+            }
+
+            if (textObject4 != null)
+            {
+                textMesh4 = textObject4.GetComponent<TextMeshPro>();
+                if (textMesh4 == null)
+                {
+                    Debug.LogWarning("TextMeshPro component not found on the assigned text object 4!");
+                }
+            }
+            
+            if (textObject5 != null)
+            {
+                textMesh5 = textObject5.GetComponent<TextMeshPro>();
+                if (textMesh5 == null)
+                {
+                    Debug.LogWarning("TextMeshPro component not found on the assigned text object 5!");
+                }
+            }
+
             // Get the Renderer component from the visualBarObject
             if (visualBarObject != null)
             {
@@ -134,6 +252,103 @@ namespace RoofTops
                     visualBarRenderer.material.color = barColor;
                 }
             }
+            
+            // Initialize additional visual bar objects
+            if (visualBarObject2 != null)
+            {
+                visualBarRenderer2 = visualBarObject2.GetComponent<Renderer>();
+                if (visualBarRenderer2 == null)
+                {
+                    Debug.LogWarning("Renderer component not found on the assigned visual bar object 2!");
+                }
+                else
+                {
+                    // Apply custom material if assigned
+                    if (visualBarMaterial != null)
+                    {
+                        // Create an instance of the material to avoid affecting other objects
+                        instancedBarMaterial2 = new Material(visualBarMaterial);
+                        visualBarRenderer2.material = instancedBarMaterial2;
+                    }
+                    
+                    // Set initial alpha to 0 (invisible)
+                    Color barColor = visualBarRenderer2.material.color;
+                    barColor.a = 0f;
+                    visualBarRenderer2.material.color = barColor;
+                }
+            }
+            
+            if (visualBarObject3 != null)
+            {
+                visualBarRenderer3 = visualBarObject3.GetComponent<Renderer>();
+                if (visualBarRenderer3 == null)
+                {
+                    Debug.LogWarning("Renderer component not found on the assigned visual bar object 3!");
+                }
+                else
+                {
+                    // Apply custom material if assigned
+                    if (visualBarMaterial != null)
+                    {
+                        // Create an instance of the material to avoid affecting other objects
+                        instancedBarMaterial3 = new Material(visualBarMaterial);
+                        visualBarRenderer3.material = instancedBarMaterial3;
+                    }
+                    
+                    // Set initial alpha to 0 (invisible)
+                    Color barColor = visualBarRenderer3.material.color;
+                    barColor.a = 0f;
+                    visualBarRenderer3.material.color = barColor;
+                }
+            }
+
+            if (visualBarObject4 != null)
+            {
+                visualBarRenderer4 = visualBarObject4.GetComponent<Renderer>();
+                if (visualBarRenderer4 == null)
+                {
+                    Debug.LogWarning("Renderer component not found on the assigned visual bar object 4!");
+                }
+                else
+                {
+                    // Apply custom material if assigned
+                    if (visualBarMaterial != null)
+                    {
+                        // Create an instance of the material to avoid affecting other objects
+                        instancedBarMaterial4 = new Material(visualBarMaterial);
+                        visualBarRenderer4.material = instancedBarMaterial4;
+                    }
+                    
+                    // Set initial alpha to 0 (invisible)
+                    Color barColor = visualBarRenderer4.material.color;
+                    barColor.a = 0f;
+                    visualBarRenderer4.material.color = barColor;
+                }
+            }
+            
+            if (visualBarObject5 != null)
+            {
+                visualBarRenderer5 = visualBarObject5.GetComponent<Renderer>();
+                if (visualBarRenderer5 == null)
+                {
+                    Debug.LogWarning("Renderer component not found on the assigned visual bar object 5!");
+                }
+                else
+                {
+                    // Apply custom material if assigned
+                    if (visualBarMaterial != null)
+                    {
+                        // Create an instance of the material to avoid affecting other objects
+                        instancedBarMaterial5 = new Material(visualBarMaterial);
+                        visualBarRenderer5.material = instancedBarMaterial5;
+                    }
+                    
+                    // Set initial alpha to 0 (invisible)
+                    Color barColor = visualBarRenderer5.material.color;
+                    barColor.a = 0f;
+                    visualBarRenderer5.material.color = barColor;
+                }
+            }
 
             // Hide message and visual bar at start
             if (textMesh != null)
@@ -150,6 +365,63 @@ namespace RoofTops
                 visualBarRenderer.material.color = barColor;
             }
             
+            // Hide additional text and bars at start
+            if (textMesh2 != null)
+            {
+                Color startColor = textMesh2.color;
+                startColor.a = 0f;
+                textMesh2.color = startColor;
+            }
+
+            if (visualBarRenderer2 != null)
+            {
+                Color barColor = visualBarRenderer2.material.color;
+                barColor.a = 0f;
+                visualBarRenderer2.material.color = barColor;
+            }
+            
+            if (textMesh3 != null)
+            {
+                Color startColor = textMesh3.color;
+                startColor.a = 0f;
+                textMesh3.color = startColor;
+            }
+
+            if (visualBarRenderer3 != null)
+            {
+                Color barColor = visualBarRenderer3.material.color;
+                barColor.a = 0f;
+                visualBarRenderer3.material.color = barColor;
+            }
+
+            if (textMesh4 != null)
+            {
+                Color startColor = textMesh4.color;
+                startColor.a = 0f;
+                textMesh4.color = startColor;
+            }
+
+            if (visualBarRenderer4 != null)
+            {
+                Color barColor = visualBarRenderer4.material.color;
+                barColor.a = 0f;
+                visualBarRenderer4.material.color = barColor;
+            }
+            
+            if (textMesh5 != null)
+            {
+                Color startColor = textMesh5.color;
+                startColor.a = 0f;
+                textMesh5.color = startColor;
+            }
+
+            if (visualBarRenderer5 != null)
+            {
+                Color barColor = visualBarRenderer5.material.color;
+                barColor.a = 0f;
+                visualBarRenderer5.material.color = barColor;
+            }
+
             // Build message dictionary for quick lookup
             BuildMessageDictionary();
         }
@@ -157,7 +429,28 @@ namespace RoofTops
         private void BuildMessageDictionary()
         {
             messageDict.Clear();
+            styleDict.Clear();
                      /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
+            // Add all styles from the style library to the dictionary
+            foreach (MessageStyle style in messageStyles)
+            {
+                if (!string.IsNullOrEmpty(style.styleName) && !styleDict.ContainsKey(style.styleName))
+                {
+                    styleDict.Add(style.styleName, style);
+                }
+                else if (string.IsNullOrEmpty(style.styleName))
+                {
+                    Debug.LogWarning("GameMessageDisplay: Style with empty name found in library");
+                }
+                else
+                {
+                    Debug.LogWarning($"GameMessageDisplay: Duplicate style name '{style.styleName}' found in library");
+                }
+            }
+            
+
+            
+            
             // Add all messages from the library to the dictionary
             foreach (GameMessage message in messageLibrary)
             {
@@ -185,7 +478,36 @@ namespace RoofTops
          ///////////////////dont create any hardcoded messages, dont you dare!!!!
         }
 
-        #region Message Display Methods
+        #region Public Methods
+
+        /// <summary>
+        /// Checks if a message with the specified ID exists in the message library
+        /// </summary>
+        public bool HasMessage(string messageID)
+        {
+            return messageDict.ContainsKey(messageID);
+        }
+        
+        /// <summary>
+        /// Checks if a style with the specified name exists in the style library
+        /// </summary>
+        public bool HasStyle(string styleName)
+        {
+            return styleDict.ContainsKey(styleName);
+        }
+        
+        /// <summary>
+        /// Gets a style by name, returns null if not found
+        /// </summary>
+        public MessageStyle GetStyle(string styleName)
+        {
+            MessageStyle style;
+            if (styleDict.TryGetValue(styleName, out style))
+            {
+                return style;
+            }
+            return null;
+        }
 
         /// <summary>
         /// Shows a message by its ID from the message library
@@ -197,19 +519,10 @@ namespace RoofTops
             // Try to get the message from the dictionary
             if (!messageDict.TryGetValue(messageID, out message))
             {
-                // Message ID not found, use the first message in the library as fallback
-                if (messageLibrary.Count > 0)
-                {
-                    message = messageLibrary[0];
-                    Debug.LogWarning($"GameMessageDisplay: Message ID '{messageID}' not found, using first message as fallback");
-                }
-                else
-                {
-                    // No messages in library, show a default error message
-                    Debug.LogWarning($"GameMessageDisplay: Message ID '{messageID}' not found and no fallback available");
-                    ShowMessage($"[{messageID}]", defaultDisplayTime, defaultTextColor);
-                    return;
-                }
+                // Message ID not found - log a warning and return without showing any message
+                // DO NOT use the first message as fallback
+                Debug.LogWarning($"GameMessageDisplay: Message ID '{messageID}' not found. No message will be shown.");
+                return;
             }
             
             string formattedText;
@@ -232,16 +545,140 @@ namespace RoofTops
                 }
             }
             
-            if (message.showVisualBar)
+            // Get the style for this message
+            MessageStyle style = null;
+            
+            // Try to get the specified style
+            if (!string.IsNullOrEmpty(message.styleID))
+            {
+                styleDict.TryGetValue(message.styleID, out style);
+            }
+            
+            // If no style was found, use the default style
+            if (style == null)
+            {
+                // Try to get a style named "Default" first
+                if (!styleDict.TryGetValue("Default", out style) && messageStyles.Count > 0)
+                {
+                    // If no "Default" style exists, use the first style in the list
+                    style = messageStyles[0];
+                    Debug.LogWarning($"GameMessageDisplay: Style '{message.styleID}' not found for message '{messageID}'. Using first style as fallback.");
+                }
+                
+                // If we still don't have a style, use hardcoded default values
+                if (style == null)
+                {
+                    Debug.LogWarning($"GameMessageDisplay: No styles available for message '{messageID}'. Using hardcoded defaults.");
+                    ShowMessageInAvailableRow(formattedText, defaultDisplayTime, defaultTextColor);
+                    return;
+                }
+            }
+            
+            // Apply the style settings
+            if (style.showVisualBar)
             {
                 // Use separate bar duration if specified, otherwise use text duration
-                float barDuration = message.barDuration > 0 ? message.barDuration : message.displayDuration;
-                ShowMessageWithVisualBar(formattedText, message.barAnimationStyle, message.barColor, message.displayDuration, barDuration, message.messageColor);
+                float barDuration = style.barDuration > 0 ? style.barDuration : style.displayDuration;
+                ShowMessageWithVisualBarInAvailableRow(formattedText, style.barAnimationStyle, style.barColor, style.displayDuration, barDuration, style.messageColor);
             }
             else
             {
-                ShowMessage(formattedText, message.displayDuration, message.messageColor);
+                ShowMessageInAvailableRow(formattedText, style.displayDuration, style.messageColor);
             }
+        }
+
+        /// <summary>
+        /// Shows a message in the first available row
+        /// </summary>
+        private void ShowMessageInAvailableRow(string message, float duration, Color color)
+        {
+            // Try to use row 1 first
+            if (!isRow1Active)
+            {
+                ShowMessageInRow1(message, duration, color);
+            }
+            // Then try row 2
+            else if (!isRow2Active)
+            {
+                ShowMessageInRow2(message, duration, color);
+            }
+            // Then try row 3
+            else if (!isRow3Active)
+            {
+                ShowMessageInRow3(message, duration, color);
+            }
+            // Then try row 4
+            else if (!isRow4Active)
+            {
+                ShowMessageInRow4(message, duration, color);
+            }
+            // Then try row 5
+            else if (!isRow5Active)
+            {
+                ShowMessageInRow5(message, duration, color);
+            }
+            // If all rows are active, queue the message to be shown after the first one finishes
+            else
+            {
+                // Store the message to show it after row 1 is free
+                StartCoroutine(QueueMessageAfterDelay(message, duration, color));
+            }
+        }
+        
+        private IEnumerator QueueMessageAfterDelay(string message, float duration, Color color)
+        {
+            // Wait until row 1 is free
+            yield return new WaitUntil(() => !isRow1Active);
+            
+            // Show the message in row 1
+            ShowMessageInRow1(message, duration, color);
+        }
+
+        /// <summary>
+        /// Shows a message with visual bar in the first available row
+        /// </summary>
+        private void ShowMessageWithVisualBarInAvailableRow(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor)
+        {
+            // Try to use row 1 first
+            if (!isRow1Active)
+            {
+                ShowMessageWithVisualBarInRow1(message, animationStyle, barColor, textDuration, barDuration, textColor);
+            }
+            // Then try row 2
+            else if (!isRow2Active)
+            {
+                ShowMessageWithVisualBarInRow2(message, animationStyle, barColor, textDuration, barDuration, textColor);
+            }
+            // Then try row 3
+            else if (!isRow3Active)
+            {
+                ShowMessageWithVisualBarInRow3(message, animationStyle, barColor, textDuration, barDuration, textColor);
+            }
+            // Then try row 4
+            else if (!isRow4Active)
+            {
+                ShowMessageWithVisualBarInRow4(message, animationStyle, barColor, textDuration, barDuration, textColor);
+            }
+            // Then try row 5
+            else if (!isRow5Active)
+            {
+                ShowMessageWithVisualBarInRow5(message, animationStyle, barColor, textDuration, barDuration, textColor);
+            }
+            // If all rows are active, queue the message to be shown after the first one finishes
+            else
+            {
+                // Store the message to show it after row 1 is free
+                StartCoroutine(QueueVisualBarMessageAfterDelay(message, animationStyle, barColor, textDuration, barDuration, textColor));
+            }
+        }
+        
+        private IEnumerator QueueVisualBarMessageAfterDelay(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor)
+        {
+            // Wait until row 1 is free
+            yield return new WaitUntil(() => !isRow1Active);
+            
+            // Show the message in row 1
+            ShowMessageWithVisualBarInRow1(message, animationStyle, barColor, textDuration, barDuration, textColor);
         }
 
         /// <summary>
@@ -249,7 +686,7 @@ namespace RoofTops
         /// </summary>
         public void ShowMessage(string message)
         {
-            ShowMessage(message, defaultDisplayTime, defaultTextColor);
+            ShowMessageInAvailableRow(message, defaultDisplayTime, defaultTextColor);
         }
 
         /// <summary>
@@ -257,7 +694,7 @@ namespace RoofTops
         /// </summary>
         public void ShowMessage(string message, float duration)
         {
-            ShowMessage(message, duration, defaultTextColor);
+            ShowMessageInAvailableRow(message, duration, defaultTextColor);
         }
 
         /// <summary>
@@ -266,7 +703,7 @@ namespace RoofTops
         public void ShowWarning(string message, float duration = -1)
         {
             if (duration < 0) duration = defaultDisplayTime;
-            ShowMessage(message, duration, warningTextColor);
+            ShowMessageInAvailableRow(message, duration, warningTextColor);
         }
 
         /// <summary>
@@ -275,7 +712,7 @@ namespace RoofTops
         public void ShowError(string message, float duration = -1)
         {
             if (duration < 0) duration = defaultDisplayTime;
-            ShowMessage(message, duration, errorTextColor);
+            ShowMessageInAvailableRow(message, duration, errorTextColor);
         }
 
         /// <summary>
@@ -283,9 +720,17 @@ namespace RoofTops
         /// </summary>
         public void ShowMessage(string message, float duration, Color color)
         {
+            ShowMessageInAvailableRow(message, duration, color);
+        }
+
+        /// <summary>
+        /// Shows a message with the specified color and duration in row 1
+        /// </summary>
+        public void ShowMessageInRow1(string message, float duration, Color color)
+        {
             if (textMesh == null) return;
             
-            // Stop any active message display
+            // Stop any active message display for row 1
             if (activeMessageCoroutine != null)
             {
                 StopCoroutine(activeMessageCoroutine);
@@ -298,42 +743,123 @@ namespace RoofTops
             textMesh.color = resetColor;
 
             // Start new message display
-            activeMessageCoroutine = StartCoroutine(DisplayMessageCoroutine(message, duration, color));
-        }
-
-        #endregion
-
-        #region Legacy Methods (for backward compatibility)
-
-        /// <summary>
-        /// Shows the "Not Enough Tridots" message
-        /// </summary>
-        public void ShowNotEnoughTridotsMessage(int requiredAmount, float duration = -1)
-        {
-            ShowMessageByID("ZERO_TRIDOTS", requiredAmount);
+            isRow1Active = true;
+            activeMessageCoroutine = StartCoroutine(DisplayMessageCoroutine(textMesh, message, duration, color, 1));
         }
 
         /// <summary>
-        /// Shows the "Tridot Collected" message
+        /// Shows a message with the specified color and duration in row 2
         /// </summary>
-        public void ShowTridotCollectedMessage(int totalAmount, float duration = -1)
+        public void ShowMessageInRow2(string message, float duration, Color color)
         {
-            ShowMessageByID("TRIDOT_COLLECTED", totalAmount);
+            if (textMesh2 == null) return;
+            
+            // Stop any active message display for row 2
+            if (activeMessageCoroutine2 != null)
+            {
+                StopCoroutine(activeMessageCoroutine2);
+                activeMessageCoroutine2 = null;
+            }
+
+            // Reset text alpha to 0 to ensure proper fade-in even if already showing
+            Color resetColor = color;
+            resetColor.a = 0f;
+            textMesh2.color = resetColor;
+
+            // Start new message display
+            isRow2Active = true;
+            activeMessageCoroutine2 = StartCoroutine(DisplayMessageCoroutine(textMesh2, message, duration, color, 2));
         }
 
-        #endregion
+        /// <summary>
+        /// Shows a message with the specified color and duration in row 3
+        /// </summary>
+        public void ShowMessageInRow3(string message, float duration, Color color)
+        {
+            if (textMesh3 == null) return;
+            
+            // Stop any active message display for row 3
+            if (activeMessageCoroutine3 != null)
+            {
+                StopCoroutine(activeMessageCoroutine3);
+                activeMessageCoroutine3 = null;
+            }
 
-        #region Visual Bar Methods
+            // Reset text alpha to 0 to ensure proper fade-in even if already showing
+            Color resetColor = color;
+            resetColor.a = 0f;
+            textMesh3.color = resetColor;
+
+            // Start new message display
+            isRow3Active = true;
+            activeMessageCoroutine3 = StartCoroutine(DisplayMessageCoroutine(textMesh3, message, duration, color, 3));
+        }
+
+        /// <summary>
+        /// Shows a message with the specified color and duration in row 4
+        /// </summary>
+        public void ShowMessageInRow4(string message, float duration, Color color)
+        {
+            if (textMesh4 == null) return;
+            
+            // Stop any active message display for row 4
+            if (activeMessageCoroutine4 != null)
+            {
+                StopCoroutine(activeMessageCoroutine4);
+                activeMessageCoroutine4 = null;
+            }
+
+            // Reset text alpha to 0 to ensure proper fade-in even if already showing
+            Color resetColor = color;
+            resetColor.a = 0f;
+            textMesh4.color = resetColor;
+
+            // Start new message display
+            isRow4Active = true;
+            activeMessageCoroutine4 = StartCoroutine(DisplayMessageCoroutine(textMesh4, message, duration, color, 4));
+        }
+
+        /// <summary>
+        /// Shows a message with the specified color and duration in row 5
+        /// </summary>
+        public void ShowMessageInRow5(string message, float duration, Color color)
+        {
+            if (textMesh5 == null) return;
+            
+            // Stop any active message display for row 5
+            if (activeMessageCoroutine5 != null)
+            {
+                StopCoroutine(activeMessageCoroutine5);
+                activeMessageCoroutine5 = null;
+            }
+
+            // Reset text alpha to 0 to ensure proper fade-in even if already showing
+            Color resetColor = color;
+            resetColor.a = 0f;
+            textMesh5.color = resetColor;
+
+            // Start new message display
+            isRow5Active = true;
+            activeMessageCoroutine5 = StartCoroutine(DisplayMessageCoroutine(textMesh5, message, duration, color, 5));
+        }
 
         /// <summary>
         /// Shows the visual bar with the specified animation style and color
         /// </summary>
         public void ShowVisualBar(BarAnimationStyle animationStyle, Color barColor, float duration = -1)
         {
+            ShowVisualBarInRow1(animationStyle, barColor, duration);
+        }
+
+        /// <summary>
+        /// Shows the visual bar in row 1
+        /// </summary>
+        public void ShowVisualBarInRow1(BarAnimationStyle animationStyle, Color barColor, float duration = -1)
+        {
             if (visualBarRenderer == null) return;
             if (duration < 0) duration = defaultDisplayTime;
 
-            // Stop any active visual bar display
+            // Stop any active visual bar display for row 1
             if (activeProgressBarCoroutine != null)
             {
                 StopCoroutine(activeProgressBarCoroutine);
@@ -348,15 +874,111 @@ namespace RoofTops
             visualBarRenderer.material.color = newColor;
 
             // Start new visual bar display with the selected animation style
-            activeProgressBarCoroutine = StartCoroutine(DisplayVisualBarCoroutine(animationStyle, duration));
+            activeProgressBarCoroutine = StartCoroutine(DisplayVisualBarCoroutine(visualBarRenderer, animationStyle, duration, 1));
         }
 
         /// <summary>
-        /// Shows the visual bar with the default color
+        /// Shows the visual bar in row 2
         /// </summary>
-        public void ShowVisualBar(BarAnimationStyle animationStyle, float duration = -1)
+        public void ShowVisualBarInRow2(BarAnimationStyle animationStyle, Color barColor, float duration = -1)
         {
-            ShowVisualBar(animationStyle, Color.white, duration);
+            if (visualBarRenderer2 == null) return;
+            if (duration < 0) duration = defaultDisplayTime;
+
+            // Stop any active visual bar display for row 2
+            if (activeProgressBarCoroutine2 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine2);
+                activeProgressBarCoroutine2 = null;
+            }
+
+            // Reset bar alpha to 0 to ensure proper fade-in even if already showing
+            Color currentColor = visualBarRenderer2.material.color;
+            // Apply the new RGB values but keep alpha at 0
+            Color newColor = barColor;
+            newColor.a = 0f;
+            visualBarRenderer2.material.color = newColor;
+
+            // Start new visual bar display with the selected animation style
+            activeProgressBarCoroutine2 = StartCoroutine(DisplayVisualBarCoroutine(visualBarRenderer2, animationStyle, duration, 2));
+        }
+
+        /// <summary>
+        /// Shows the visual bar in row 3
+        /// </summary>
+        public void ShowVisualBarInRow3(BarAnimationStyle animationStyle, Color barColor, float duration = -1)
+        {
+            if (visualBarRenderer3 == null) return;
+            if (duration < 0) duration = defaultDisplayTime;
+
+            // Stop any active visual bar display for row 3
+            if (activeProgressBarCoroutine3 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine3);
+                activeProgressBarCoroutine3 = null;
+            }
+
+            // Reset bar alpha to 0 to ensure proper fade-in even if already showing
+            Color currentColor = visualBarRenderer3.material.color;
+            // Apply the new RGB values but keep alpha at 0
+            Color newColor = barColor;
+            newColor.a = 0f;
+            visualBarRenderer3.material.color = newColor;
+
+            // Start new visual bar display with the selected animation style
+            activeProgressBarCoroutine3 = StartCoroutine(DisplayVisualBarCoroutine(visualBarRenderer3, animationStyle, duration, 3));
+        }
+
+        /// <summary>
+        /// Shows the visual bar in row 4
+        /// </summary>
+        public void ShowVisualBarInRow4(BarAnimationStyle animationStyle, Color barColor, float duration = -1)
+        {
+            if (visualBarRenderer4 == null) return;
+            if (duration < 0) duration = defaultDisplayTime;
+
+            // Stop any active visual bar display for row 4
+            if (activeProgressBarCoroutine4 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine4);
+                activeProgressBarCoroutine4 = null;
+            }
+
+            // Reset bar alpha to 0 to ensure proper fade-in even if already showing
+            Color currentColor = visualBarRenderer4.material.color;
+            // Apply the new RGB values but keep alpha at 0
+            Color newColor = barColor;
+            newColor.a = 0f;
+            visualBarRenderer4.material.color = newColor;
+
+            // Start new visual bar display with the selected animation style
+            activeProgressBarCoroutine4 = StartCoroutine(DisplayVisualBarCoroutine(visualBarRenderer4, animationStyle, duration, 4));
+        }
+
+        /// <summary>
+        /// Shows the visual bar in row 5
+        /// </summary>
+        public void ShowVisualBarInRow5(BarAnimationStyle animationStyle, Color barColor, float duration = -1)
+        {
+            if (visualBarRenderer5 == null) return;
+            if (duration < 0) duration = defaultDisplayTime;
+
+            // Stop any active visual bar display for row 5
+            if (activeProgressBarCoroutine5 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine5);
+                activeProgressBarCoroutine5 = null;
+            }
+
+            // Reset bar alpha to 0 to ensure proper fade-in even if already showing
+            Color currentColor = visualBarRenderer5.material.color;
+            // Apply the new RGB values but keep alpha at 0
+            Color newColor = barColor;
+            newColor.a = 0f;
+            visualBarRenderer5.material.color = newColor;
+
+            // Start new visual bar display with the selected animation style
+            activeProgressBarCoroutine5 = StartCoroutine(DisplayVisualBarCoroutine(visualBarRenderer5, animationStyle, duration, 5));
         }
 
         /// <summary>
@@ -364,12 +986,95 @@ namespace RoofTops
         /// </summary>
         public void ShowMessageWithVisualBar(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration = -1, float barDuration = -1, Color? textColor = null)
         {
+            ShowMessageWithVisualBarInAvailableRow(message, animationStyle, barColor, textDuration, barDuration, textColor);
+        }
+
+        /// <summary>
+        /// Shows both a message and visual bar with custom colors and separate durations in row 1
+        /// </summary>
+        public void ShowMessageWithVisualBarInRow1(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
+        {
             if (textDuration < 0) textDuration = defaultDisplayTime;
             if (barDuration < 0) barDuration = textDuration; // Use text duration if bar duration not specified
+            
+            // Ensure durations include fade times
+            float totalTextDuration = textDuration;
+            float totalBarDuration = barDuration;
+            
             Color messageTextColor = textColor ?? defaultTextColor;
             
-            ShowMessage(message, textDuration, messageTextColor);
-            ShowVisualBar(animationStyle, barColor, barDuration);
+            ShowMessageInRow1(message, totalTextDuration, messageTextColor);
+            ShowVisualBarInRow1(animationStyle, barColor, totalBarDuration);
+        }
+
+        /// <summary>
+        /// Shows both a message and visual bar with custom colors and separate durations in row 2
+        /// </summary>
+        public void ShowMessageWithVisualBarInRow2(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
+        {
+            if (textDuration < 0) textDuration = defaultDisplayTime;
+            if (barDuration < 0) barDuration = textDuration; // Use text duration if bar duration not specified
+            
+            // Ensure durations include fade times
+            float totalTextDuration = textDuration;
+            float totalBarDuration = barDuration;
+            
+            Color messageTextColor = textColor ?? defaultTextColor;
+            
+            ShowMessageInRow2(message, totalTextDuration, messageTextColor);
+            ShowVisualBarInRow2(animationStyle, barColor, totalBarDuration);
+        }
+
+        /// <summary>
+        /// Shows both a message and visual bar with custom colors and separate durations in row 3
+        /// </summary>
+        public void ShowMessageWithVisualBarInRow3(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
+        {
+            if (textDuration < 0) textDuration = defaultDisplayTime;
+            if (barDuration < 0) barDuration = textDuration; // Use text duration if bar duration not specified
+            
+            // Ensure durations include fade times
+            float totalTextDuration = textDuration;
+            float totalBarDuration = barDuration;
+            
+            Color messageTextColor = textColor ?? defaultTextColor;
+            
+            ShowMessageInRow3(message, totalTextDuration, messageTextColor);
+            ShowVisualBarInRow3(animationStyle, barColor, totalBarDuration);
+        }
+
+        /// <summary>
+        /// Shows both a message and visual bar with custom colors and separate durations in row 4
+        /// </summary>
+        public void ShowMessageWithVisualBarInRow4(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
+        {
+            if (textMesh4 == null || visualBarRenderer4 == null) return;
+            
+            // Use default text color if not specified
+            Color messageColor = textColor ?? defaultTextColor;
+            
+            // Show the message
+            ShowMessageInRow4(message, textDuration, messageColor);
+            
+            // Show the visual bar
+            ShowVisualBarInRow4(animationStyle, barColor, barDuration > 0 ? barDuration : textDuration);
+        }
+
+        /// <summary>
+        /// Shows both a message and visual bar with custom colors and separate durations in row 5
+        /// </summary>
+        public void ShowMessageWithVisualBarInRow5(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
+        {
+            if (textMesh5 == null || visualBarRenderer5 == null) return;
+            
+            // Use default text color if not specified
+            Color messageColor = textColor ?? defaultTextColor;
+            
+            // Show the message
+            ShowMessageInRow5(message, textDuration, messageColor);
+            
+            // Show the visual bar
+            ShowVisualBarInRow5(animationStyle, barColor, barDuration > 0 ? barDuration : textDuration);
         }
 
         /// <summary>
@@ -377,14 +1082,160 @@ namespace RoofTops
         /// </summary>
         public void ShowMessageWithVisualBar(string message, BarAnimationStyle animationStyle, float textDuration = -1, Color? textColor = null)
         {
-            ShowMessageWithVisualBar(message, animationStyle, Color.white, textDuration, textDuration, textColor);
+            ShowMessageWithVisualBarInAvailableRow(message, animationStyle, Color.white, textDuration, textDuration, textColor);
+        }
+
+        /// <summary>
+        /// Immediately hides any active message and visual bar
+        /// </summary>
+        public void HideAll()
+        {
+            // Stop all active coroutines
+            if (activeMessageCoroutine != null)
+            {
+                StopCoroutine(activeMessageCoroutine);
+                activeMessageCoroutine = null;
+            }
+            
+            if (activeProgressBarCoroutine != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine);
+                activeProgressBarCoroutine = null;
+            }
+            
+            if (activeMessageCoroutine2 != null)
+            {
+                StopCoroutine(activeMessageCoroutine2);
+                activeMessageCoroutine2 = null;
+            }
+            
+            if (activeProgressBarCoroutine2 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine2);
+                activeProgressBarCoroutine2 = null;
+            }
+            
+            if (activeMessageCoroutine3 != null)
+            {
+                StopCoroutine(activeMessageCoroutine3);
+                activeMessageCoroutine3 = null;
+            }
+            
+            if (activeProgressBarCoroutine3 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine3);
+                activeProgressBarCoroutine3 = null;
+            }
+            
+            if (activeMessageCoroutine4 != null)
+            {
+                StopCoroutine(activeMessageCoroutine4);
+                activeMessageCoroutine4 = null;
+            }
+            
+            if (activeProgressBarCoroutine4 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine4);
+                activeProgressBarCoroutine4 = null;
+            }
+            
+            if (activeMessageCoroutine5 != null)
+            {
+                StopCoroutine(activeMessageCoroutine5);
+                activeMessageCoroutine5 = null;
+            }
+            
+            if (activeProgressBarCoroutine5 != null)
+            {
+                StopCoroutine(activeProgressBarCoroutine5);
+                activeProgressBarCoroutine5 = null;
+            }
+            
+            // Hide main text and bar
+            if (textMesh != null)
+            {
+                Color hideColor = textMesh.color;
+                hideColor.a = 0f;
+                textMesh.color = hideColor;
+            }
+            
+            if (visualBarRenderer != null)
+            {
+                Color barColor = visualBarRenderer.material.color;
+                barColor.a = 0f;
+                visualBarRenderer.material.color = barColor;
+            }
+            
+            // Hide additional text and bars
+            if (textMesh2 != null)
+            {
+                Color hideColor = textMesh2.color;
+                hideColor.a = 0f;
+                textMesh2.color = hideColor;
+            }
+            
+            if (visualBarRenderer2 != null)
+            {
+                Color barColor = visualBarRenderer2.material.color;
+                barColor.a = 0f;
+                visualBarRenderer2.material.color = barColor;
+            }
+            
+            if (textMesh3 != null)
+            {
+                Color hideColor = textMesh3.color;
+                hideColor.a = 0f;
+                textMesh3.color = hideColor;
+            }
+            
+            if (visualBarRenderer3 != null)
+            {
+                Color barColor = visualBarRenderer3.material.color;
+                barColor.a = 0f;
+                visualBarRenderer3.material.color = barColor;
+            }
+            
+            if (textMesh4 != null)
+            {
+                Color hideColor = textMesh4.color;
+                hideColor.a = 0f;
+                textMesh4.color = hideColor;
+            }
+            
+            if (visualBarRenderer4 != null)
+            {
+                Color barColor = visualBarRenderer4.material.color;
+                barColor.a = 0f;
+                visualBarRenderer4.material.color = barColor;
+            }
+            
+            if (textMesh5 != null)
+            {
+                Color hideColor = textMesh5.color;
+                hideColor.a = 0f;
+                textMesh5.color = hideColor;
+            }
+            
+            if (visualBarRenderer5 != null)
+            {
+                Color barColor = visualBarRenderer5.material.color;
+                barColor.a = 0f;
+                visualBarRenderer5.material.color = barColor;
+            }
+            
+            // Reset row status
+            isRow1Active = false;
+            isRow2Active = false;
+            isRow3Active = false;
+            isRow4Active = false;
+            isRow5Active = false;
         }
 
         #endregion
 
         #region Coroutines
 
-        private IEnumerator DisplayMessageCoroutine(string message, float duration, Color color)
+        private IEnumerator DisplayMessageCoroutine(TextMeshPro textMesh, string message, float duration, Color color, int row)
         {
             // Set the message text
             textMesh.text = message;
@@ -421,13 +1272,38 @@ namespace RoofTops
             displayColor.a = 0f;
             textMesh.color = displayColor;
 
-            activeMessageCoroutine = null;
+            // Update row status
+            if (row == 1)
+            {
+                isRow1Active = false;
+                activeMessageCoroutine = null;
+            }
+            else if (row == 2)
+            {
+                isRow2Active = false;
+                activeMessageCoroutine2 = null;
+            }
+            else if (row == 3)
+            {
+                isRow3Active = false;
+                activeMessageCoroutine3 = null;
+            }
+            else if (row == 4)
+            {
+                isRow4Active = false;
+                activeMessageCoroutine4 = null;
+            }
+            else if (row == 5)
+            {
+                isRow5Active = false;
+                activeMessageCoroutine5 = null;
+            }
         }
 
-        private IEnumerator DisplayVisualBarCoroutine(BarAnimationStyle animationStyle, float duration)
+        private IEnumerator DisplayVisualBarCoroutine(Renderer renderer, BarAnimationStyle animationStyle, float duration, int row)
         {
             // Get the material
-            Material barMaterial = visualBarRenderer.material;
+            Material barMaterial = renderer.material;
             
             // Get current color but keep RGB values, only modify alpha
             Color barColor = barMaterial.color;
@@ -461,13 +1337,33 @@ namespace RoofTops
                     yield return StartCoroutine(PopAndFadeAnimation(barMaterial, duration));
                     break;
             }
-
+            
             // Ensure alpha is 0 at the end
             barColor = barMaterial.color;
             barColor.a = 0f;
             barMaterial.color = barColor;
             
-            activeProgressBarCoroutine = null;
+            // Update row status
+            if (row == 1)
+            {
+                activeProgressBarCoroutine = null;
+            }
+            else if (row == 2)
+            {
+                activeProgressBarCoroutine2 = null;
+            }
+            else if (row == 3)
+            {
+                activeProgressBarCoroutine3 = null;
+            }
+            else if (row == 4)
+            {
+                activeProgressBarCoroutine4 = null;
+            }
+            else if (row == 5)
+            {
+                activeProgressBarCoroutine5 = null;
+            }
         }
 
         private IEnumerator FadeInOutAnimation(Material material, float duration)
@@ -489,8 +1385,8 @@ namespace RoofTops
             barColor.a = 1f;
             material.color = barColor;
 
-            // Display for duration
-            yield return new WaitForSeconds(duration - fadeInTime - fadeOutTime);
+            // Display for full duration (not subtracting fade times)
+            yield return new WaitForSeconds(duration);
 
             // Fade out
             elapsedTime = 0f;
@@ -502,6 +1398,11 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            
+            // Ensure alpha is 0 at the end
+            barColor = material.color;
+            barColor.a = 0f;
+            material.color = barColor;
         }
         
         private IEnumerator PulseAnimation(Material material, float duration)
@@ -519,8 +1420,8 @@ namespace RoofTops
                 yield return null;
             }
             
-            // Pulse during the main duration
-            float pulseTime = duration - fadeInTime - fadeOutTime;
+            // Use full duration for pulse effect (not subtracting fade times)
+            float pulseTime = duration;
             elapsedTime = 0f;
             
             while (elapsedTime < pulseTime)
@@ -528,7 +1429,7 @@ namespace RoofTops
                 // Calculate pulse alpha using sine wave
                 float pulseAlpha = 0.5f + 0.5f * Mathf.Sin(elapsedTime * pulseFrequency * 2f * Mathf.PI);
                 barColor = material.color;
-                barColor.a = Mathf.Lerp(0.5f, 1f, pulseAlpha); // Pulse between 50% and 100% alpha
+                barColor.a = Mathf.Lerp(pulseMinAlpha, pulseMaxAlpha, pulseAlpha); // Pulse between min and max alpha
                 material.color = barColor;
                 
                 elapsedTime += Time.deltaTime;
@@ -545,6 +1446,11 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            
+            // Ensure alpha is 0 at the end
+            barColor = material.color;
+            barColor.a = 0f;
+            material.color = barColor;
         }
         
         private IEnumerator BlinkAnimation(Material material, float duration)
@@ -562,8 +1468,8 @@ namespace RoofTops
                 yield return null;
             }
             
-            // Blink during the main duration
-            float blinkTime = duration - fadeInTime - fadeOutTime;
+            // Use full duration for blink effect (not subtracting fade times)
+            float blinkTime = duration;
             elapsedTime = 0f;
             
             while (elapsedTime < blinkTime)
@@ -588,6 +1494,11 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            
+            // Ensure alpha is 0 at the end
+            barColor = material.color;
+            barColor.a = 0f;
+            material.color = barColor;
         }
         
         private IEnumerator WarningAnimation(Material material, float duration)
@@ -605,16 +1516,16 @@ namespace RoofTops
                 yield return null;
             }
             
-            // Warning flash during the main duration
-            float warningTime = duration - fadeInTime - fadeOutTime;
+            // Use full duration for warning effect (not subtracting fade times)
+            float warningTime = duration;
             elapsedTime = 0f;
             
             while (elapsedTime < warningTime)
             {
-                // Fast flashing pattern for warning
-                float warningAlpha = Mathf.Abs(Mathf.Sin(elapsedTime * warningFrequency * Mathf.PI));
+                // Calculate warning flash alpha using sine wave
+                float warningAlpha = 0.5f + 0.5f * Mathf.Sin(elapsedTime * warningFrequency * 2f * Mathf.PI);
                 barColor = material.color;
-                barColor.a = Mathf.Lerp(0.2f, 1f, warningAlpha); // Flash between 20% and 100% alpha
+                barColor.a = Mathf.Lerp(warningMinAlpha, warningMaxAlpha, warningAlpha); // Flash between min and max alpha
                 material.color = barColor;
                 
                 elapsedTime += Time.deltaTime;
@@ -631,153 +1542,130 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            
+            // Ensure alpha is 0 at the end
+            barColor = material.color;
+            barColor.a = 0f;
+            material.color = barColor;
         }
 
         private IEnumerator PopAndTransitionAnimation(Material material, float duration)
         {
-            // Store the original color to transition to later
-            Color originalColor = material.color;
-            Color whiteColor = Color.white;
-            whiteColor.a = 1f; // Full alpha
+            Color barColor = material.color;
+            Color originalColor = barColor;
             
-            // POP in with white color
-            material.color = whiteColor;
+            // Pop in with white color
+            barColor = Color.white;
+            barColor.a = 1f;
+            material.color = barColor;
             
-            // Quick blink (flash white a couple of times)
-            float blinkDuration = 0.2f;
-            float elapsedTime = 0f;
+            // Quick blink
+            float blinkDuration = popBlinkDuration;
+            float blinkElapsed = 0f;
             
-            while (elapsedTime < blinkDuration)
+            while (blinkElapsed < blinkDuration)
             {
-                // Blink between white and transparent
-                float blinkValue = Mathf.Floor(Mathf.Repeat(elapsedTime * 15f, 1f) + 0.5f); // Fast blink (15 times per second)
-                whiteColor.a = blinkValue;
-                material.color = whiteColor;
+                // Blink between white and original color
+                float blinkValue = Mathf.Floor(Mathf.Repeat(blinkElapsed * popBlinkFrequency, 1f) + 0.5f);
+                barColor = blinkValue > 0.5f ? Color.white : originalColor;
+                barColor.a = 1f;
+                material.color = barColor;
                 
-                elapsedTime += Time.deltaTime;
+                blinkElapsed += Time.deltaTime;
                 yield return null;
             }
             
-            // Transition from white to the selected color
-            float transitionTime = 0.3f;
-            elapsedTime = 0f;
+            // Transition from white to original color
+            float transitionTime = popTransitionTime;
+            float transitionElapsed = 0f;
             
-            while (elapsedTime < transitionTime)
+            while (transitionElapsed < transitionTime)
             {
-                float t = elapsedTime / transitionTime;
-                Color lerpedColor = Color.Lerp(whiteColor, originalColor, t);
-                lerpedColor.a = 1f; // Keep full alpha during transition
-                material.color = lerpedColor;
+                barColor = Color.Lerp(Color.white, originalColor, transitionElapsed / transitionTime);
+                barColor.a = 1f;
+                material.color = barColor;
                 
-                elapsedTime += Time.deltaTime;
+                transitionElapsed += Time.deltaTime;
                 yield return null;
             }
             
-            // Set to the original color with full alpha
-            originalColor.a = 1f;
-            material.color = originalColor;
+            // Set to original color
+            barColor = originalColor;
+            barColor.a = 1f;
+            material.color = barColor;
             
-            // Display for the main duration
-            yield return new WaitForSeconds(duration - blinkDuration - transitionTime - fadeOutTime);
+            // Display for full duration (not subtracting previous effect times)
+            yield return new WaitForSeconds(duration);
             
             // Fade out
-            elapsedTime = 0f;
+            float elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
             {
-                Color fadeColor = material.color;
-                fadeColor.a = Mathf.Lerp(1f, 0f, elapsedTime / fadeOutTime);
-                material.color = fadeColor;
+                barColor = material.color;
+                barColor.a = Mathf.Lerp(1f, 0f, elapsedTime / fadeOutTime);
+                material.color = barColor;
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            
+            // Ensure alpha is 0 at the end
+            barColor = material.color;
+            barColor.a = 0f;
+            material.color = barColor;
         }
 
         private IEnumerator PopAndFadeAnimation(Material material, float duration)
         {
-            // Store the original color
-            Color originalColor = material.color;
+            Color barColor = material.color;
             
-            // POP in with full alpha
-            Color fullAlphaColor = originalColor;
-            fullAlphaColor.a = 1f; // Full alpha
-            material.color = fullAlphaColor;
+            // Pop in with full alpha
+            barColor.a = 1f;
+            material.color = barColor;
             
-            // Hold for a moment with full alpha
-            float holdTime = 0.2f;
-            yield return new WaitForSeconds(holdTime);
+            // Hold for a moment
+            yield return new WaitForSeconds(popHoldTime);
             
-            // Slowly fade to the selected alpha (which is stored in the original color)
-            float fadeTime = 0.5f;
-            float elapsedTime = 0f;
-            float targetAlpha = originalColor.a; // The alpha value we want to fade to
+            // Fade to target alpha
+            float fadeTime = popFadeTime;
+            float fadeElapsed = 0f;
+            float targetAlpha = 0.7f; // Target alpha value
             
-            // Reset to full alpha before starting the fade
-            fullAlphaColor.a = 1f;
-            material.color = fullAlphaColor;
-            
-            while (elapsedTime < fadeTime)
+            while (fadeElapsed < fadeTime)
             {
-                Color fadeColor = material.color;
-                // Fade from 1.0 to the target alpha
-                fadeColor.a = Mathf.Lerp(1f, targetAlpha, elapsedTime / fadeTime);
-                material.color = fadeColor;
-                elapsedTime += Time.deltaTime;
+                barColor = material.color;
+                barColor.a = Mathf.Lerp(1f, targetAlpha, fadeElapsed / fadeTime);
+                material.color = barColor;
+                
+                fadeElapsed += Time.deltaTime;
                 yield return null;
             }
             
-            // Set to the target alpha
-            Color finalColor = originalColor;
-            finalColor.a = targetAlpha;
-            material.color = finalColor;
+            // Set to target alpha
+            barColor = material.color;
+            barColor.a = targetAlpha;
+            material.color = barColor;
             
-            // Display for the main duration
-            yield return new WaitForSeconds(duration - holdTime - fadeTime - fadeOutTime);
+            // Display for full duration (not subtracting previous effect times)
+            yield return new WaitForSeconds(duration);
             
             // Fade out
-            elapsedTime = 0f;
+            float elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
             {
-                Color fadeColor = material.color;
-                fadeColor.a = Mathf.Lerp(targetAlpha, 0f, elapsedTime / fadeOutTime);
-                material.color = fadeColor;
+                barColor = material.color;
+                barColor.a = Mathf.Lerp(targetAlpha, 0f, elapsedTime / fadeOutTime);
+                material.color = barColor;
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            
+            // Ensure alpha is 0 at the end
+            barColor = material.color;
+            barColor.a = 0f;
+            material.color = barColor;
         }
 
         #endregion
-
-        /// <summary>
-        /// Immediately hides any active message and visual bar
-        /// </summary>
-        public void HideAll()
-        {
-            if (activeMessageCoroutine != null)
-            {
-                StopCoroutine(activeMessageCoroutine);
-                activeMessageCoroutine = null;
-            }
-            
-            if (activeProgressBarCoroutine != null)
-            {
-                StopCoroutine(activeProgressBarCoroutine);
-                activeProgressBarCoroutine = null;
-            }
-            
-            if (textMesh != null)
-            {
-                Color hideColor = textMesh.color;
-                hideColor.a = 0f;
-                textMesh.color = hideColor;
-            }
-            
-            if (visualBarRenderer != null)
-            {
-                Color barColor = visualBarRenderer.material.color;
-                barColor.a = 0f;
-                visualBarRenderer.material.color = barColor;
-            }
-        }
 
         private void OnDestroy()
         {
@@ -785,6 +1673,27 @@ namespace RoofTops
             if (instancedBarMaterial != null)
             {
                 Destroy(instancedBarMaterial);
+            }
+            
+            // Clean up additional instanced materials
+            if (instancedBarMaterial2 != null)
+            {
+                Destroy(instancedBarMaterial2);
+            }
+            
+            if (instancedBarMaterial3 != null)
+            {
+                Destroy(instancedBarMaterial3);
+            }
+            
+            if (instancedBarMaterial4 != null)
+            {
+                Destroy(instancedBarMaterial4);
+            }
+            
+            if (instancedBarMaterial5 != null)
+            {
+                Destroy(instancedBarMaterial5);
             }
         }
 
@@ -852,5 +1761,6 @@ namespace RoofTops
                 Debug.Log("Testing different durations - text: 1.5s, bar: 3.0s");
             }
         }
+
     }
 } 

@@ -66,7 +66,7 @@ Adjust these curves to create your ideal difficulty progression.
 The system uses extremely conservative spawn rates by default:
 - **Props**: Very rare (0.1% chance per spawn point)
 - **Jump Pads**: Rare (0.5% chance per spawn point)
-- **Bonuses**: Moderate (25% chance per spawn point)
+- **Tridotes**: Moderate (25% chance per spawn point)
 
 These values ensure the gameplay remains clean and uncluttered, with special elements appearing at key moments rather than overwhelming the player.
 

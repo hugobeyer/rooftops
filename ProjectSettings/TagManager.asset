@@ -7,7 +7,7 @@ TagManager:
   - GroundedTrigger
   - GroundCollider
   - JumpPad
-  - BonusSpot
+  - TridotSpot
   - customSpots
   - StepUpAllowance
   - DeathTrigger

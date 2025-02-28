@@ -4,16 +4,58 @@ using System.Collections;
 using TMPro;
 using RoofTops;
 using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace RoofTops
 {
+    /// <summary>
+    /// Container for all achievement save data
+    /// </summary>
+    [System.Serializable]
+    public class AchievementSaveData
+    {
+        public string lastSaveTime;
+        public Dictionary<string, float> playerMetrics = new Dictionary<string, float>();
+        public bool[] distanceAchievementsUnlocked;
+        public int currentGoalType;
+        public float currentGoalValue;
+        public bool goalAchieved;
+        public bool hasShownDashInfo = false; // Add this field to track tutorial message state
+        public List<CompletedGoal> completedGoals = new List<CompletedGoal>();
+    }
+
+    // Add this class to store completed goal information
+    [System.Serializable]
+    public class CompletedGoal
+    {
+        public int goalType;
+        public float goalValue;
+        public string completionTime;
+        
+        public CompletedGoal(GoalType type, float value)
+        {
+            goalType = (int)type;
+            goalValue = value;
+            completionTime = System.DateTime.UtcNow.ToString("o");
+        }
+    }
+
     // Add the enum for different goal types
     public enum GoalType
     {
         Distance,    // Reach a specific distance
-        Bonus,       // Collect a specific number of bonus items
-        Survival,    // Survive for a specific time
-        Jump         // Perform a specific number of jumps
+        Tridots,     // Collect a specific number of tridots
+        Memcard      // Collect a specific number of memory cards
+    }
+
+    // At the top of the file, outside the class
+    public enum LogCategory  // Renamed from LogType
+    {
+        Log,
+        Warning,
+        Error
     }
 
     public class GameManager : MonoBehaviour
@@ -51,10 +93,7 @@ namespace RoofTops
         public GameObject initialUIGroup;
 
         [Header("UI Displays")]
-        // public TMPro.TMP_Text distanceText;
-        // public TMPro.TMP_Text bestText;
-        // public TMPro.TMP_Text lastDistanceText;
-        // public TMPro.TMP_Text bonusText;
+        // (No UI Text fields needed)
 
         [Header("Helpers")]
         // We'll accumulate distance directly from ModulePool's currentMoveSpeed.
@@ -68,6 +107,11 @@ namespace RoofTops
         private Coroutine timeScaleCoroutine;
         private Coroutine audioEffectCoroutine;
         private float moduleSpeedStartTime;
+
+        [Header("Auto-Save Settings")]
+        [SerializeField] private float autoSaveInterval = 30f; // Save every 30 seconds
+        [SerializeField] public bool enableAutoSave = true;
+        private float lastAutoSaveTime = 0f;
 
         // New property to indicate the game hasn't started until the jump is pressed
         public bool HasGameStarted { get; private set; } = false;
@@ -169,28 +213,47 @@ namespace RoofTops
 
         [Header("Goal Messages")]
         [SerializeField] private bool showGoalOnStart = true;
-        [SerializeField] private float goalMessageDelay = 1.5f; // Delay before showing goal after game starts
-        [SerializeField] private float goalAchievedMessageDelay = 0.5f; // Delay before showing the goal achieved message
-        [SerializeField] private GoalType[] availableGoalTypes = new GoalType[] { GoalType.Distance, GoalType.Bonus }; // Available goal types
-        [SerializeField] private float[] distanceGoalTiers = new float[] { 500f, 750f, 1000f, 1300f, 1600f, 2000f, 2500f, 3000f }; // Distance goal tiers
-        [SerializeField] private float distanceGoalMultiplier = 1.2f; // Multiplier for distance goals based on best distance
-        [SerializeField] private float minDistanceGoal = 50f; // Minimum distance goal
-        [SerializeField] private float maxDistanceGoal = 3000f; // Maximum distance goal
-        [SerializeField] private int minBonusGoal = 5; // Minimum bonus goal
-        [SerializeField] private int maxBonusGoal = 30; // Maximum bonus goal
-        [SerializeField] private float minSurvivalGoal = 30f; // Minimum survival time in seconds
-        [SerializeField] private float maxSurvivalGoal = 120f; // Maximum survival time in seconds
-        [SerializeField] private int minJumpGoal = 5; // Minimum jump goal
-        [SerializeField] private int maxJumpGoal = 20; // Maximum jump goal
+        [SerializeField] private float goalMessageDelay = 8.0f; // Delay before showing goal after game starts
+        [SerializeField] private float goalAchievedMessageDelay = 0.1f; // Delay before showing the goal achieved message
+        //[SerializeField] private float distanceGoalMultiplier = 1.2f; // Multiplier for distance goals based on best distance
 
         // Current goal tracking
         private GoalType currentGoalType;
         private float currentGoalValue;
         private bool goalAchieved = false;
 
-        [Header("Distance Achievements")]
-        [SerializeField] private float[] distanceAchievementTiers = new float[] { 200f, 400f, 500f, 1000f, 2000f }; // Distance tiers in meters
-        [SerializeField] private bool[] distanceAchievementsUnlocked; // Tracks which achievements have been unlocked
+        [Header("Achievement Settings")]
+        [SerializeField] private bool enableAchievementMessages = true;
+        [SerializeField] public bool saveAchievementsToJson = true;
+        [SerializeField] private string achievementSaveFileName = "achievements.json";
+        [SerializeField] private GoalType[] availableGoalTypes = new GoalType[] 
+        { 
+            GoalType.Distance, 
+            GoalType.Tridots, 
+            GoalType.Memcard
+        };
+        
+        // Player metrics dictionary for tracking various stats
+        private Dictionary<string, float> playerMetrics = new Dictionary<string, float>();
+        
+        // Events for achievement system
+        public UnityEngine.Events.UnityEvent<string, float> onAchievementUnlocked = new UnityEngine.Events.UnityEvent<string, float>();
+        public UnityEngine.Events.UnityEvent<string, float, float> onGoalProgress = new UnityEngine.Events.UnityEvent<string, float, float>();
+        
+        // Achievement save data
+        private AchievementSaveData saveData = new AchievementSaveData();
+
+        private int tridotsGoalIndex = 0;
+        private int memcardGoalIndex = 0;
+
+        private bool[] distanceAchievements
+        {
+            get
+            {
+                // Return an empty array since we're no longer tracking tier achievements
+                return new bool[0];
+            }
+        }
 
         void Awake()
         {
@@ -217,6 +280,16 @@ namespace RoofTops
             {
                 gameData = ScriptableObject.CreateInstance<GameDataObject>();
             }
+            
+            // Initialize goal indices
+            tridotsGoalIndex = PlayerPrefs.GetInt("TridotsGoalIndex", 0);
+            memcardGoalIndex = PlayerPrefs.GetInt("MemcardGoalIndex", 0);
+            
+            // Set initial goal type to Distance (default)
+            currentGoalType = GoalType.Distance;
+            
+            // Load game data and achievements
+            LoadGameData();
 
             // Setup music - only volume and playback settings
             if (musicSource == null)
@@ -262,9 +335,6 @@ namespace RoofTops
             {
                 targetMaterial.SetFloat("_UsePath", 0f);
             }
-
-            // Initialize the achievement tracking array
-            distanceAchievementsUnlocked = new bool[distanceAchievementTiers.Length];
         }
 
         void Start()
@@ -284,9 +354,20 @@ namespace RoofTops
             {
                 panelController = FindObjectOfType<PanelController>();
             }
+
+            if (VistaPool.Instance != null)
+            {
+                VistaPool.Instance.ResetVistas();
+            }
+
+            // Now enable the UsePath feature
+            if (targetMaterial != null)
+            {
+                targetMaterial.SetFloat("_UsePath", 1f);
+            }
         }
 
-        void Update()
+        public void Update()
         {
             if (!HasGameStarted)
             {
@@ -305,13 +386,6 @@ namespace RoofTops
                 accumulatedDistance += ModulePool.Instance.currentMoveSpeed * Time.deltaTime;
             }
 
-            // Update the distance text.
-            // if (distanceText != null)
-            // {
-            //     distanceText.text = accumulatedDistance.ToString("F1") + " m";
-            // }
-
-            // You can update bonus (and other displays) if needed.
             if (!isPaused)
             {
                 Time.timeScale = timeSpeed;
@@ -346,14 +420,12 @@ namespace RoofTops
                 targetMaterial.SetVector("_PlayerPosition", playerPos);
             }
             
-            // Check if the goal has been achieved - only if we have a valid goal value
-            if (showGoalOnStart && !goalAchieved && currentGoalValue > 0)
+            // Auto-save game data periodically
+            if (enableAutoSave && Time.time - lastAutoSaveTime > autoSaveInterval)
             {
-                // Only start checking after a short delay to ensure the goal is properly set up
-                if (Time.time > moduleSpeedStartTime + goalMessageDelay + 1.0f)
-                {
-                    CheckGoalProgress();
-                }
+                SaveGameData();
+                
+                lastAutoSaveTime = Time.time;
             }
         }
 
@@ -365,6 +437,12 @@ namespace RoofTops
                 if (ModulePool.Instance != null)
                 {
                     storedMovementSpeed = ModulePool.Instance.gameSpeed;
+                }
+                
+                // Save game data when pausing
+                if (HasGameStarted)
+                {
+                    SaveGameData();
                 }
             }
 
@@ -523,6 +601,18 @@ namespace RoofTops
                 // Reset goal achieved flag
                 goalAchieved = false;
                 
+                // Reset session-specific metrics for the new run
+                
+            
+                
+                // Reset game data
+                if (gameData != null)
+                {
+                    gameData.lastRunDistance = 0f;
+                    gameData.lastRunTridotCollected = 0;
+                    gameData.lastRunMemcardsCollected = 0;
+                }
+                
                 // Hide the panel once the game actually starts
                 if (panelController != null && panelController.gameObject != null)
                 {
@@ -532,7 +622,9 @@ namespace RoofTops
 
                 Time.timeScale = timeSpeed;
                 
-                // Add this line to fire the event
+                // Set initial distance metric
+                
+                // Fire game started event
                 onGameStarted.Invoke();
                 
                 // Start playing the music if it isn't already playing.
@@ -592,123 +684,31 @@ namespace RoofTops
                     targetMaterial.SetFloat("_UsePath", 1f);
                 }
                 
-                // Show goal message after a delay
-                if (showGoalOnStart)
-                {
-                    StartCoroutine(StartMessageSequence());
-                }
+
             }
         }
 
-        /// <summary>
-        /// Coordinates the sequence of storyline and goal messages
-        /// </summary>
-        private IEnumerator StartMessageSequence()
-        {
-            // Wait for initial delay after game start
-            yield return new WaitForSeconds(goalMessageDelay);
-            
-            // Set distance goal based on player's progress
-            currentGoalType = GoalType.Distance;
-            
-            // Find the appropriate distance goal tier based on player's best distance
-            float bestDistance = gameData.bestDistance;
-            float selectedGoal = distanceGoalTiers[0]; // Default to first tier
-            
-            // Find the next goal tier above player's best distance
-            for (int i = 0; i < distanceGoalTiers.Length; i++)
-            {
-                if (bestDistance < distanceGoalTiers[i])
-                {
-                    selectedGoal = distanceGoalTiers[i];
-                    break;
-                }
-                
-                // If we've reached the end, use the highest tier
-                if (i == distanceGoalTiers.Length - 1)
-                {
-                    selectedGoal = distanceGoalTiers[i];
-                }
-            }
-            
-            currentGoalValue = selectedGoal;
-            
-            // Make sure goal is not already achieved
-            goalAchieved = false;
-            
-            // Log the goal setup
-            Debug.Log($"Setting up goal: Type = {currentGoalType}, Value = {currentGoalValue}");
-            
-            // Display the goal message
-            DisplayGoalMessage();
-        }
-
-        // New method to update bonus information centrally
-        public void AddBonus(int amount)
-        {
-            // Check if this is a bonus collection (positive amount) or consumption (negative amount)
-            bool isCollection = amount > 0;
-            
-            // Update the game data
-            gameData.lastRunBonusCollected += amount;
-            gameData.totalBonusCollected += amount;
-
-            // Show dash info message if this is the first bonus collected and the message hasn't been shown before
-            if (isCollection && gameData.lastRunBonusCollected == amount && !gameData.hasShownDashInfo && HasGameStarted)
-            {
-                // Show the dash info message
-                if (GameMessageDisplay.Instance != null)
-                {
-                    GameMessageDisplay.Instance.ShowMessageByID("1ST_BONUS_DASH_INFO");
-                    
-                    // Mark the message as shown
-                    gameData.hasShownDashInfo = true;
-                    
-                    // Log for debugging
-                    Debug.Log("Showed dash info message for first bonus collection");
-                }
-            }
-
-            // Immediately update the bonus text
-            // if (bonusText != null)
-            // {
-            //     bonusText.text = gameData.lastRunBonusCollected.ToString();
-            // }
-        }
-
-        // Method to handle memcard collection
-        public void OnMemcardCollected(int amount)
-        {
-            // Update the memcard counts in game data
-            gameData.lastRunMemcardsCollected += amount;
-            gameData.totalMemcardsCollected += amount;
-            
-            // Update best run if current run is better
-            if (gameData.lastRunMemcardsCollected > gameData.bestRunMemcardsCollected)
-            {
-                gameData.bestRunMemcardsCollected = gameData.lastRunMemcardsCollected;
-            }
-        }
-
-        // New method to record final run distance.
-        // It updates gameData (last run and best distance) and updates the corresponding UI displays.
         public void RecordFinalDistance(float finalDistance)
         {
-            gameData.lastRunDistance = finalDistance;
-            if (finalDistance > gameData.bestDistance)
+            // Update GameDataObject
+            if (gameData != null)
             {
-                gameData.bestDistance = finalDistance;
+                gameData.lastRunDistance = finalDistance;
+                
+                // Update best distance if this run was better
+                if (finalDistance > gameData.bestDistance)
+                {
+                    gameData.bestDistance = finalDistance;
+                }
             }
+            
+            // Update player metrics
 
-            // Update UI displays if assigned
-            // if (lastDistanceText != null)
-            // {
-            //     lastDistanceText.text = $"{finalDistance:F1} m";
-            // }
-            // if (bestText != null)
-            // {
-            //     bestText.text = $"{gameData.bestDistance:F1} m";
-            // }
+            
+            // Save game data
+            SaveGameData();
+
+            // Log the final distance
         }
 
         // New method to handle the overall game over (player death) logic.
@@ -750,6 +750,27 @@ namespace RoofTops
                 }
             }
 
+            // CENTRALIZED MOVEMENT CONTROL: This is the single place where all movement systems are stopped
+            // Stop all movement systems
+            if (ModulePool.Instance != null)
+            {
+                ModulePool.Instance.StopMovement();
+            }
+            
+            // Also stop the UnifiedSpawnManager if it exists
+            var unifiedSpawnManager = FindFirstObjectByType<UnifiedSpawnManager>();
+            if (unifiedSpawnManager != null)
+            {
+                unifiedSpawnManager.StopMovement();
+            }
+            
+            // Also stop the PatternSpawning if it exists
+            var patternSpawning = FindFirstObjectByType<PatternSpawning>();
+            if (patternSpawning != null)
+            {
+                patternSpawning.StopMovement();
+            }
+
             // Switch to ragdoll
             SwitchToRagdoll();
             
@@ -785,21 +806,6 @@ namespace RoofTops
             // Clean scene reload
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-
-        // void UpdateDisplays()
-        // {
-        //     if (GameManager.Instance != null && GameManager.Instance.gameData != null)
-        //     {
-        //         if (bestText != null)
-        //         {
-        //             bestText.text = $"{GameManager.Instance.gameData.bestDistance:F1} m";
-        //         }
-        //         if (lastDistanceText != null)
-        //         {
-        //             lastDistanceText.text = $"{GameManager.Instance.gameData.lastRunDistance:F1} m";
-        //         }
-        //     }
-        // }
 
         public void SetGravity(float gravityValue)
         {
@@ -941,187 +947,157 @@ namespace RoofTops
             }
         }
 
-        /// <summary>
-        /// Displays a message when the goal is achieved
-        /// </summary>
-        private void DisplayGoalAchievedMessage()
+        public void SaveGameData()
         {
-            if (GameMessageDisplay.Instance == null) return;
+            // Save distance records
+            PlayerPrefs.SetFloat("BestDistance", gameData.bestDistance);
+            PlayerPrefs.SetFloat("LastRunDistance", gameData.lastRunDistance);
             
-            // Add delay before showing the goal achieved message
-            StartCoroutine(ShowGoalAchievedMessageWithDelay());
-        }
-
-        /// <summary>
-        /// Shows the goal achieved message after a delay
-        /// </summary>
-        private IEnumerator ShowGoalAchievedMessageWithDelay()
-        {
-            yield return new WaitForSeconds(goalAchievedMessageDelay);
-            GameMessageDisplay.Instance.ShowMessageByID("GOAL_ACHIEVED", "");
-        }
-
-        #region Goal System
-
-        /// <summary>
-        /// Calculates an appropriate goal value based on the player's progress
-        /// </summary>
-        private void CalculateGoalValue()
-        {
-            switch (currentGoalType)
+            // Save tridots collection
+            PlayerPrefs.SetInt("TotalTridotCollected", gameData.totalTridotCollected);
+            PlayerPrefs.SetInt("LastRunTridotCollected", gameData.lastRunTridotCollected);
+            PlayerPrefs.SetInt("BestRunTridotCollected", gameData.bestRunTridotCollected);
+            
+            // Save memcard collection
+            PlayerPrefs.SetInt("TotalMemcardsCollected", gameData.totalMemcardsCollected);
+            PlayerPrefs.SetInt("LastRunMemcardsCollected", gameData.lastRunMemcardsCollected);
+            PlayerPrefs.SetInt("BestRunMemcardsCollected", gameData.bestRunMemcardsCollected);
+            
+            // Save tutorial flags
+            PlayerPrefs.SetInt("HasShownDashInfo", gameData.hasShownDashInfo ? 1 : 0);
+            
+            // Save distance achievements
+            bool[] distAch = distanceAchievements;
+            if (distAch != null)
             {
-                case GoalType.Distance:
-                    // Base goal on best distance, with a minimum
-                    float bestDistance = gameData.bestDistance;
-                    currentGoalValue = Mathf.Clamp(bestDistance * distanceGoalMultiplier, minDistanceGoal, maxDistanceGoal);
-                    // Round to nearest 10
-                    currentGoalValue = Mathf.Round(currentGoalValue / 10f) * 10f;
-                    break;
-                    
-                case GoalType.Bonus:
-                    // Set a reasonable bonus collection goal
-                    currentGoalValue = Random.Range(minBonusGoal, maxBonusGoal + 1);
-                    break;
-                    
-                case GoalType.Survival:
-                    // Set a survival time goal
-                    currentGoalValue = Random.Range(minSurvivalGoal, maxSurvivalGoal);
-                    // Round to nearest 5 seconds
-                    currentGoalValue = Mathf.Round(currentGoalValue / 5f) * 5f;
-                    break;
-                    
-                case GoalType.Jump:
-                    // Set a jump count goal
-                    currentGoalValue = Random.Range(minJumpGoal, maxJumpGoal + 1);
-                    break;
-            }
-        }
-        
-        /// <summary>
-        /// Displays the goal message using the GameMessageDisplay
-        /// </summary>
-        private void DisplayGoalMessage()
-        {
-            if (GameMessageDisplay.Instance == null) return;
-            
-            switch (currentGoalType)
-            {
-                case GoalType.Distance:
-                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_DISTANCE", currentGoalValue);
-                    break;
-                    
-                case GoalType.Bonus:
-                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_BONUS", (int)currentGoalValue);
-                    break;
-                    
-                case GoalType.Survival:
-                    int minutes = Mathf.FloorToInt(currentGoalValue / 60f);
-                    int seconds = Mathf.FloorToInt(currentGoalValue % 60f);
-                    string timeFormat = minutes > 0 ? $"{minutes}m {seconds}s" : $"{seconds}s";
-                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_SURVIVAL", timeFormat);
-                    break;
-                    
-                case GoalType.Jump:
-                    GameMessageDisplay.Instance.ShowMessageByID("RUN_START_GOAL_JUMP", (int)currentGoalValue);
-                    break;
-            }
-        }
-        
-        /// <summary>
-        /// Checks if the current goal has been achieved
-        /// </summary>
-        public void CheckGoalProgress()
-        {
-            if (goalAchieved) return;
-            
-            bool achieved = false;
-            
-            switch (currentGoalType)
-            {
-                case GoalType.Distance:
-                    // Add debug logging to help diagnose the issue
-                    Debug.Log($"Goal check: Current distance = {accumulatedDistance}, Goal = {currentGoalValue}");
-                    achieved = accumulatedDistance >= currentGoalValue;
-                    break;
-                    
-                case GoalType.Bonus:
-                    achieved = gameData.lastRunBonusCollected >= currentGoalValue;
-                    break;
-                    
-                case GoalType.Survival:
-                    // You would need to track game time separately
-                    // achieved = gameTime >= currentGoalValue;
-                    break;
-                    
-                case GoalType.Jump:
-                    // You would need to track jump count
-                    // achieved = jumpCount >= currentGoalValue;
-                    break;
-            }
-            
-            if (achieved)
-            {
-                Debug.Log("Goal achieved!");
-                goalAchieved = true;
-                DisplayGoalAchievedMessage();
-            }
-        }
-
-        /// <summary>
-        /// Resets the goal system (for debugging)
-        /// </summary>
-        public void ResetGoalSystem()
-        {
-            Debug.Log("Resetting goal system");
-            goalAchieved = false;
-            currentGoalValue = 0f;
-            accumulatedDistance = 0f;
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Checks if any distance achievements have been reached
-        /// </summary>
-        private void CheckDistanceAchievements()
-        {
-            // Skip if no achievements defined
-            if (distanceAchievementTiers == null || distanceAchievementTiers.Length == 0) return;
-            
-            // Make sure our tracking array is initialized
-            if (distanceAchievementsUnlocked == null || distanceAchievementsUnlocked.Length != distanceAchievementTiers.Length)
-            {
-                distanceAchievementsUnlocked = new bool[distanceAchievementTiers.Length];
-            }
-            
-            // Check each tier
-            bool achievementUnlocked = false;
-            string achievementValue = "";
-            
-            for (int i = 0; i < distanceAchievementTiers.Length; i++)
-            {
-                // Skip already unlocked achievements
-                if (distanceAchievementsUnlocked[i]) continue;
-                
-                // Check if this tier has been reached
-                if (accumulatedDistance >= distanceAchievementTiers[i])
+                for (int i = 0; i < distAch.Length; i++)
                 {
-                    distanceAchievementsUnlocked[i] = true;
-                    achievementUnlocked = true;
-                    achievementValue = distanceAchievementTiers[i].ToString();
-                    
-                    // You could break here to only show one achievement at a time
-                    // or continue to potentially show multiple achievements at once
-                    break;
+                    PlayerPrefs.SetInt($"DistanceAchievement_{i}", distAch[i] ? 1 : 0);
                 }
             }
             
-            // Show achievement message if any were unlocked
-            if (achievementUnlocked && GameMessageDisplay.Instance != null)
+            // Save current goal data
+            PlayerPrefs.SetInt("CurrentGoalType", (int)currentGoalType);
+            PlayerPrefs.SetFloat("CurrentGoalValue", currentGoalValue);
+            PlayerPrefs.SetInt("GoalAchieved", goalAchieved ? 1 : 0);
+            
+            // Ensure data is written to disk
+            PlayerPrefs.Save();
+            
+        }
+
+        /// <summary>
+        /// Loads all game data from PlayerPrefs
+        /// </summary>
+        public void LoadGameData()
+        {
+            // Load distance records
+            gameData.bestDistance = PlayerPrefs.GetFloat("BestDistance", 0f);
+            gameData.lastRunDistance = PlayerPrefs.GetFloat("LastRunDistance", 0f);
+            
+            // Load tridots collection
+            gameData.totalTridotCollected = PlayerPrefs.GetInt("TotalTridotCollected", 0);
+            gameData.lastRunTridotCollected = PlayerPrefs.GetInt("LastRunTridotCollected", 0);
+            gameData.bestRunTridotCollected = PlayerPrefs.GetInt("BestRunTridotCollected", 0);
+            
+            // Load memcard collection
+            gameData.totalMemcardsCollected = PlayerPrefs.GetInt("TotalMemcardsCollected", 0);
+            gameData.lastRunMemcardsCollected = PlayerPrefs.GetInt("LastRunMemcardsCollected", 0);
+            gameData.bestRunMemcardsCollected = PlayerPrefs.GetInt("BestRunMemcardsCollected", 0);
+            
+            // Load tutorial flags
+            gameData.hasShownDashInfo = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
+            
+            // Load distance achievements
+            bool[] distAch = distanceAchievements;
+            if (distAch != null && PlayerPrefs.HasKey("DistanceAchievement_0"))
             {
-                // Show achievement message
-                GameMessageDisplay.Instance.ShowMessageByID("DISTANCE_ACHIEVED", achievementValue);
+                for (int i = 0; i < distAch.Length; i++)
+                {
+                    distAch[i] = PlayerPrefs.GetInt($"DistanceAchievement_{i}", 0) == 1;
+                }
+            }
+            
+            // Load current goal data
+            currentGoalType = (GoalType)PlayerPrefs.GetInt("CurrentGoalType", 0);
+            currentGoalValue = PlayerPrefs.GetFloat("CurrentGoalValue", 0f);
+            goalAchieved = PlayerPrefs.GetInt("GoalAchieved", 0) == 1;
+            
+        }
+
+        /// <summary>
+        /// Clears all saved game data (for testing or reset functionality)
+        /// </summary>
+        public void ClearGameData()
+        {
+            // Reset all game data
+            gameData.bestDistance = 0f;
+            gameData.lastRunDistance = 0f;
+            gameData.totalTridotCollected = 0;
+            gameData.lastRunTridotCollected = 0;
+            gameData.bestRunTridotCollected = 0;
+            gameData.totalMemcardsCollected = 0;
+            gameData.lastRunMemcardsCollected = 0;
+            gameData.bestRunMemcardsCollected = 0;
+            gameData.hasShownDashInfo = false;
+            
+            // Reset achievements
+            bool[] distAch = distanceAchievements;
+            if (distAch != null)
+            {
+                for (int i = 0; i < distAch.Length; i++)
+                {
+                    distAch[i] = false;
+                }
+            }
+            
+            // Reset goal data
+            currentGoalType = GoalType.Distance;
+            currentGoalValue = 0f;
+            goalAchieved = false;
+            
+            // Clear all PlayerPrefs data first
+            PlayerPrefs.DeleteAll();
+            
+            // Reset goal indices
+            tridotsGoalIndex = 0;
+            memcardGoalIndex = 0;
+            
+            // Save the reset indices to PlayerPrefs
+            PlayerPrefs.SetInt("DistanceGoalIndex", 0);
+            PlayerPrefs.SetInt("TridotsGoalIndex", tridotsGoalIndex);
+            PlayerPrefs.SetInt("MemcardGoalIndex", memcardGoalIndex);
+            PlayerPrefs.Save();
+            
+            // Clear player metrics
+            playerMetrics.Clear();
+            
+            // Reset achievement save data
+            saveData = new AchievementSaveData();
+            
+            // Save the cleared data
+            SaveGameData();
+        }
+
+        // Add this to handle application quit/pause
+        private void OnApplicationQuit()
+        {
+            // Save data when the application is closed
+            SaveGameData();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            // Save data when the application is paused (e.g., when switching to another app on mobile)
+            if (pauseStatus)
+            {
+                SaveGameData();
             }
         }
+
+        
+       
+
+
     }
 } 

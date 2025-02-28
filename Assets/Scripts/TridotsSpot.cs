@@ -3,10 +3,10 @@ using System.Collections;
 
 namespace RoofTops
 {
-    public class BonusSpot : MonoBehaviour
+    public class TridotsSpot : MonoBehaviour
     {
-        [Header("Bonus Settings")]
-        public int scoreValue = 100;
+        [Header("Tridots Settings")]
+        public int scoreValue = 1;
         public float rotationSpeed = 90f;
         
         [Header("Audio")]
@@ -19,7 +19,7 @@ namespace RoofTops
         public float vfxYOffset = 0.5f;  // Default offset of 0.5 units up
         
         [Header("Explosion Effect")]
-        public float explosionDuration = 0.5f;
+        public float explosionDuration = 0.25f;
         private Material material;
         private MeshRenderer meshRenderer;
         private bool isCollected = false;
@@ -70,15 +70,18 @@ namespace RoofTops
                     audioSource.Play();
                 }
                 
-                // Update bonus centrally via GameManager (AddBonus internally updates gameData)
-                GameManager.Instance.AddBonus(scoreValue);
-                
-                // Add to score manager if exists
-                ScoreManager scoreManager = FindAnyObjectByType<ScoreManager>();
-                if(scoreManager != null)
+                // Update tridots centrally via EconomyManager (AddTridots internally updates gameData)
+                if (EconomyManager.Instance != null)
                 {
-                    scoreManager.AddScore(scoreValue);
+                    EconomyManager.Instance.AddTridots(scoreValue);
                 }
+                else
+                {
+                    Debug.LogWarning("EconomyManager.Instance is null in TridotsSpot.OnTriggerEnter");
+                }
+                
+                // Remove ScoreManager code and replace with comment
+                // Score is now handled through EconomyManager
 
                 // Start explosion effect before destroying
                 StartCoroutine(ExplodeAndDestroy());

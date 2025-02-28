@@ -350,10 +350,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b72db9439bd3eb644b4dc0c816817db6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpForce: 7
+  jumpForce: 5.5
   maxJumpForce: 32
   jumpChargeRate: 9
-  jumpForceGrowthRate: 0.02
+  jumpForceGrowthRate: 0.015
   runSpeedMultiplier: 1
   jumpCutFactor: 0.5
   runSpeed: 1
@@ -361,6 +361,10 @@ MonoBehaviour:
   simulationDuration: 2
   baseAnimationSpeed: 24
   baseMoveSpeed: 1
+  onJump:
+    m_PersistentCalls:
+      m_Calls: []
+  showJumpMetrics: 1
   modulePool: {fileID: 0}
   groundCheckRadius: 0.3
   groundCheckDistance: 0.1
@@ -370,6 +374,7 @@ MonoBehaviour:
   dashSpeedMultiplier: 3
   dashDuration: 0.6
   dashCooldown: 3
+  dashTridotCost: 1
   dashMaterial: {fileID: 2100000, guid: d5ce4f85e91a7da4c98fd93129753703, type: 2}
   secondaryDashMaterial: {fileID: 2100000, guid: 4278617a1b1fa7840b34fa047310827c, type: 2}
   tertiaryDashMaterial: {fileID: 2100000, guid: a2deab81943791346804cd6786f2e63a, type: 2}
@@ -379,6 +384,8 @@ MonoBehaviour:
   dashEffectPrefab: {fileID: 8642976154777090766, guid: fc4d3ede2bae2c644be59fda46901433, type: 3}
   effectOffset: {x: 0, y: 0.86, z: 0.39}
   dashSound: {fileID: 8300000, guid: 30cf75de6961d8d4fb87c5e60be46121, type: 3}
+  noDashSound: {fileID: 8300000, guid: 4c7700dbda015a2489b3599fbe31eac9, type: 3}
+  noDashEffectPrefab: {fileID: 0}
   dashVolume: 0.667
 --- !u!114 &4410404002048786494
 MonoBehaviour:
@@ -401,6 +408,10 @@ MonoBehaviour:
   quickJumpThreshold: 0.1
   turnDuration: 2
   turnStartDelay: 0.5
+  watchStartDelay: 4
+  watchDuration: 3
+  watchFadeInTime: 0.5
+  watchFadeOutTime: 0.5
 --- !u!114 &9118591500628666525
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,27 +6,27 @@ using RoofTops;
 namespace RoofTops
 {
     /// <summary>
-    /// A reworked unified manager to spawn bonuses, jump pads, and props
+    /// A reworked unified manager to spawn tridotes, jump pads, and props
     /// using a simpler "pattern" approach: random gaps in time/distance, 
     /// with items always spawning at a fixed start Z and destroyed at end Z.
-    /// Frequencies are still probability based (like the old code).
+    /// Frequencinothinges are still probability based (like the old code).
     /// </summary>
     public class UnifiedSpawnManager : MonoBehaviour
     {
         [Header("Spawn Objects")]
-        [SerializeField] private GameObject bonusPrefab;
+        [SerializeField] private GameObject tridotPrefab;
         [SerializeField] private GameObject jumpPadPrefab;
         [SerializeField] private GameObject[] propPrefabs;
 
         [Header("Spawn Frequencies")]
-        [Tooltip("Probability of spawning a bonus (0 to 1).")]
-        [SerializeField] private float bonusFrequency = 0.25f;
+        [Tooltip("Probability of spawning a tridots (0 to 1).")]
+        [SerializeField] private float tridotFrequency = 0.1f;
 
         [Tooltip("Probability of spawning a jump pad (0 to 1).")]
-        [SerializeField] private float jumpPadFrequency = 0.05f;
+        [SerializeField] private float jumpPadFrequency = 0.1f;
 
         [Tooltip("Probability of spawning a prop (0 to 1).")]
-        [SerializeField] private float propFrequency = 0.15f;
+        [SerializeField] private float propFrequency = 0.1f;
 
         [Header("Spawn Settings (like PatternSpawning)")]
         [Tooltip("Fixed Z position where items spawn")]
@@ -45,10 +45,14 @@ namespace RoofTops
         [SerializeField] private float fixedXPosition = 0f;
 
         [Tooltip("Y offset for spawned items (height)")]
-        [SerializeField] private float spawnY = 1.0f;
+        [SerializeField] private float spawnY = 0.0f;
+
+        [Header("Spawn Delay")]
+        [Tooltip("Time (seconds) to wait before spawning anything when the game starts.")]
+        [SerializeField] private float spawnDelay = 13f;
 
         // Accessors for external difficulty modifications
-        public float BonusFrequency { get => bonusFrequency; set => bonusFrequency = value; }
+        public float TridotFrequency { get => tridotFrequency; set => tridotFrequency = value; }
         public float JumpPadFrequency { get => jumpPadFrequency; set => jumpPadFrequency = value; }
         public float PropFrequency  { get => propFrequency;  set => propFrequency  = value; }
 
@@ -60,10 +64,13 @@ namespace RoofTops
         // NEW: We'll maintain a list of valid spawn point transforms
         private List<Transform> spawnPoints = new List<Transform>();
 
+        private bool canSpawn = false;
+        private bool isMoving = true; // Add this flag to control movement
+
         private void Start()
         {
-            // If GameManager exists and game has not started, we can wait for HasGameStarted
-            // or just do it right away. For clarity, we skip any plane logic.
+            // Instead of spawning immediately, wait for 'spawnDelay' seconds
+            Invoke(nameof(EnableSpawning), spawnDelay);
 
             // Gather all spawn points once at startup
             spawnPoints = FindAllSpawnPoints();
@@ -72,8 +79,15 @@ namespace RoofTops
             SetNextSpawnGap();
         }
 
+        private void EnableSpawning()
+        {
+            canSpawn = true;
+        }
+
         private void Update()
         {
+            if (!canSpawn || !isMoving) return; // Skip if not moving or can't spawn
+
             // Optional check: Only spawn if the game is started
             if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
                 return;
@@ -131,7 +145,7 @@ namespace RoofTops
             float roll = Random.value;
             float cumulativeChance = 0f;
 
-            float nothingChance = Mathf.Max(0, 1f - (bonusFrequency + jumpPadFrequency + propFrequency));
+            float nothingChance = Mathf.Max(0, 1f - (tridotFrequency + jumpPadFrequency + propFrequency));
             cumulativeChance += nothingChance;
 
             if (roll < cumulativeChance)
@@ -139,11 +153,11 @@ namespace RoofTops
 
             GameObject spawnedItem = null;
 
-            // Spawn logic for bonus / jump pad / prop
-            cumulativeChance += bonusFrequency;
-            if (roll < cumulativeChance && bonusPrefab != null)
+            // Spawn logic for tridots / jump pad / prop
+            cumulativeChance += tridotFrequency;
+            if (roll < cumulativeChance && tridotPrefab != null)
             {
-                spawnedItem = Instantiate(bonusPrefab, Vector3.zero, Quaternion.identity);
+                spawnedItem = Instantiate(tridotPrefab, Vector3.zero, Quaternion.identity);
             }
             else
             {
@@ -201,11 +215,17 @@ namespace RoofTops
             }
         }
 
-        public void UpdateSpawnFrequencies(float newBonusFrequency, float newJumpPadFrequency, float newPropFrequency)
+        public void UpdateSpawnFrequencies(float newTridotFrequency, float newJumpPadFrequency, float newPropFrequency)
         {
-            bonusFrequency = Mathf.Clamp01(newBonusFrequency);
+            tridotFrequency = Mathf.Clamp01(newTridotFrequency);
             jumpPadFrequency = Mathf.Clamp01(newJumpPadFrequency);
             propFrequency   = Mathf.Clamp01(newPropFrequency);
+        }
+
+        // Add StopMovement method to stop spawning and moving items
+        public void StopMovement()
+        {
+            isMoving = false;
         }
 
         // We can optionally remove or replace OnDrawGizmos if you still want planes.

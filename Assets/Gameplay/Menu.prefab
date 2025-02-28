@@ -73,7 +73,7 @@ MonoBehaviour:
   mainMenuPanel: {fileID: 985617176133727127}
   bestScoreText: {fileID: 3553996190685783877}
   lastRunText: {fileID: 8246493057626961862}
-  bonusText: {fileID: 1311681508819053548}
+  tridotText: {fileID: 1311681508819053548}
   memcardText: {fileID: 8133592153452036282}
 --- !u!1 &1483432839557794692
 GameObject:

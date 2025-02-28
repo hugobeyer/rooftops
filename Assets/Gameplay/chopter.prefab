@@ -48,20 +48,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patrolSpeed: 0.5
   altitudeVariation: 12
-  maxBankAngle: 43
-  bankResponse: 32
+  maxBankAngle: 15
+  bankResponse: 3
   yawSpeed: 25
-  maxYawAngle: 45
+  maxYawAngle: 360
+  searchlightFactor: 0.325
   turbulence: 0.5
   bobFrequency: 0.3
   mainRotor: {fileID: 1511278716878161199}
   mainRotorRPM: 1200
-  pathScale: 128
-  pathStretch: 3
-  turnIntensity: -5
-  minX: -56
-  maxX: -7.42
-  boundaryForce: 2
+  pathScale: 200
+  pathStretch: 0.92
+  turnIntensity: 1.2
+  centerPathInBoundaries: 1
+  autoScaleToFitBoundaries: 1
+  minX: -54.5
+  maxX: -17.9
+  boundaryForce: 1
+  enforceStrictBoundaries: 1
 --- !u!82 &3367900685081255847
 AudioSource:
   m_ObjectHideFlags: 0
@@ -83,7 +87,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 105
   DopplerLevel: 0.54
-  MinDistance: 13.723067
+  MinDistance: 8.007447
   MaxDistance: 576.62
   Pan2D: 0
   rolloffMode: 0

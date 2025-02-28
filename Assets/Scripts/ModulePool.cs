@@ -68,7 +68,7 @@ namespace RoofTops
 #pragma warning disable 0414
         private float totalDistance = 0f;
 #pragma warning restore 0414
-        private bool canSpawnBonusAndJumpPads = true;
+        private bool canSpawnTridotAndJumpPads = true;
 
         void Awake()
         {
@@ -168,8 +168,8 @@ namespace RoofTops
 
         void SpawnInitialModules()
         {
-            bool originalSpawnState = canSpawnBonusAndJumpPads;
-            canSpawnBonusAndJumpPads = false;
+            bool originalSpawnState = canSpawnTridotAndJumpPads;
+            canSpawnTridotAndJumpPads = false;
 
             GameObject firstModule = GetModuleFromPool(GetRandomModulePrefab());
             firstModule.transform.SetParent(moduleMovement);
@@ -210,7 +210,7 @@ namespace RoofTops
                 lastBC = bc;
             }
 
-            canSpawnBonusAndJumpPads = originalSpawnState;
+            canSpawnTridotAndJumpPads = originalSpawnState;
         }
 
         void Update()
@@ -380,9 +380,9 @@ namespace RoofTops
             module.transform.position = new Vector3(0, newYPosition, newZPosition);
             activeModules.Add(module);
 
-            if (canSpawnBonusAndJumpPads && GameManager.Instance.HasGameStarted)
+            if (canSpawnTridotAndJumpPads && GameManager.Instance.HasGameStarted)
             {
-                // Your bonus/jump pad spawn logic here
+                // Your tridots/jump pad spawn logic here
             }
         }
 

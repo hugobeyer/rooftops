@@ -150,7 +150,7 @@ Material:
     - _JumpLerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _POW: -0.7
+    - _POW: -0.72
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0

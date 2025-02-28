@@ -116,7 +116,7 @@ Material:
     - _BUILTIN_ZWriteControl: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BrightFilter: 1.08
+    - _BrightFilter: 1.53
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -157,7 +157,7 @@ Material:
     - _Path_Width: -1.86
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Range: -0.21
+    - _Range: -0.29
     - _ReceiveShadows: 1
     - _Rings: 24.28
     - _Ringsojt: -0.2
@@ -186,7 +186,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.4429603, g: 1, b: 0.03459108, a: 1}
     - _BrightColor: {r: 0.15294117, g: 0.54708606, b: 0.63529414, a: 0}
-    - _BrightMask: {r: 0.29638848, g: 0.74213827, b: 0.6512765, a: 0}
+    - _BrightMask: {r: 0, g: 0.8050314, b: 0.64117545, a: 0}
     - _Colomask: {r: 0.6556392, g: 0.56012416, b: 0.7987421, a: 0}
     - _Color: {r: 0.16969258, g: 0.21274401, b: 0.32704395, a: 1}
     - _ConeColor: {r: 1, g: 1, b: 1, a: 0}
@@ -200,11 +200,11 @@ Material:
     - _FOGS_COlor: {r: 0.10670064, g: 0.28292808, b: 0.40880498, a: 1}
     - _Fade: {r: 1, g: 1, b: 1, a: 0}
     - _Fog_Color: {r: 0.59748423, g: 0.59748423, b: 0.59748423, a: 0}
-    - _HeightFog_Color: {r: 0.66666657, g: 0.37495086, b: 0, a: 1}
+    - _HeightFog_Color: {r: 0.76729554, g: 0.5036671, b: 0.16166274, a: 1}
     - _HeightFog_Warm: {r: 0.7987421, g: 0.5100151, b: 0.022605773, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _PathColor: {r: 0.10254725, g: 0.5345911, b: 0.42340174, a: 1}
-    - _PlayerPosition: {r: 0, g: 0.079999804, b: 0, a: 0}
+    - _PlayerPosition: {r: 0, g: 0.19534147, b: 0, a: 0}
     - _Rings_Color: {r: 1, g: 1, b: 1, a: 0}
     - _ShadowOff: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

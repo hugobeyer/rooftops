@@ -1,0 +1,7 @@
+---
+description: Don´t debug log before asking
+globs: 
+---
+
+Don´t debug log everything. Ask me what you should be logging.
+This is absolutely annoying.

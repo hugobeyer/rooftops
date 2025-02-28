@@ -133,7 +133,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _Explode: 0.193
+    - _Explode: 0.369
     - _FadeLerp: 0.0024859905
     - _Float: -2.28
     - _Float_1: 0.52
@@ -144,9 +144,9 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _HeightFogSpread: 20.2
-    - _HeightFog_Offset: 17.56
+    - _HeightFog_Offset: 44.19
     - _HeightFog_Spread: 285.58
-    - _Height_Exponential: 43.26
+    - _Height_Exponential: 48.2
     - _Hue: 0.613
     - _Lerp: 0
     - _Metallic: 0
@@ -166,7 +166,7 @@ Material:
     - _Rotate_Overtime: 0
     - _Rotate_Speed: 19.4
     - _Saturation: 0.83
-    - _Size: 0.6
+    - _Size: 8.6
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SoapPass: -0.47
@@ -184,7 +184,7 @@ Material:
     - _aaa: 0.82
     - _aggg: -32.4
     - _fuzz: 0.6
-    - _mix: 0.7
+    - _mix: 0.84
     - _off: 6.82
     - _off_1: -2.6
     - _off_2: -0.94
@@ -199,7 +199,7 @@ Material:
     - _BrightMask: {r: 0.6603774, g: 0.5923894, b: 0.13913599, a: 0}
     - _Colomask: {r: 0.6556392, g: 0.56012416, b: 0.7987421, a: 0}
     - _Color: {r: 0, g: 0.8616352, b: 0.709582, a: 1}
-    - _Color3: {r: 17.818462, g: 5.0324683, b: 3.8662677, a: 0}
+    - _Color3: {r: 0.14191271, g: 0.04008041, b: 0.030792361, a: 0}
     - _ColorEdge: {r: 0.7484276, g: 0.51721543, b: 0.18592995, a: 0}
     - _ColorJump: {r: 0, g: 0, b: 0, a: 0}
     - _Color_2: {r: 14.614358, g: 6.4510927, b: 5.376979, a: 1}
@@ -214,8 +214,8 @@ Material:
     - _FOGS_COlor: {r: 0.10670064, g: 0.28292808, b: 0.40880498, a: 1}
     - _Fade: {r: 1, g: 1, b: 1, a: 0}
     - _Fog_Color: {r: 0.59748423, g: 0.59748423, b: 0.59748423, a: 0}
-    - _HeightFog_Color: {r: 0.5031446, g: 0.30730963, b: 0.21676353, a: 1}
-    - _HeightFog_Warm: {r: 0.52201253, g: 0, b: 0.13901429, a: 0}
+    - _HeightFog_Color: {r: 0.51572317, g: 0.38269907, b: 0.18001652, a: 1}
+    - _HeightFog_Warm: {r: 0.76729554, g: 0.34848216, b: 0, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _PathColor: {r: 0.10254725, g: 0.5345911, b: 0.42340174, a: 1}
     - _PlayerPosition: {r: 0, g: 0.079999804, b: 0, a: 0}
@@ -226,7 +226,7 @@ Material:
     - _SpotTiltVector: {r: 0, g: 0, b: 0, a: 0}
     - _Vector3: {r: 0.71, g: -3.47, b: -1.86, a: 0}
     - _ax: {r: 1.28, g: -1.69, b: -5.54, a: 0}
-    - _fresnelcol: {r: 0.45571542, g: 0.75086796, b: 0.64490336, a: 0}
+    - _fresnelcol: {r: 0, g: 0.22739013, b: 0.1455297, a: 0}
     - _offsetsh: {r: 0.01, g: 6.21, b: -0.08, a: 0}
     - _spotOffsetVector: {r: 0, g: 0, b: 0, a: 0}
     - _spotTiltVector: {r: 0, g: 0, b: 0, a: 0}

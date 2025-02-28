@@ -6,25 +6,50 @@ public class GameplayUIController : MonoBehaviour
 {
     [Header("In-Game UI")]
     public TMP_Text currentDistanceText;
-    public TMP_Text currentBonusText;
+    public TMP_Text currentTridotText;
     public TMP_Text currentMemcardText;
     public TMP_Text speedRateText;
     
     void Update()
     {
-        if (GameManager.Instance != null)
+        // Use EconomyManager as primary source if available
+        if (EconomyManager.Instance != null)
+        {
+            // Get values directly from EconomyManager
+            float distance = EconomyManager.Instance.GetCurrentDistance();
+            int tridots = EconomyManager.Instance.GetCurrentTridots();
+            int memcards = EconomyManager.Instance.GetCurrentMemcards();
+            
+            // Update UI
+            currentDistanceText.text = $"{distance:F1} m";
+            currentTridotText.text = tridots.ToString();
+            if (currentMemcardText != null)
+            {
+                currentMemcardText.text = memcards.ToString();
+            }
+        }
+        // Fallback to GameManager if EconomyManager is not available
+        else if (GameManager.Instance != null && GameManager.Instance.gameData != null)
         {
             currentDistanceText.text = $"{GameManager.Instance.CurrentDistance:F1} m";
-            currentBonusText.text = GameManager.Instance.gameData.lastRunBonusCollected.ToString();
-            
-            // Display memcard count if the text component exists
+            currentTridotText.text = GameManager.Instance.gameData.lastRunTridotCollected.ToString();
             if (currentMemcardText != null)
             {
                 currentMemcardText.text = GameManager.Instance.gameData.lastRunMemcardsCollected.ToString();
             }
-            
-            float currentSpeed = ModulePool.Instance.gameSpeed;
-            speedRateText.text = $"Speed: {currentSpeed:F1}x";
         }
+        else
+        {
+            currentDistanceText.text = "0.0 m";
+            currentTridotText.text = "0";
+            if (currentMemcardText != null)
+            {
+                currentMemcardText.text = "0";
+            }
+            Debug.LogWarning("[GameplayUIController] No data source found!");
+        }
+        
+        float currentSpeed = ModulePool.Instance.gameSpeed;
+        speedRateText.text = $"Speed: {currentSpeed:F1}x";
     }
 } 

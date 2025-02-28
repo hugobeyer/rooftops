@@ -6,10 +6,10 @@ public class GameDataObject : ScriptableObject
     public float bestDistance;
     public float lastRunDistance;
     
-    // Add bonus tracking
-    public int totalBonusCollected;      // All-time total
-    public int lastRunBonusCollected;    // Last run total
-    public int bestRunBonusCollected;    // Best run total
+    // Add tridots tracking
+    public int totalTridotCollected;      // All-time total
+    public int lastRunTridotCollected;    // Last run total
+    public int bestRunTridotCollected;    // Best run total
     
     // Add memcard tracking
     public int totalMemcardsCollected;   // All-time total memcards

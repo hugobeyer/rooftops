@@ -190,6 +190,8 @@ MonoBehaviour:
   lowPitch: 0.7
   player: {fileID: 0}
   initialUIGroup: {fileID: 0}
+  autoSaveInterval: 30
+  enableAutoSave: 1
   onGameStarted:
     m_PersistentCalls:
       m_Calls: []
@@ -199,7 +201,7 @@ MonoBehaviour:
   uiHeightSmoothSpeed: 5
   targetMaterial: {fileID: 2100000, guid: a2deab81943791346804cd6786f2e63a, type: 2}
   defaultGravity: -9.81
-  increasedGravity: -14
+  increasedGravity: -12
   inputManager: {fileID: 0}
   footstepController: {fileID: 0}
   deathUIPanel: {fileID: 0}
@@ -213,6 +215,19 @@ MonoBehaviour:
   colliderSkinWidth: 0.08
   colliderBounciness: 0.3
   useCCD: 1
-  initialPanelHideTime: 4
+  initialPanelHideTime: 7
   popupMessage: {fileID: 0}
   popupDisplayTime: 18
+  showGoalOnStart: 1
+  goalMessageDelay: 1
+  goalAchievedMessageDelay: 0
+  enableAchievementMessages: 1
+  saveAchievementsToJson: 1
+  achievementSaveFileName: achievements.json
+  availableGoalTypes: 000000000100000002000000
+  onAchievementUnlocked:
+    m_PersistentCalls:
+      m_Calls: []
+  onGoalProgress:
+    m_PersistentCalls:
+      m_Calls: []

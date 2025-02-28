@@ -8,22 +8,22 @@ public class GameOverUIController : MonoBehaviour
     public GameObject gameOverPanel;
     public TMP_Text finalScoreText;
     public TMP_Text newBestText;
-    public TMP_Text finalBonusText;
+    public TMP_Text finalTridotText;
     public TMP_Text finalMemcardText;
 
     [Header("Death Buttons")]
     public GameObject rooftopButton;
     public GameObject smartAdvanceButton;
-    public GameObject bonusSkipButton;
+    public GameObject tridotSkipButton;
     public GameObject continueButton;
-    public TMP_Text bonusSkipText;
+    public TMP_Text tridotSkipText;
     
     public void ShowGameOver(float finalDistance, bool isNewBest)
     {
         gameOverPanel.SetActive(true);
         finalScoreText.text = $"{finalDistance:F1} m";
         newBestText.gameObject.SetActive(isNewBest);
-        finalBonusText.text = $"Bonus: {GameManager.Instance.gameData.lastRunBonusCollected}";
+        finalTridotText.text = $"tridots: {GameManager.Instance.gameData.lastRunTridotCollected}";
         
         // Display memcard count if the text component exists
         if (finalMemcardText != null)
@@ -38,10 +38,10 @@ public class GameOverUIController : MonoBehaviour
     private void UpdateButtonStates()
     {
         // Update skip token count if available
-        if (bonusSkipText != null && GameAdsManager.Instance != null)
+        if (tridotSkipText != null && GameAdsManager.Instance != null)
         {
-            bonusSkipText.text = $"BONUS SKIP ({GameAdsManager.Instance.AdSkipsAvailable})";
-            bonusSkipButton.SetActive(GameAdsManager.Instance.AdSkipsAvailable > 0);
+            tridotSkipText.text = $"tridots SKIP ({GameAdsManager.Instance.AdSkipsAvailable})";
+            tridotSkipButton.SetActive(GameAdsManager.Instance.AdSkipsAvailable > 0);
         }
 
         // Other buttons are always enabled for now
@@ -67,7 +67,7 @@ public class GameOverUIController : MonoBehaviour
         }
     }
 
-    public void OnBonusSkipClick()
+    public void OnTridotSkipClick()
     {
         if (GameAdsManager.Instance != null && GameAdsManager.Instance.AdSkipsAvailable > 0)
         {

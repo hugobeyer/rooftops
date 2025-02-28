@@ -1,6 +1,6 @@
 ROOFTOPS!!
 
-A mobile game where you jump from rooftop to rooftop, collecting bonuses and trying to achieve the highest score possible.
+A mobile game where you jump from rooftop to rooftop, collecting tridotes and trying to achieve the highest score possible.
 
 ## Project Structure
 
@@ -21,7 +21,7 @@ This doc is in no way org yet.
 
 - Procedurally generated rooftops
 - Jump pad mechanics with increasing force
-- Score system based on distance and bonuses
+- Score system based on distance and tridotes
 - Smooth camera following
 - Death and respawn system
 

@@ -7,26 +7,19 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_bonus_ui
-  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
+  m_Name: mat_tridots_item
+  m_Shader: {fileID: -6465566751694194690, guid: 3a8840783afc47445951b09f165dd313, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _ALPHATEST_ON
-  - _COLORCOLOR_ON
-  - _EMISSION
-  - _SURFACE_TYPE_TRANSPARENT
-  m_InvalidKeywords:
-  - _FLIPBOOKBLENDING_OFF
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses:
-  - DepthOnly
-  - SHADOWCASTER
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -92,6 +85,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 1
     - _AlphaToMask: 0
+    - _Angle: 4.06
     - _BUILTIN_QueueControl: -1
     - _BUILTIN_QueueOffset: 0
     - _Blend: 1
@@ -118,10 +112,10 @@ Material:
     - _Explode: 0
     - _FlipbookBlending: 0
     - _FlipbookMode: 0
-    - _Float: 3.09
-    - _Float_1: 7.31
-    - _Float_2: 6.7
-    - _Float_3: 3.9
+    - _Float: 17.73
+    - _Float_1: 8.2
+    - _Float_2: 2.84
+    - _Float_3: 3.51
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -132,6 +126,9 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Rotate: -0.3
+    - _Rotate_Overtime: 0
+    - _Rotate_Speed: 7.21
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SoftParticlesEnabled: 0
@@ -145,14 +142,15 @@ Material:
     - _ZWrite: 0
     - _explode: 0
     m_Colors:
-    - _BaseColor: {r: 0.0740674, g: 0.67295593, b: 0.5260588, a: 1}
+    - _BaseColor: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColorAddSubDiff: {r: 1, g: 0, b: 0, a: 0}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0.07406736, g: 0.67295593, b: 0.52605873, a: 1}
-    - _EmissionColor: {r: 0, g: 0.3018868, b: 0.23053174, a: 1}
+    - _Color: {r: 0, g: 0.509434, b: 0.3384352, a: 1}
+    - _Color_2: {r: 0, g: 1, b: 0.8247423, a: 0}
+    - _EmissionColor: {r: 0, g: 0.9292035, b: 1, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Vector3: {r: 1.82, g: 0.5, b: -0.92, a: 0}
+    - _Vector3: {r: -0.45, g: 0.85, b: -0.71, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &3990087254457493052

@@ -79,21 +79,17 @@ namespace RoofTops
 
         private void CollectMemcard()
         {
-            // Notify GameManager first (if available)
-            if (gameManager != null)
+            if (EconomyManager.Instance != null) 
             {
-                gameManager.OnMemcardCollected(pointValue);
-            }
+                EconomyManager.Instance.AddMemcards(pointValue);
+            } 
             else
             {
-                // Direct update to gameData if no GameManager
-                UpdateGameData();
-                
-                // Also update the display if we have one
-                if (memcardDisplay != null)
-                {
-                    memcardDisplay.IncrementCount(pointValue);
-                }
+                Debug.LogWarning("EconomyManager instance not found in MemcardCollectible.CollectMemcard.");
+            }
+            if (memcardDisplay != null)
+            {
+                memcardDisplay.IncrementCount(pointValue);
             }
             
             // Play sound effect
@@ -111,15 +107,15 @@ namespace RoofTops
             if (gameData != null)
             {
                 // Increment the total collected count
-                gameData.totalBonusCollected += pointValue;
+                gameData.totalTridotCollected += pointValue;
                 
                 // Increment the last run collected count
-                gameData.lastRunBonusCollected += pointValue;
+                gameData.lastRunTridotCollected += pointValue;
                 
                 // Update best run collected if current run is better
-                if (gameData.lastRunBonusCollected > gameData.bestRunBonusCollected)
+                if (gameData.lastRunTridotCollected > gameData.bestRunTridotCollected)
                 {
-                    gameData.bestRunBonusCollected = gameData.lastRunBonusCollected;
+                    gameData.bestRunTridotCollected = gameData.lastRunTridotCollected;
                 }
             }
         }

@@ -71,7 +71,7 @@ namespace RoofTops
         public float dashSpeedMultiplier = 1.5f;
         public float dashDuration = 0.3f;      // Total dash duration
         public float dashCooldown = 1f;        
-        public int dashBonusCost = 1;          // Bonus points required to dash
+        public int dashTridotCost = 1;          // tridots points required to dash
         //public float doubleTapThreshold = 0.3f;
 
         private float lastJumpPressTime;
@@ -110,8 +110,6 @@ namespace RoofTops
         public GameObject noDashEffectPrefab;  // Particle effect for failed dash attempt
         [Range(0f, 1f)]
         public float dashVolume = 0.7f;
-        [Tooltip("Message to show when player doesn't have enough tridots to dash")]
-        public string notEnoughBonusMessage = "Need {0} tridots to dash!";
         private AudioSource audioSource;
 
         public bool IsGroundedOnCollider
@@ -198,10 +196,11 @@ namespace RoofTops
                 // Fire jump event
                 onJump.Invoke();
                 
-                // Show dash hint if player has bonus points
+            
+                // Show dash hint if player has tridots points
                 if (GameManager.Instance != null && 
                     GameManager.Instance.gameData != null && 
-                    GameManager.Instance.gameData.lastRunBonusCollected >= dashBonusCost)
+                    GameManager.Instance.gameData.lastRunTridotCollected >= dashTridotCost)
                 {
                     ShowDashHint();
                 }
@@ -222,7 +221,6 @@ namespace RoofTops
 
             if ((transform.position.y < -7f || isDead) && modulePool.gameSpeed > 0)
             {
-                modulePool?.SetMovement(false);
                 DeathMessageDisplay.Instance?.ShowMessage();
                 FindFirstObjectByType<DistanceTracker>()?.SaveDistance();
                 StartCoroutine(DelayedReset());
@@ -368,21 +366,40 @@ namespace RoofTops
         {
             if (InputManager.Instance.isJumpPressed && !cc.isGrounded)
             {
+                // First check if we can dash
                 if (CanDash())
                 {
                     StartDash();
+                    return;
                 }
-                else if (canDash && !isOnJumpPad && dashTimer <= 0)
+                
+                // IMPORTANT: Only show the message when player explicitly tries to dash in air
+                // by pressing jump while airborne AND all other dash conditions are met EXCEPT having enough TRIDOTS
+                if (canDash && !isOnJumpPad && dashTimer <= 0)
                 {
-                    // Player tried to dash but doesn't have enough bonus points
-                    ShowNotEnoughBonusEffect();
+                    // Get the current tridots amount directly from gameData
+                    float currentTridots = 0;
+                    if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+                    {
+                        currentTridots = GameManager.Instance.gameData.lastRunTridotCollected;
+                    }
+                    
+                    // ONLY show the message if we truly don't have enough TRIDOTS
+                    // AND the player explicitly tried to dash by pressing jump in air
+                    if (currentTridots < dashTridotCost)
+                    {
+                        ShowNotEnoughTridotsEffect();
+                    }
                 }
             }
         }
 
-        void ShowNotEnoughBonusEffect()
+        void ShowNotEnoughTridotsEffect()
         {
-            // Visual feedback that player doesn't have enough bonus
+            // We already checked that we don't have enough TRIDOTS in HandleDashInput,
+            // so we can skip that check here and just show the effects
+            
+            // Visual feedback that player doesn't have enough tridots
             if (colorEffects != null)
             {
                 colorEffects.StartSlowdownEffect();
@@ -407,25 +424,31 @@ namespace RoofTops
             // Use the new GameMessageDisplay if available
             if (GameMessageDisplay.Instance != null)
             {
-                // Use the message ID system - if not found, it will use the first message as fallback
-                GameMessageDisplay.Instance.ShowMessageByID("ZERO_TRIDOTS", dashBonusCost);
+                // Use the message ID system - the ZERO_TRIDOTS message is defined in the library
+                GameMessageDisplay.Instance.ShowMessageByID("ZERO_TRIDOTS", dashTridotCost);
             }
             else
             {
                 // Fallback to Debug.Log
-                Debug.Log(string.Format(notEnoughBonusMessage, dashBonusCost));
+                Debug.Log($"Not enough TRIDOTS to dash! Need {dashTridotCost}");
             }
         }
 
         void StartDash()
         {
-            // Consume bonus points
-            if (GameManager.Instance != null)
+            // Consume tridots points
+            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
             {
-                // Use negative value to consume bonus points
-                GameManager.Instance.AddBonus(-dashBonusCost);
+                // Log before consumption
+                float beforeGameDataTridots = GameManager.Instance.gameData.lastRunTridotCollected;
                 
-                // No need to manually update UI as GameManager.AddBonus should handle that
+                // Use negative value to consume tridots points
+                EconomyManager.Instance.AddTridots(-dashTridotCost);
+                
+                // Log after consumption
+                float afterGameDataTridots = GameManager.Instance.gameData.lastRunTridotCollected;
+                
+                Debug.Log($"DASH CONSUMED: Before={beforeGameDataTridots}, After={afterGameDataTridots}, Cost={dashTridotCost}");
             }
             
             isDashing = true;
@@ -479,16 +502,41 @@ namespace RoofTops
 
         bool CanDash()
         {
-            // Check if player has enough bonus points to dash
-            bool hasEnoughBonus = GameManager.Instance != null && 
-                                  GameManager.Instance.gameData != null && 
-                                  GameManager.Instance.gameData.lastRunBonusCollected >= dashBonusCost;
+            bool isInAir = !cc.isGrounded;
+            bool dashReady = canDash;
+            bool notOnJumpPad = !isOnJumpPad;
+            bool noDashInProgress = dashTimer <= 0;
+            bool hasEnoughTridots = false;
             
-            return !cc.isGrounded && 
-                   canDash && 
-                   !isOnJumpPad &&
-                   dashTimer <= 0 &&
-                   hasEnoughBonus;
+            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            {
+                // Use gameData directly as the primary source of truth
+                hasEnoughTridots = GameManager.Instance.gameData.lastRunTridotCollected >= dashTridotCost;
+                
+                // Log detailed information about why dash might fail
+                if (!hasEnoughTridots)
+                {
+                    Debug.Log($"Can't dash: Not enough TRIDOTS. Have {GameManager.Instance.gameData.lastRunTridotCollected}, need {dashTridotCost}");
+                }
+                else if (!isInAir)
+                {
+                    Debug.Log("Can't dash: Not in air");
+                }
+                else if (!dashReady)
+                {
+                    Debug.Log("Can't dash: Dash not ready");
+                }
+                else if (!notOnJumpPad)
+                {
+                    Debug.Log("Can't dash: On jump pad");
+                }
+                else if (!noDashInProgress)
+                {
+                    Debug.Log("Can't dash: Dash already in progress");
+                }
+            }
+            
+            return isInAir && dashReady && notOnJumpPad && noDashInProgress && hasEnoughTridots;
         }
 
         void HandleLanding()
@@ -613,7 +661,6 @@ namespace RoofTops
                 // For legacy input, just disable the controller
                 this.enabled = false;
                 GetComponent<PlayerAnimatorController>().ResetAnimationStates();
-                modulePool?.StopMovement();  // Use the new method instead of trying to set gameSpeed directly
                 
                 // Only zero out horizontal velocity, keep vertical for falling
                 _velocity.x = 0;
@@ -646,6 +693,9 @@ namespace RoofTops
             jumpPadTimer = JUMP_PAD_DURATION;
             isChargingJump = false;
             holdingJump = false;
+            
+
+            
             // Tell the animator to trigger a jump but with different parameters
             var animator = GetComponent<PlayerAnimatorController>();
             if (animator != null)
@@ -750,10 +800,10 @@ namespace RoofTops
             // You could implement this with a UI popup or text hint
             
             // For now, just log it
-            Debug.Log($"Hint: Press Jump in mid-air to Dash (costs {dashBonusCost} tridots)");
+            Debug.Log($"Hint: Press Jump in mid-air to Dash (costs {dashTridotCost} tridots)");
             
             // You could also add a UI hint system later:
-            // HintSystem.Instance?.ShowHint($"Press Jump in mid-air to Dash (costs {dashBonusCost} tridots)");
+            // HintSystem.Instance?.ShowHint($"Press Jump in mid-air to Dash (costs {dashTridotCost} tridots)");
         }
     }
 } 

@@ -37,8 +37,8 @@ public class SpawnPoint : MonoBehaviour
     // 1) If a relevant object enters, set isOccupied to true.
     private void OnTriggerEnter(Collider other)
     {
-        // Optionally filter only certain objects, e.g. "Bonus", "JumpPad", "Prop"
-        // if (other.CompareTag("Bonus") || other.CompareTag("JumpPad") || other.CompareTag("Prop"))
+        // Optionally filter only certain objects, e.g. "tridots", "JumpPad", "Prop"
+        // if (other.CompareTag("tridots") || other.CompareTag("JumpPad") || other.CompareTag("Prop"))
         // {
         //     isOccupied = true;
         // }
@@ -51,7 +51,7 @@ public class SpawnPoint : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         // Same optional filtering logic if needed:
-        // if (other.CompareTag("Bonus") || other.CompareTag("JumpPad") || other.CompareTag("Prop"))
+        // if (other.CompareTag("tridots") || other.CompareTag("JumpPad") || other.CompareTag("Prop"))
         // {
         //     isOccupied = false;
         // }

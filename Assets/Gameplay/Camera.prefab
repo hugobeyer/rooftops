@@ -184,15 +184,15 @@ MonoBehaviour:
   maxSpeedMultiplier: 3.33
   useInitialBlend: 1
   initialBlendPosition: {x: 108.4, y: 21.3, z: -20.6}
-  blendDuration: 3
+  blendDuration: 1
   blendFOV: 1
   initialFOV: 16
-  midFOV: 10
+  midFOV: 12
   finalFOV: 32
-  midFOVDelay: 0.4
-  finalFOVDelay: 3
-  midBlendDuration: 0.5
-  finalBlendDuration: 3
+  midFOVDelay: 0
+  finalFOVDelay: 0
+  midBlendDuration: 0
+  finalBlendDuration: 0
   useInitialLookAtOffset: 1
   midLookAtOffset: {x: 0.5, y: -0.5, z: -4}
   initialLookAtOffset: {x: 4.81, y: 2.61, z: 10.1}
