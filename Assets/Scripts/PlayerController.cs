@@ -508,32 +508,35 @@ namespace RoofTops
             bool noDashInProgress = dashTimer <= 0;
             bool hasEnoughTridots = false;
             
-            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            if (EconomyManager.Instance != null)
             {
-                // Use gameData directly as the primary source of truth
+                hasEnoughTridots = EconomyManager.Instance.GetCurrentTridots() >= dashTridotCost;
+            }
+            else if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            {
                 hasEnoughTridots = GameManager.Instance.gameData.lastRunTridotCollected >= dashTridotCost;
-                
-                // Log detailed information about why dash might fail
-                if (!hasEnoughTridots)
-                {
-                    Debug.Log($"Can't dash: Not enough TRIDOTS. Have {GameManager.Instance.gameData.lastRunTridotCollected}, need {dashTridotCost}");
-                }
-                else if (!isInAir)
-                {
-                    Debug.Log("Can't dash: Not in air");
-                }
-                else if (!dashReady)
-                {
-                    Debug.Log("Can't dash: Dash not ready");
-                }
-                else if (!notOnJumpPad)
-                {
-                    Debug.Log("Can't dash: On jump pad");
-                }
-                else if (!noDashInProgress)
-                {
-                    Debug.Log("Can't dash: Dash already in progress");
-                }
+            }
+            
+            // Log detailed information about why dash might fail
+            if (!hasEnoughTridots)
+            {
+                Debug.Log($"Can't dash: Not enough TRIDOTS. Have {GameManager.Instance.gameData.lastRunTridotCollected}, need {dashTridotCost}");
+            }
+            else if (!isInAir)
+            {
+                Debug.Log("Can't dash: Not in air");
+            }
+            else if (!dashReady)
+            {
+                Debug.Log("Can't dash: Dash not ready");
+            }
+            else if (!notOnJumpPad)
+            {
+                Debug.Log("Can't dash: On jump pad");
+            }
+            else if (!noDashInProgress)
+            {
+                Debug.Log("Can't dash: Dash already in progress");
             }
             
             return isInAir && dashReady && notOnJumpPad && noDashInProgress && hasEnoughTridots;

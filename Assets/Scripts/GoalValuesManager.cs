@@ -13,13 +13,13 @@ namespace RoofTops
     {
         // Direct arrays for each category
         [Header("Distance Goals")]
-        public float[] distanceGoals = new float[] { 50f, 100f, 600f, 800f, 1000f, 1300f, 1600f, 2000f, 2500f, 3000f };
+        public float[] distanceGoals = new float[] { 50f, 100f, 250f, 500f, 750f, 1000f, 1300f, 1600f, 2000f, 3000f };
         
         [Header("Tridots Goals")]
         public int[] tridotsGoals = new int[] { 1, 3, 15, 20 };
         
         [Header("Memcard Goals")]
-        public int[] memcardGoals = new int[] { 1, 3, 200, 300, 400, 500, 600, 700, 800, 1000 };
+        public int[] memcardGoals = new int[] { 1, 3, 5, 10, 15, 20, 25, 30, 40, 50 };
         
         // Singleton pattern
         public static GoalValuesManager Instance { get; private set; }

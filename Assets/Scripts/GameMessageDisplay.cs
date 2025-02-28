@@ -467,15 +467,47 @@ namespace RoofTops
                     Debug.LogWarning($"GameMessageDisplay: Duplicate message ID '{message.messageID}' found in library");
                 }
             }
-/////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
-         /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
-         /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
-////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!           
-/////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
-/////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
-/////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!    
-         /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
-         ///////////////////dont create any hardcoded messages, dont you dare!!!!
+            
+            // Ensure all required messages exist
+            EnsureRequiredMessages();
+        }
+        
+        private void EnsureRequiredMessages()
+        {
+            // Define required messages with default text
+            Dictionary<string, string> requiredMessages = new Dictionary<string, string>
+            {
+                { "START_DEFAULT", "Get ready for your run!" },
+                { "START_DISTANCE", "Goal: Reach {0}m" },
+                { "START_TRIDOT", "Goal: Collect {0} tridots" },
+                { "START_MEMCARD", "Goal: Collect {0} memcards" },
+                { "OWN_DISTANCE", "Goal reached: {0}m!" },
+                { "OWN_TRIDOT", "Goal reached: {0} tridots!" },
+                { "OWN_MEMCARD", "Goal reached: {0} memcards!" }
+            };
+            
+            // Check each required message and add if missing
+            foreach (var pair in requiredMessages)
+            {
+                if (!messageDict.ContainsKey(pair.Key))
+                {
+                    Debug.LogWarning($"Adding missing required message: {pair.Key}");
+                    
+                    // Create a new message
+                    GameMessage newMessage = new GameMessage
+                    {
+                        messageID = pair.Key,
+                        messageText = pair.Value,
+                        styleID = "Default" // Use default style
+                    };
+                    
+                    // Add to dictionary
+                    messageDict.Add(pair.Key, newMessage);
+                    
+                    // Add to library for persistence
+                    messageLibrary.Add(newMessage);
+                }
+            }
         }
 
         #region Public Methods
@@ -514,6 +546,11 @@ namespace RoofTops
         /// </summary>
         public void ShowMessageByID(string messageID, params object[] formatArgs)
         {
+            Debug.Log($"ShowMessageByID called with ID: {messageID}");
+            
+            // Check for required message IDs
+            CheckRequiredMessageIDs();
+            
             GameMessage message;
             
             // Try to get the message from the dictionary
@@ -524,6 +561,8 @@ namespace RoofTops
                 Debug.LogWarning($"GameMessageDisplay: Message ID '{messageID}' not found. No message will be shown.");
                 return;
             }
+            
+            Debug.Log($"Found message with ID {messageID}: {message.messageText}");
             
             string formattedText;
             
@@ -537,6 +576,7 @@ namespace RoofTops
                 try
                 {
                     formattedText = string.Format(message.messageText, formatArgs);
+                    Debug.Log($"Formatted text: {formattedText}");
                 }
                 catch (System.FormatException)
                 {
@@ -574,16 +614,55 @@ namespace RoofTops
                 }
             }
             
+            Debug.Log($"Using style: {style.styleName} for message ID: {messageID}");
+            
             // Apply the style settings
             if (style.showVisualBar)
             {
                 // Use separate bar duration if specified, otherwise use text duration
                 float barDuration = style.barDuration > 0 ? style.barDuration : style.displayDuration;
+                Debug.Log($"Showing message with visual bar: {formattedText}");
                 ShowMessageWithVisualBarInAvailableRow(formattedText, style.barAnimationStyle, style.barColor, style.displayDuration, barDuration, style.messageColor);
             }
             else
             {
+                Debug.Log($"Showing message without visual bar: {formattedText}");
                 ShowMessageInAvailableRow(formattedText, style.displayDuration, style.messageColor);
+            }
+        }
+        
+        private void CheckRequiredMessageIDs()
+        {
+            string[] requiredIDs = new string[] { 
+                "START_DEFAULT", 
+                "START_DISTANCE", 
+                "START_TRIDOT", 
+                "START_MEMCARD",
+                "OWN_DISTANCE",
+                "OWN_TRIDOT",
+                "OWN_MEMCARD"
+            };
+            
+            Debug.Log("Checking for required message IDs:");
+            foreach (var id in requiredIDs)
+            {
+                if (messageDict.ContainsKey(id))
+                {
+                    Debug.Log($"  - {id}: FOUND");
+                }
+                else
+                {
+                    Debug.LogError($"  - {id}: MISSING");
+                }
+            }
+        }
+
+        private void DumpMessageIDs()
+        {
+            Debug.Log($"Registered message IDs ({messageDict.Count}):");
+            foreach (var key in messageDict.Keys)
+            {
+                Debug.Log($"  - {key}");
             }
         }
 

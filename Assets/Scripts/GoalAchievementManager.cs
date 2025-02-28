@@ -55,8 +55,17 @@ namespace RoofTops
             object currentValue = getCurrentValueFunc();
             object goalValue = goalValues.GetValue(currentProgressIndex);
             
+            // Debug log to help diagnose issues
+            Debug.Log($"[{displayName}] Checking goal: Current={currentValue}, Goal={goalValue}, ProgressIndex={currentProgressIndex}, GoalIndex={goalIndex}");
+            
+            // Make sure we're comparing the correct types
             if (currentValue is float currentFloat && goalValue is float goalFloat)
             {
+                // For distance goals, ensure we're strictly comparing
+                if (categoryName == "Distance")
+                {
+                    return currentFloat >= goalFloat;
+                }
                 return currentFloat >= goalFloat;
             }
             else if (currentValue is int currentInt && goalValue is int goalInt)
@@ -116,10 +125,33 @@ namespace RoofTops
         
         public void ShowStartMessage()
         {
-            if (!isEnabled || string.IsNullOrEmpty(startMessageID) || 
-                GameMessageDisplay.Instance == null || currentGoalValue == null)
+            Debug.Log($"ShowStartMessage called for {categoryName}, messageID: {startMessageID}, currentGoalValue: {currentGoalValue}");
+            
+            if (!isEnabled)
+            {
+                Debug.Log($"Category {categoryName} is not enabled");
                 return;
-                
+            }
+            
+            if (string.IsNullOrEmpty(startMessageID))
+            {
+                Debug.Log($"Category {categoryName} has empty startMessageID");
+                return;
+            }
+            
+            if (GameMessageDisplay.Instance == null)
+            {
+                Debug.Log("GameMessageDisplay.Instance is null");
+                return;
+            }
+            
+            if (currentGoalValue == null)
+            {
+                Debug.Log($"Category {categoryName} has null currentGoalValue");
+                return;
+            }
+            
+            Debug.Log($"Showing message for {categoryName} with ID {startMessageID} and value {currentGoalValue}");
             GameMessageDisplay.Instance.ShowMessageByID(startMessageID, currentGoalValue);
         }
         
@@ -139,6 +171,11 @@ namespace RoofTops
         public float startMessageDelay = 1.0f;
         public float betweenStartMessagesDelay = 0.5f;
         public float ownMessageDelay = 0.2f;
+        
+        [Header("Goal Message Settings")]
+        [SerializeField] private bool showGoalOnStart = true;
+        [SerializeField] private float initialGoalMessageDelay = 8.0f; // Delay before showing goal after game starts
+        [SerializeField] private float goalAchievedMessageDelay = 0.1f; // Delay before showing the goal achieved message
         
         [Header("Goal Categories")]
         public List<string> enabledCategories = new List<string>();
@@ -172,7 +209,6 @@ namespace RoofTops
 
             InitializeGoals();
             LoadProgress();
-            Invoke("ShowStartGoalMessages", startMessageDelay);
         }
 
         void Update()
@@ -225,13 +261,45 @@ namespace RoofTops
         
         private void CheckGoal(GoalCategory category)
         {
+            // Get the current value and goal value
+            object currentValue = category.getCurrentValueFunc?.Invoke();
+            object goalValue = null;
+            
+            if (category.goalValues != null && category.currentProgressIndex < category.goalValues.Length)
+            {
+                goalValue = category.goalValues.GetValue(category.currentProgressIndex);
+            }
+            
+            // Debug log to help diagnose issues
+            Debug.Log($"[CheckGoal] {category.displayName}: Current={currentValue}, Goal={goalValue}, ProgressIndex={category.currentProgressIndex}, GoalIndex={category.goalIndex}");
+            
+            // Only check if the goal is reached if we have valid values
             if (category.IsGoalReached())
             {
+                Debug.Log($"[GOAL REACHED] {category.displayName}: Current={currentValue}, Goal={goalValue}");
+                
+                // Store the current progress index before advancing
+                int previousProgressIndex = category.currentProgressIndex;
+                
+                // Increment progress index
                 category.currentProgressIndex++;
                 
+                // Show message for the goal that was just reached
                 ShowOwnMessage(category);
+                
+                // Advance the goal index
                 AdvanceGoal(category);
+                
+                // Save progress
                 SaveProgress();
+                
+                // Only check the next goal if we're in a new game session
+                // This prevents cascading through multiple goals in a single frame
+                if (previousProgressIndex == category.currentProgressIndex - 1)
+                {
+                    // Don't check again until next frame
+                    return;
+                }
             }
         }
         
@@ -310,30 +378,51 @@ namespace RoofTops
         {
             if (GameMessageDisplay.Instance != null)
             {
-                // Show all messages in a row without waiting between them
+                // Show default message first
+                Debug.Log("Showing START_DEFAULT message");
                 GameMessageDisplay.Instance.ShowMessageByID("START_DEFAULT");
                 
+                // Wait before showing category messages
+                yield return new WaitForSeconds(betweenStartMessagesDelay);
+                
+                Debug.Log($"Number of enabled categories: {enabledCategories.Count}");
                 foreach (var categoryName in enabledCategories)
                 {
+                    Debug.Log($"Processing category: {categoryName}");
                     if (goalCategories.TryGetValue(categoryName, out GoalCategory category) && category.isEnabled)
                     {
+                        Debug.Log($"Showing start message for category: {categoryName}");
                         category.ShowStartMessage();
+                        
+                        // Add delay between each category message
+                        yield return new WaitForSeconds(betweenStartMessagesDelay);
+                    }
+                    else
+                    {
+                        Debug.Log($"Category not found or disabled: {categoryName}");
                     }
                 }
             }
-            
-            yield return null;
         }
 
         public void ShowOwnMessage(GoalCategory category)
         {
-            StartCoroutine(ShowOwnMessageDelayed(category));
-        }
-
-        private IEnumerator ShowOwnMessageDelayed(GoalCategory category)
-        {
-            yield return new WaitForSeconds(ownMessageDelay);
-            category.ShowOwnMessage();
+            // Capture the reached goal value using currentProgressIndex - 1
+            object reachedGoalValue = null;
+            if (category.goalValues != null && category.currentProgressIndex > 0 && category.currentProgressIndex - 1 < category.goalValues.Length)
+            {
+                reachedGoalValue = category.goalValues.GetValue(category.currentProgressIndex - 1);
+            }
+            
+            // If reachedGoalValue is valid, show the own message with that value
+            if (reachedGoalValue != null && !string.IsNullOrEmpty(category.ownMessageID) && GameMessageDisplay.Instance != null)
+            {
+                GameMessageDisplay.Instance.ShowMessageByID(category.ownMessageID, reachedGoalValue);
+            }
+            else
+            {
+                Debug.LogWarning($"[ShowOwnMessage] Could not display message for category {category.categoryName} due to missing data.");
+            }
         }
 
         public void ResetCurrentGoalIndices()
@@ -397,6 +486,14 @@ namespace RoofTops
                 return category;
             }
             return null;
+        }
+
+        public void OnGameStart()
+        {
+            if (showGoalOnStart)
+            {
+                Invoke("ShowStartGoalMessages", initialGoalMessageDelay);
+            }
         }
     }
 }

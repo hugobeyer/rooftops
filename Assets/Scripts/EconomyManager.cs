@@ -51,6 +51,7 @@ namespace RoofTops
         {
             // Update our own tracking
             currentMemcards += amount;
+            Debug.Log("AddMemcards: currentMemcards updated to " + currentMemcards);
             
             // Update metrics
             IncrementMetric("memcard_collected_total", amount);

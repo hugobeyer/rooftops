@@ -18,7 +18,6 @@ namespace RoofTops
     {
         public string lastSaveTime;
         public Dictionary<string, float> playerMetrics = new Dictionary<string, float>();
-        public bool[] distanceAchievementsUnlocked;
         public int currentGoalType;
         public float currentGoalValue;
         public bool goalAchieved;
@@ -211,12 +210,6 @@ namespace RoofTops
         public GameObject popupMessage;      // The GameObject to show briefly
         public float popupDisplayTime = 2f;  // How many seconds it stays visible
 
-        [Header("Goal Messages")]
-        [SerializeField] private bool showGoalOnStart = true;
-        [SerializeField] private float goalMessageDelay = 8.0f; // Delay before showing goal after game starts
-        [SerializeField] private float goalAchievedMessageDelay = 0.1f; // Delay before showing the goal achieved message
-        //[SerializeField] private float distanceGoalMultiplier = 1.2f; // Multiplier for distance goals based on best distance
-
         // Current goal tracking
         private GoalType currentGoalType;
         private float currentGoalValue;
@@ -245,15 +238,6 @@ namespace RoofTops
 
         private int tridotsGoalIndex = 0;
         private int memcardGoalIndex = 0;
-
-        private bool[] distanceAchievements
-        {
-            get
-            {
-                // Return an empty array since we're no longer tracking tier achievements
-                return new bool[0];
-            }
-        }
 
         void Awake()
         {
@@ -384,6 +368,12 @@ namespace RoofTops
             if (ModulePool.Instance != null)
             {
                 accumulatedDistance += ModulePool.Instance.currentMoveSpeed * Time.deltaTime;
+                
+                // Update EconomyManager with current distance
+                if (EconomyManager.Instance != null)
+                {
+                    EconomyManager.Instance.UpdateDistance(accumulatedDistance);
+                }
             }
 
             if (!isPaused)
@@ -594,6 +584,12 @@ namespace RoofTops
             if (!HasGameStarted)
             {
                 HasGameStarted = true;
+                
+                // Trigger goal messages to start showing after the game starts
+                if (GoalAchievementManager.Instance != null)
+                {
+                    GoalAchievementManager.Instance.OnGameStart();
+                }
                 
                 // Reset accumulated distance for the new run
                 accumulatedDistance = 0f;
@@ -966,16 +962,6 @@ namespace RoofTops
             // Save tutorial flags
             PlayerPrefs.SetInt("HasShownDashInfo", gameData.hasShownDashInfo ? 1 : 0);
             
-            // Save distance achievements
-            bool[] distAch = distanceAchievements;
-            if (distAch != null)
-            {
-                for (int i = 0; i < distAch.Length; i++)
-                {
-                    PlayerPrefs.SetInt($"DistanceAchievement_{i}", distAch[i] ? 1 : 0);
-                }
-            }
-            
             // Save current goal data
             PlayerPrefs.SetInt("CurrentGoalType", (int)currentGoalType);
             PlayerPrefs.SetFloat("CurrentGoalValue", currentGoalValue);
@@ -1008,16 +994,6 @@ namespace RoofTops
             // Load tutorial flags
             gameData.hasShownDashInfo = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
             
-            // Load distance achievements
-            bool[] distAch = distanceAchievements;
-            if (distAch != null && PlayerPrefs.HasKey("DistanceAchievement_0"))
-            {
-                for (int i = 0; i < distAch.Length; i++)
-                {
-                    distAch[i] = PlayerPrefs.GetInt($"DistanceAchievement_{i}", 0) == 1;
-                }
-            }
-            
             // Load current goal data
             currentGoalType = (GoalType)PlayerPrefs.GetInt("CurrentGoalType", 0);
             currentGoalValue = PlayerPrefs.GetFloat("CurrentGoalValue", 0f);
@@ -1040,16 +1016,6 @@ namespace RoofTops
             gameData.lastRunMemcardsCollected = 0;
             gameData.bestRunMemcardsCollected = 0;
             gameData.hasShownDashInfo = false;
-            
-            // Reset achievements
-            bool[] distAch = distanceAchievements;
-            if (distAch != null)
-            {
-                for (int i = 0; i < distAch.Length; i++)
-                {
-                    distAch[i] = false;
-                }
-            }
             
             // Reset goal data
             currentGoalType = GoalType.Distance;

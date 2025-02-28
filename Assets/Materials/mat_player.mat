@@ -128,7 +128,7 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _DashAngle: -3.73
-    - _DashLerp: 0
+    - _DashLerp: 1
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
