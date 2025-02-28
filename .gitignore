@@ -56,3 +56,5 @@ crashlytics-build.properties
 Icon?
 ehthumbs.db
 Thumbs.db 
+
+debug_log*.txt
