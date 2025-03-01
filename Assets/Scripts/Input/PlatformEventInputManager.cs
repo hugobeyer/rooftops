@@ -1,12 +1,8 @@
 using UnityEngine;
-#if UNITY_IOS || UNITY_ANDROID
 using UnityEngine.EventSystems;
-#else
-using UnityEngine.EventSystems;
-#endif
 
 
-namespace RoofTops.Input
+namespace RoofTops.EventInput
 {
     public class PlatformEventInputManager : MonoBehaviour
     {

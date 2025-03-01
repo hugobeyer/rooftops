@@ -170,7 +170,8 @@ MonoBehaviour:
     - line: '|   - {instanceID: 0}'
     - line: '|   - {fileID: 11400000, guid: a1e88a6cd66edb64aa35fd3f0fe56edf, type:
         2}'
-    - line: '|   - {fileID: -944628639613478452, guid: beff96e127f09b044ab66beee726adc6,
+    - line: '|   - {instanceID: 0}'
+    - line: '|   - {fileID: -944628639613478452, guid: 6f7f10d3efc78eb4e85a0afd74a55fd6,
         type: 3}'
     - line: '|   metroInputSource: 0'
     - line: '|   wsaTransparentSwapchain: 0'
@@ -983,7 +984,7 @@ MonoBehaviour:
     - line: '|   qnxGraphicConfPath: '
     - line: '|   apiCompatibilityLevel: 6'
     - line: '|   captureStartupLogs: {}'
-    - line: '|   activeInputHandler: 0'
+    - line: '|   activeInputHandler: 2'
     - line: '|   windowsGamepadBackendHint: 0'
     - line: '|   cloudProjectId: b1215445-eb0e-4948-9eb8-504b02fab7fc'
     - line: '|   framebufferDepthMemorylessMode: 0'
