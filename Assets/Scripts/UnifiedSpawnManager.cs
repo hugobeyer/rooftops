@@ -23,10 +23,10 @@ namespace RoofTops
         [SerializeField] private float tridotFrequency = 0.1f;
 
         [Tooltip("Probability of spawning a jump pad (0 to 1).")]
-        [SerializeField] private float jumpPadFrequency = 0.1f;
+        [SerializeField] private float jumpPadFrequency = 1.1f;
 
         [Tooltip("Probability of spawning a prop (0 to 1).")]
-        [SerializeField] private float propFrequency = 0.1f;
+        [SerializeField] private float propFrequency = 1.1f;
 
         [Header("Spawn Settings (like PatternSpawning)")]
         [Tooltip("Fixed Z position where items spawn")]

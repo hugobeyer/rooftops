@@ -4,7 +4,7 @@ public class DistanceDisplay : MonoBehaviour
 {
     // Assign a TextMesh component here in the Inspector.
     public TextMesh distanceText;
-    
+
     // Assign the player's Transform (the one moving forward).
     public Transform player;
 
@@ -34,4 +34,4 @@ public class DistanceDisplay : MonoBehaviour
         // Format the distance and update the TextMesh.
         distanceText.text = "Distance: " + traveledDistance.ToString("F2") + " m";
     }
-} 
+}

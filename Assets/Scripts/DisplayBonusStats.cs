@@ -5,7 +5,7 @@ public class DisplayTridotStats : MonoBehaviour
 {
     public TMP_Text tridotText;
     private static int currentRunTridotes = 0;  // Just for this run
-    
+
     void Start()
     {
         if (tridotText == null)
@@ -25,4 +25,4 @@ public class DisplayTridotStats : MonoBehaviour
     {
         currentRunTridotes++;
     }
-} 
+}

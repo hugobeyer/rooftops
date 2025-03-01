@@ -18,4 +18,4 @@ public class JumpPadEffectController : MonoBehaviour
         // Destroy this effect after duration
         Destroy(gameObject, effectDuration);
     }
-} 
+}

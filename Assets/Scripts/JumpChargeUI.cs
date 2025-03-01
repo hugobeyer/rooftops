@@ -8,7 +8,7 @@ public class JumpChargeUI : MonoBehaviour
     [Header("UI References")]
     public Image chargeBar;
     public TextMeshProUGUI chargeText;
-    
+
     [Header("Visual Settings")]
     public Color minChargeColor = Color.white;
     public Color maxChargeColor = Color.yellow;
@@ -25,7 +25,7 @@ public class JumpChargeUI : MonoBehaviour
         {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
-        
+
         // Hide initially
         canvasGroup.alpha = 0;
     }
@@ -34,20 +34,20 @@ public class JumpChargeUI : MonoBehaviour
     {
         if (playerController == null) return;
 
-        float chargeProgress = (playerController.currentChargedJumpForce - playerController.jumpForce) / 
+        float chargeProgress = (playerController.currentChargedJumpForce - playerController.jumpForce) /
                              (playerController.maxJumpForce - playerController.jumpForce);
-        
+
         if (playerController.isChargingJump)
         {
             // Show and update UI
             canvasGroup.alpha = 1;
-            
+
             if (chargeBar != null)
             {
                 chargeBar.fillAmount = chargeProgress;
                 chargeBar.color = Color.Lerp(minChargeColor, maxChargeColor, chargeProgress);
             }
-            
+
             if (chargeText != null && showPercentage)
             {
                 chargeText.text = $"{chargeProgress * 100:0}%";
@@ -59,4 +59,4 @@ public class JumpChargeUI : MonoBehaviour
             canvasGroup.alpha = Mathf.MoveTowards(canvasGroup.alpha, 0, Time.deltaTime * 2);
         }
     }
-} 
+}

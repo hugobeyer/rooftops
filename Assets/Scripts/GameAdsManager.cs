@@ -10,7 +10,7 @@ namespace RoofTops
         [Header("Ad Settings")]
         [SerializeField] private int showAdEveryXDeaths = 2;
         [SerializeField] private float minTimeBetweenAds = 30f;  // Minimum seconds between ads
-        
+
         [Header("Skip Settings")]
 #pragma warning disable 0414
         [SerializeField] private int maxAdSkips = 3;
@@ -46,7 +46,7 @@ namespace RoofTops
         {
             deathCount++;
             bool canShowAd = Time.time - lastAdTime >= minTimeBetweenAds;
-            
+
             if (deathCount >= showAdEveryXDeaths && canShowAd)
             {
                 deathCount = 0;
@@ -54,8 +54,8 @@ namespace RoofTops
                 showMethod?.Invoke(adsManager, null);
                 lastAdTime = Time.time;
             }
-            
+
             onAdClosed?.Invoke();
         }
     }
-} 
+}

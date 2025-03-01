@@ -32,7 +32,7 @@ namespace RoofTops
         public int goalType;
         public float goalValue;
         public string completionTime;
-        
+
         public CompletedGoal(GoalType type, float value)
         {
             goalType = (int)type;
@@ -60,13 +60,13 @@ namespace RoofTops
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
-        
+
         [Header("Pause Indicator")]
         public GameObject pauseIndicator;
-        
+
         [Header("Time Control")]
         [Range(0.1f, 32f)] public float timeSpeed = 1f;
-        
+
         [Header("Speed Settings")]
         public float initialGameSpeed = 2f;    // Starting speed when game begins
         public float normalGameSpeed = 6f;     // Normal speed to ramp up to
@@ -87,7 +87,7 @@ namespace RoofTops
 
         [Header("Player Settings")]
         public GameObject player;
-        
+
         [Header("Initial UI Group")]
         public GameObject initialUIGroup;
 
@@ -118,14 +118,14 @@ namespace RoofTops
         // Add the game started event
         public UnityEngine.Events.UnityEvent onGameStarted = new UnityEngine.Events.UnityEvent();
 
-        public bool IsPaused 
-        { 
+        public bool IsPaused
+        {
             get => isPaused;
             set
             {
                 isPaused = value;
                 Time.timeScale = isPaused ? 0f : timeSpeed;
-                
+
                 // Pause/unpause music
                 if (musicSource != null)
                 {
@@ -144,9 +144,9 @@ namespace RoofTops
         }
 
         // Add this property to get the current speed
-        public float CurrentSpeed 
-        { 
-            get 
+        public float CurrentSpeed
+        {
+            get
             {
                 if (ModulePool.Instance != null)
                     return ModulePool.Instance.gameSpeed;
@@ -219,20 +219,21 @@ namespace RoofTops
         [SerializeField] private bool enableAchievementMessages = true;
         [SerializeField] public bool saveAchievementsToJson = true;
         [SerializeField] private string achievementSaveFileName = "achievements.json";
-        [SerializeField] private GoalType[] availableGoalTypes = new GoalType[] 
-        { 
-            GoalType.Distance, 
-            GoalType.Tridots, 
+        [SerializeField]
+        private GoalType[] availableGoalTypes = new GoalType[]
+        {
+            GoalType.Distance,
+            GoalType.Tridots,
             GoalType.Memcard
         };
-        
+
         // Player metrics dictionary for tracking various stats
         private Dictionary<string, float> playerMetrics = new Dictionary<string, float>();
-        
+
         // Events for achievement system
         public UnityEngine.Events.UnityEvent<string, float> onAchievementUnlocked = new UnityEngine.Events.UnityEvent<string, float>();
         public UnityEngine.Events.UnityEvent<string, float, float> onGoalProgress = new UnityEngine.Events.UnityEvent<string, float, float>();
-        
+
         // Achievement save data
         private AchievementSaveData saveData = new AchievementSaveData();
 
@@ -242,11 +243,11 @@ namespace RoofTops
         void Awake()
         {
             Instance = this;
-            
+
             // Store initial states
             initialTimeScale = Time.timeScale;
             initialGravity = Physics.gravity;
-            
+
             // Find InputManager if not assigned
             if (inputManager == null)
             {
@@ -255,23 +256,23 @@ namespace RoofTops
 
             currentGravity = defaultGravity;
             Physics.gravity = new Vector3(0, currentGravity, 0);
-            
+
             // Hide pause indicator immediately
             pauseIndicator?.SetActive(false);
-            
+
             // Ensure gameData is initialized
             if (gameData == null)
             {
                 gameData = ScriptableObject.CreateInstance<GameDataObject>();
             }
-            
+
             // Initialize goal indices
             tridotsGoalIndex = PlayerPrefs.GetInt("TridotsGoalIndex", 0);
             memcardGoalIndex = PlayerPrefs.GetInt("MemcardGoalIndex", 0);
-            
+
             // Set initial goal type to Distance (default)
             currentGoalType = GoalType.Distance;
-            
+
             // Load game data and achievements
             LoadGameData();
 
@@ -299,13 +300,13 @@ namespace RoofTops
             {
                 player.SetActive(false);
             }
-            
+
             // Hide the UI group until the game starts (assign the parent UI GameObject in the Inspector)
             if (initialUIGroup != null)
             {
                 initialUIGroup.SetActive(false);
             }
-            
+
             // Get the ads manager
             MonoBehaviour adsManager = FindFirstObjectByType<MonoBehaviour>();
             if (adsManager != null && adsManager.GetType().Name.Contains("UnityAdsManager"))
@@ -368,7 +369,7 @@ namespace RoofTops
             if (ModulePool.Instance != null)
             {
                 accumulatedDistance += ModulePool.Instance.currentMoveSpeed * Time.deltaTime;
-                
+
                 // Update EconomyManager with current distance
                 if (EconomyManager.Instance != null)
                 {
@@ -397,7 +398,7 @@ namespace RoofTops
                 uiUpdateTimer = 0;
                 float targetHeight = ModulePool.Instance.GetMaxModuleHeight();
                 currentUIHeight = Mathf.Lerp(currentUIHeight, targetHeight, UI_UPDATE_INTERVAL * uiHeightSmoothSpeed);
-                
+
                 Vector3 uiPos = gameplayUITransform.position;
                 uiPos.y = currentUIHeight + 0.5f; // Simplified UI height calculation
                 gameplayUITransform.position = uiPos;
@@ -409,12 +410,12 @@ namespace RoofTops
                 Vector4 playerPos = player.transform.position;
                 targetMaterial.SetVector("_PlayerPosition", playerPos);
             }
-            
+
             // Auto-save game data periodically
             if (enableAutoSave && Time.time - lastAutoSaveTime > autoSaveInterval)
             {
                 SaveGameData();
-                
+
                 lastAutoSaveTime = Time.time;
             }
         }
@@ -428,7 +429,7 @@ namespace RoofTops
                 {
                     storedMovementSpeed = ModulePool.Instance.gameSpeed;
                 }
-                
+
                 // Save game data when pausing
                 if (HasGameStarted)
                 {
@@ -466,12 +467,12 @@ namespace RoofTops
             HasGameStarted = false;
             IsPaused = false;
             Time.timeScale = timeSpeed;
-            
+
             // Reset goal tracking
             goalAchieved = false;
             currentGoalValue = 0f;
             accumulatedDistance = 0f;
-            
+
             // Reset components
             if (player != null)
             {
@@ -481,7 +482,7 @@ namespace RoofTops
                     animController.ResetAnimationStates();
                     animController.ResetTurnState();
                     animController.SetBool("Jump", false);
-                    
+
                     // Now get the actual Animator component
                     Animator anim = animController.GetComponent<Animator>();
                     if (anim != null)
@@ -551,20 +552,20 @@ namespace RoofTops
 
         private IEnumerator JumpPadAudioEffect(float duration, float targetPitch)
         {
-            if (audioMixerForPitch == null) 
+            if (audioMixerForPitch == null)
             {
                 yield break;
             }
 
             // Set to low pitch immediately
             audioMixerForPitch.SetFloat(pitchParameter, lowPitch);
-            
+
             yield return new WaitForSeconds(duration);
 
             // Lerp back to normal pitch with fewer updates
             float elapsed = 0;
             float lerpDuration = 0.2f;
-            
+
             while (elapsed < lerpDuration)
             {
                 elapsed += Time.deltaTime;  // Use regular deltaTime instead of fixed intervals
@@ -584,23 +585,23 @@ namespace RoofTops
             if (!HasGameStarted)
             {
                 HasGameStarted = true;
-                
+
                 // Trigger goal messages to start showing after the game starts
                 if (GoalAchievementManager.Instance != null)
                 {
                     GoalAchievementManager.Instance.OnGameStart();
                 }
-                
+
                 // Reset accumulated distance for the new run
                 accumulatedDistance = 0f;
-                
+
                 // Reset goal achieved flag
                 goalAchieved = false;
-                
+
                 // Reset session-specific metrics for the new run
-                
-            
-                
+
+
+
                 // Reset game data
                 if (gameData != null)
                 {
@@ -608,7 +609,7 @@ namespace RoofTops
                     gameData.lastRunTridotCollected = 0;
                     gameData.lastRunMemcardsCollected = 0;
                 }
-                
+
                 // Hide the panel once the game actually starts
                 if (panelController != null && panelController.gameObject != null)
                 {
@@ -617,18 +618,18 @@ namespace RoofTops
                 }
 
                 Time.timeScale = timeSpeed;
-                
+
                 // Set initial distance metric
-                
+
                 // Fire game started event
                 onGameStarted.Invoke();
-                
+
                 // Start playing the music if it isn't already playing.
                 if (musicSource != null && !musicSource.isPlaying)
                 {
                     musicSource.Play();
                 }
-                
+
                 // Start blending to normal speed
                 if (ModulePool.Instance != null)
                 {
@@ -645,14 +646,14 @@ namespace RoofTops
                     {
                         animController.ResetAnimationStates();
                         animController.ResetTurnState();
-                        
+
                         // 1) Explicitly set the player to grounded
-                        animController.SetBool("IsGrounded", true); 
+                        animController.SetBool("IsGrounded", true);
                         // If you have a custom method like ForceGrounded(), you can call it here:
                         // animController.ForceGrounded();
 
                         animController.SetBool("Jump", false);
-                        
+
                         // Now get the actual Animator component
                         Animator anim = animController.GetComponent<Animator>();
                         if (anim != null)
@@ -662,7 +663,7 @@ namespace RoofTops
                         }
                     }
                 }
-                
+
                 // Reveal the UI group now that the game has started.
                 if (initialUIGroup != null)
                 {
@@ -679,7 +680,7 @@ namespace RoofTops
                 {
                     targetMaterial.SetFloat("_UsePath", 1f);
                 }
-                
+
 
             }
         }
@@ -690,17 +691,17 @@ namespace RoofTops
             if (gameData != null)
             {
                 gameData.lastRunDistance = finalDistance;
-                
+
                 // Update best distance if this run was better
                 if (finalDistance > gameData.bestDistance)
                 {
                     gameData.bestDistance = finalDistance;
                 }
             }
-            
+
             // Update player metrics
 
-            
+
             // Save game data
             SaveGameData();
 
@@ -712,7 +713,7 @@ namespace RoofTops
         {
             // Save stats
             RecordFinalDistance(finalDistance);
-            
+
             // Make sure the player's animator is completely reset before going ragdoll
             if (player != null)
             {
@@ -722,13 +723,13 @@ namespace RoofTops
                     // Reset all animation states
                     animController.ResetAnimationStates();
                     animController.ResetTurnState();
-                    
+
                     // Reset all booleans to their default state
                     animController.SetBool("IsGrounded", true);
                     animController.SetBool("Jump", false);
                     animController.SetBool("IsRunning", false);
                     animController.SetBool("isFalling", false);
-                    
+
                     // Reset any other custom states
                     Animator anim = animController.GetComponent<Animator>();
                     if (anim != null)
@@ -736,10 +737,10 @@ namespace RoofTops
                         // Reset all triggers
                         anim.ResetTrigger("JumpTrigger");
                         anim.ResetTrigger("LandTrigger");
-                        
+
                         // Reset to idle state to ensure clean transition to ragdoll
                         anim.Play("Idle", 0, 0f);
-                        
+
                         // Ensure the animator is in a stable state
                         anim.Update(0f);
                     }
@@ -752,14 +753,14 @@ namespace RoofTops
             {
                 ModulePool.Instance.StopMovement();
             }
-            
+
             // Also stop the UnifiedSpawnManager if it exists
             var unifiedSpawnManager = FindFirstObjectByType<UnifiedSpawnManager>();
             if (unifiedSpawnManager != null)
             {
                 unifiedSpawnManager.StopMovement();
             }
-            
+
             // Also stop the PatternSpawning if it exists
             var patternSpawning = FindFirstObjectByType<PatternSpawning>();
             if (patternSpawning != null)
@@ -769,10 +770,10 @@ namespace RoofTops
 
             // Switch to ragdoll
             SwitchToRagdoll();
-            
+
             // Hide gameplay UI
             gameplayUI?.gameObject.SetActive(false);
-            
+
             // Stop music
             if (musicSource != null)
             {
@@ -787,7 +788,7 @@ namespace RoofTops
         {
             // Wait for camera movement and ragdoll to settle
             yield return new WaitForSeconds(deathUIPanelDelay);
-            
+
             // Fade in the death UI
             if (deathUIPanel != null)
             {
@@ -839,8 +840,8 @@ namespace RoofTops
                 }
 
                 // Spawn ragdoll at player position
-                GameObject ragdollInstance = Instantiate(playerRagdoll, 
-                    player.transform.position, 
+                GameObject ragdollInstance = Instantiate(playerRagdoll,
+                    player.transform.position,
                     player.transform.rotation);
 
                 // Copy pose from player to ragdoll
@@ -911,8 +912,8 @@ namespace RoofTops
                         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
                     }
 
-                    Vector3 forceDirection = Vector3.back * deathForce + 
-                                           Vector3.up * upwardForce + 
+                    Vector3 forceDirection = Vector3.back * deathForce +
+                                           Vector3.up * upwardForce +
                                            Vector3.forward * forwardForce;
 
                     rb.AddForce(forceDirection, ForceMode.Impulse);
@@ -937,9 +938,9 @@ namespace RoofTops
             // Right after re-enabling the panel, show the extra popup
             if (popupMessage != null)
             {
-                popupMessage.SetActive(true); 
+                popupMessage.SetActive(true);
                 yield return new WaitForSeconds(popupDisplayTime);
-                popupMessage.SetActive(false); 
+                popupMessage.SetActive(false);
             }
         }
 
@@ -948,28 +949,28 @@ namespace RoofTops
             // Save distance records
             PlayerPrefs.SetFloat("BestDistance", gameData.bestDistance);
             PlayerPrefs.SetFloat("LastRunDistance", gameData.lastRunDistance);
-            
+
             // Save tridots collection
             PlayerPrefs.SetInt("TotalTridotCollected", gameData.totalTridotCollected);
             PlayerPrefs.SetInt("LastRunTridotCollected", gameData.lastRunTridotCollected);
             PlayerPrefs.SetInt("BestRunTridotCollected", gameData.bestRunTridotCollected);
-            
+
             // Save memcard collection
             PlayerPrefs.SetInt("TotalMemcardsCollected", gameData.totalMemcardsCollected);
             PlayerPrefs.SetInt("LastRunMemcardsCollected", gameData.lastRunMemcardsCollected);
             PlayerPrefs.SetInt("BestRunMemcardsCollected", gameData.bestRunMemcardsCollected);
-            
+
             // Save tutorial flags
             PlayerPrefs.SetInt("HasShownDashInfo", gameData.hasShownDashInfo ? 1 : 0);
-            
+
             // Save current goal data
             PlayerPrefs.SetInt("CurrentGoalType", (int)currentGoalType);
             PlayerPrefs.SetFloat("CurrentGoalValue", currentGoalValue);
             PlayerPrefs.SetInt("GoalAchieved", goalAchieved ? 1 : 0);
-            
+
             // Ensure data is written to disk
             PlayerPrefs.Save();
-            
+
         }
 
         /// <summary>
@@ -980,25 +981,25 @@ namespace RoofTops
             // Load distance records
             gameData.bestDistance = PlayerPrefs.GetFloat("BestDistance", 0f);
             gameData.lastRunDistance = PlayerPrefs.GetFloat("LastRunDistance", 0f);
-            
+
             // Load tridots collection
             gameData.totalTridotCollected = PlayerPrefs.GetInt("TotalTridotCollected", 0);
             gameData.lastRunTridotCollected = PlayerPrefs.GetInt("LastRunTridotCollected", 0);
             gameData.bestRunTridotCollected = PlayerPrefs.GetInt("BestRunTridotCollected", 0);
-            
+
             // Load memcard collection
             gameData.totalMemcardsCollected = PlayerPrefs.GetInt("TotalMemcardsCollected", 0);
             gameData.lastRunMemcardsCollected = PlayerPrefs.GetInt("LastRunMemcardsCollected", 0);
             gameData.bestRunMemcardsCollected = PlayerPrefs.GetInt("BestRunMemcardsCollected", 0);
-            
+
             // Load tutorial flags
             gameData.hasShownDashInfo = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
-            
+
             // Load current goal data
             currentGoalType = (GoalType)PlayerPrefs.GetInt("CurrentGoalType", 0);
             currentGoalValue = PlayerPrefs.GetFloat("CurrentGoalValue", 0f);
             goalAchieved = PlayerPrefs.GetInt("GoalAchieved", 0) == 1;
-            
+
         }
 
         /// <summary>
@@ -1016,31 +1017,31 @@ namespace RoofTops
             gameData.lastRunMemcardsCollected = 0;
             gameData.bestRunMemcardsCollected = 0;
             gameData.hasShownDashInfo = false;
-            
+
             // Reset goal data
             currentGoalType = GoalType.Distance;
             currentGoalValue = 0f;
             goalAchieved = false;
-            
+
             // Clear all PlayerPrefs data first
             PlayerPrefs.DeleteAll();
-            
+
             // Reset goal indices
             tridotsGoalIndex = 0;
             memcardGoalIndex = 0;
-            
+
             // Save the reset indices to PlayerPrefs
             PlayerPrefs.SetInt("DistanceGoalIndex", 0);
             PlayerPrefs.SetInt("TridotsGoalIndex", tridotsGoalIndex);
             PlayerPrefs.SetInt("MemcardGoalIndex", memcardGoalIndex);
             PlayerPrefs.Save();
-            
+
             // Clear player metrics
             playerMetrics.Clear();
-            
+
             // Reset achievement save data
             saveData = new AchievementSaveData();
-            
+
             // Save the cleared data
             SaveGameData();
         }
@@ -1061,9 +1062,9 @@ namespace RoofTops
             }
         }
 
-        
-       
+
+
 
 
     }
-} 
+}

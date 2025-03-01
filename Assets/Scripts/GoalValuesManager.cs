@@ -14,13 +14,13 @@ namespace RoofTops
         // Direct arrays for each category
         [Header("Distance Goals")]
         public float[] distanceGoals = new float[] { 50f, 100f, 250f, 500f, 750f, 1000f, 1300f, 1600f, 2000f, 3000f };
-        
+
         [Header("Tridots Goals")]
         public int[] tridotsGoals = new int[] { 1, 3, 15, 20 };
-        
+
         [Header("Memcard Goals")]
         public int[] memcardGoals = new int[] { 1, 3, 5, 10, 15, 20, 25, 30, 40, 50 };
-        
+
         // Singleton pattern
         public static GoalValuesManager Instance { get; private set; }
 
@@ -36,7 +36,7 @@ namespace RoofTops
                 Destroy(gameObject);
             }
         }
-        
+
         private void Start()
         {
             ApplyToGoalAchievementManager();
@@ -46,7 +46,7 @@ namespace RoofTops
         public float[] GetDistanceGoals() => distanceGoals;
         public int[] GetTridotsGoals() => tridotsGoals;
         public int[] GetMemcardGoals() => memcardGoals;
-        
+
         // Get all enabled categories
         public List<string> GetEnabledCategories()
         {
@@ -56,7 +56,7 @@ namespace RoofTops
             categories.Add("Memcard");
             return categories;
         }
-        
+
         // Get goal values for a category
         public object GetGoalValues(string categoryName)
         {
@@ -68,7 +68,7 @@ namespace RoofTops
                 default: return null;
             }
         }
-        
+
         // Apply to GoalAchievementManager
         public void ApplyToGoalAchievementManager()
         {
@@ -98,4 +98,4 @@ namespace RoofTops
         }
     }
 #endif
-} 
+}

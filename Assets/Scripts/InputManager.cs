@@ -15,14 +15,14 @@ public class InputManager : MonoBehaviour
     public bool isJumpPressed { get; private set; }
     public bool isJumpHeld { get; private set; }
     public bool isJumpReleased { get; private set; }
-    
+
     [Header("Keyboard Settings")]
     [Tooltip("Enable or disable keyboard input")]
     public bool enableKeyboardInput = true;
-    
+
     [Tooltip("Key used for jumping")]
     public KeyCode jumpKey = KeyCode.Space;
-    
+
     // Track the previous frame's key state
     private bool wasKeyPressed = false;
 
@@ -40,18 +40,18 @@ public class InputManager : MonoBehaviour
         public bool isPressed { get; private set; }
         public bool isHeld { get; private set; }
         public bool isReleased { get; private set; }
-        
+
         public void UpdateState(bool pressed, bool held, bool released)
         {
             isPressed = pressed;
             isHeld = held;
             isReleased = released;
-            
+
             if (pressed) onPressed.Invoke();
             if (held) onHeld.Invoke();
             if (released) onReleased.Invoke();
         }
-        
+
         public void Reset()
         {
             isPressed = false;
@@ -101,7 +101,7 @@ public class InputManager : MonoBehaviour
         isJumpReleased = true;
         onJumpReleased.Invoke();
     }
-    
+
     // Register a new input action
     public void RegisterAction(string actionName, KeyCode key)
     {
@@ -117,7 +117,7 @@ public class InputManager : MonoBehaviour
             registeredActions[actionName].key = key;
         }
     }
-    
+
     // Get an input action state
     public bool GetButtonDown(string actionName)
     {
@@ -127,7 +127,7 @@ public class InputManager : MonoBehaviour
         }
         return false;
     }
-    
+
     // Get an input action held state
     public bool GetButton(string actionName)
     {
@@ -137,7 +137,7 @@ public class InputManager : MonoBehaviour
         }
         return false;
     }
-    
+
     // Get an input action released state
     public bool GetButtonUp(string actionName)
     {
@@ -147,7 +147,7 @@ public class InputManager : MonoBehaviour
         }
         return false;
     }
-    
+
     // Subscribe to an action's events
     public void SubscribeToPressed(string actionName, UnityAction callback)
     {
@@ -156,7 +156,7 @@ public class InputManager : MonoBehaviour
             action.onPressed.AddListener(callback);
         }
     }
-    
+
     public void SubscribeToHeld(string actionName, UnityAction callback)
     {
         if (registeredActions.TryGetValue(actionName, out InputAction action))
@@ -164,7 +164,7 @@ public class InputManager : MonoBehaviour
             action.onHeld.AddListener(callback);
         }
     }
-    
+
     public void SubscribeToReleased(string actionName, UnityAction callback)
     {
         if (registeredActions.TryGetValue(actionName, out InputAction action))
@@ -179,7 +179,7 @@ public class InputManager : MonoBehaviour
         isJumpPressed = false;
         isJumpHeld = false;
         isJumpReleased = false;
-        
+
         // Reset all registered actions
         foreach (var action in registeredActions.Values)
         {
@@ -201,7 +201,7 @@ public class InputManager : MonoBehaviour
     private void Update()
     {
         if (!inputEnabled) return;
-        
+
         // Handle keyboard input if enabled
         if (enableKeyboardInput)
         {
@@ -211,30 +211,30 @@ public class InputManager : MonoBehaviour
                 SetJumpPressed();
                 wasKeyPressed = true;
             }
-            
+
             if (Input.GetKey(jumpKey))
             {
                 SetJumpHeld();
             }
-            
+
             if (Input.GetKeyUp(jumpKey))
             {
                 SetJumpReleased();
                 wasKeyPressed = false;
             }
-            
+
             // Process all registered actions
             foreach (var entry in registeredActions)
             {
                 string actionName = entry.Key;
                 InputAction action = entry.Value;
-                
+
                 bool pressed = Input.GetKeyDown(action.key);
                 bool held = Input.GetKey(action.key);
                 bool released = Input.GetKeyUp(action.key);
-                
+
                 action.UpdateState(pressed, held, released);
             }
         }
     }
-} 
+}

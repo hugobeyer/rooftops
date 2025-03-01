@@ -116,21 +116,21 @@ namespace RoofTops
 
             // Initialize Watch layer with 0 weight
             animator.SetLayerWeight(watchLayerIndex, 0f);
-            
+
             // Verify layer indices by checking layer names
             VerifyLayerIndices();
         }
-        
+
         private void VerifyLayerIndices()
         {
             // Log all available layers for debugging
             Debug.Log($"[LAYERS] Animator has {animator.layerCount} layers:");
-            
+
             for (int i = 0; i < animator.layerCount; i++)
             {
                 string layerName = animator.GetLayerName(i);
                 Debug.Log($"[LAYERS] Layer {i}: {layerName}");
-                
+
                 // Check if this is the Watch layer
                 if (layerName.Contains("Watch"))
                 {
@@ -151,23 +151,23 @@ namespace RoofTops
         {
             // Initial delay before showing turn
             yield return new WaitForSeconds(turnStartDelay);  // Use the public variable instead of hardcoded value
-            
+
             // Set layer weight to 1 (turn it on)
             animator.SetLayerWeight(TurnLayerIndex, 1f);
-            
+
             // Wait a frame to ensure the layer weight is applied
             yield return null;
-            
+
             // ONLY NOW trigger the turn animation (after the layer is visible)
             animator.SetTrigger(TurnTrigger);
-            
+
             // Wait for the animation to play
             yield return new WaitForSeconds(turnDuration);
-            
+
             // Fade out the turn layer smoothly
             float fadeOutDuration = 0.5f; // How long the fade out takes
             float elapsed = 0f;
-            
+
             while (elapsed < fadeOutDuration)
             {
                 elapsed += Time.deltaTime;
@@ -175,7 +175,7 @@ namespace RoofTops
                 animator.SetLayerWeight(TurnLayerIndex, weight);
                 yield return null;
             }
-            
+
             // Ensure it's completely off
             animator.SetLayerWeight(TurnLayerIndex, 0f);
         }
@@ -187,7 +187,7 @@ namespace RoofTops
             {
                 Debug.Log("[WATCH] Subscribing to GameManager.onGameStarted event");
                 GameManager.Instance.onGameStarted.AddListener(OnGameStart);
-                
+
                 // Start the watch animation with proper timing
                 StartCoroutine(DelayedWatch());
             }
@@ -200,31 +200,31 @@ namespace RoofTops
         void OnGameStart()
         {
             Debug.Log("[WATCH] OnGameStart called - game has officially started");
-            
+
             // Use a delayed call to start the turn animation
             // This ensures it doesn't happen immediately when pressing play
             StartCoroutine(DelayedStartTurn());
-            
+
             // Trigger the watch animation
             TriggerWatchAnimation();
         }
-        
+
         private IEnumerator DelayedWatch()
         {
             // Set the flag to indicate animation is playing
             isWatchAnimationPlaying = true;
-            
+
             // Initial delay before showing watch
             yield return new WaitForSeconds(watchStartDelay);
-            
+
             Debug.Log("[WATCH] Setting watch layer weight to 1");
-            
+
             // Enable the particle effect if assigned
             if (watchParticleEffect != null)
             {
                 Debug.Log("[WATCH] Enabling watch particle effect");
                 watchParticleEffect.SetActive(true);
-                
+
                 // Make sure any particle system is enabled and playing
                 ParticleSystem particleSystem = watchParticleEffect.GetComponent<ParticleSystem>();
                 if (particleSystem != null)
@@ -233,11 +233,11 @@ namespace RoofTops
                     Debug.Log("[WATCH] Started particle system");
                 }
             }
-            
+
             // Fade in the watch layer smoothly
             float fadeInDuration = watchFadeInTime;
             float elapsed = 0f;
-            
+
             while (elapsed < fadeInDuration)
             {
                 elapsed += Time.deltaTime;
@@ -245,19 +245,19 @@ namespace RoofTops
                 animator.SetLayerWeight(watchLayerIndex, weight);
                 yield return null;
             }
-            
+
             // Ensure it's at full weight
             animator.SetLayerWeight(watchLayerIndex, 1f);
-            
+
             // Wait for the animation to play
             yield return new WaitForSeconds(watchDuration);
-            
+
             Debug.Log("[WATCH] Fading out watch layer");
-            
+
             // Fade out the watch layer smoothly
             float fadeOutDuration = watchFadeOutTime;
             elapsed = 0f;
-            
+
             while (elapsed < fadeOutDuration)
             {
                 elapsed += Time.deltaTime;
@@ -265,15 +265,15 @@ namespace RoofTops
                 animator.SetLayerWeight(watchLayerIndex, weight);
                 yield return null;
             }
-            
+
             // Ensure it's completely off
             animator.SetLayerWeight(watchLayerIndex, 0f);
-            
+
             // Disable the particle effect if assigned
             if (watchParticleEffect != null)
             {
                 Debug.Log("[WATCH] Disabling watch particle effect");
-                
+
                 // Stop any particle system first
                 ParticleSystem particleSystem = watchParticleEffect.GetComponent<ParticleSystem>();
                 if (particleSystem != null)
@@ -281,25 +281,25 @@ namespace RoofTops
                     particleSystem.Stop();
                     Debug.Log("[WATCH] Stopped particle system");
                 }
-                
+
                 watchParticleEffect.SetActive(false);
             }
-            
+
             // Reset the flag when animation is complete
             isWatchAnimationPlaying = false;
-            
+
             // Clear the active coroutine reference
             activeWatchCoroutine = null;
-            
+
             Debug.Log("[WATCH] Watch animation complete");
         }
-        
+
         private IEnumerator DelayedStartTurn()
         {
             // Add a delay before even starting the turn animation sequence
             // This prevents it from appearing immediately when pressing play
             yield return new WaitForSeconds(2.0f);
-            
+
             // Now start the actual turn animation sequence
             StartCoroutine(DelayedTurn());
         }
@@ -726,7 +726,7 @@ namespace RoofTops
             // Fade out the turn layer smoothly
             float fadeOutDuration = 0.5f; // How long the fade out takes
             float elapsed = 0f;
-            
+
             while (elapsed < fadeOutDuration)
             {
                 elapsed += Time.deltaTime;
@@ -763,14 +763,14 @@ namespace RoofTops
         public void TriggerWatchAnimation()
         {
             Debug.Log("[WATCH] Manually triggering watch animation");
-            
+
             // Stop any existing watch animation
             if (activeWatchCoroutine != null)
             {
                 StopCoroutine(activeWatchCoroutine);
                 activeWatchCoroutine = null;
             }
-            
+
             // Start the watch animation
             activeWatchCoroutine = StartCoroutine(DelayedWatch());
         }

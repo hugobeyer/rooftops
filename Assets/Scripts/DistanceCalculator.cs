@@ -26,4 +26,4 @@ public class DistanceCalculator : MonoBehaviour
     }
 
     // No longer needed because we now rely on ModulePool's currentMoveSpeed.
-} 
+}

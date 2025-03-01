@@ -16,7 +16,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &6912405742238582553
 RectTransform:
@@ -111,8 +111,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285241272
-  m_fontColor: {r: 0.72327036, g: 0.5908975, b: 0.42077044, a: 1}
+    rgba: 4290624957
+  m_fontColor: {r: 0.74213827, g: 0.7398045, b: 0.7398045, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -139,8 +139,8 @@ MonoBehaviour:
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
+  m_characterSpacing: -2.29
+  m_wordSpacing: 19.17
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
@@ -190,7 +190,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6517310015939691453
 Transform:
@@ -228,7 +228,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4126700093377623782
 Transform:
@@ -341,7 +341,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5705
+  m_VersionIndex: 5720
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -459,7 +459,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4641996578410374428
 Transform:
@@ -494,7 +494,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &5082474895719142202
 RectTransform:
@@ -589,8 +589,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285241272
-  m_fontColor: {r: 0.72327036, g: 0.5908975, b: 0.42077044, a: 1}
+    rgba: 4290624957
+  m_fontColor: {r: 0.74213827, g: 0.7398045, b: 0.7398045, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -617,8 +617,8 @@ MonoBehaviour:
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
+  m_characterSpacing: -2.29
+  m_wordSpacing: 19.17
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
@@ -670,7 +670,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &4402343627986521823
 RectTransform:
@@ -765,8 +765,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285241272
-  m_fontColor: {r: 0.72327036, g: 0.5908975, b: 0.42077044, a: 1}
+    rgba: 4290624957
+  m_fontColor: {r: 0.74213827, g: 0.7398045, b: 0.7398045, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -793,8 +793,8 @@ MonoBehaviour:
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
+  m_characterSpacing: -2.29
+  m_wordSpacing: 19.17
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
@@ -849,7 +849,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2392786555764531061
 Transform:
@@ -962,7 +962,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5705
+  m_VersionIndex: 5720
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1085,7 +1085,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3511492218606325053
 Transform:
@@ -1198,7 +1198,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5705
+  m_VersionIndex: 5720
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1316,7 +1316,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1154868511071921059
 Transform:
@@ -1351,7 +1351,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &8452430277696967036
 RectTransform:
@@ -1446,8 +1446,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285241272
-  m_fontColor: {r: 0.72327036, g: 0.5908975, b: 0.42077044, a: 1}
+    rgba: 4290624957
+  m_fontColor: {r: 0.74213827, g: 0.7398045, b: 0.7398045, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1474,8 +1474,8 @@ MonoBehaviour:
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
+  m_characterSpacing: -2.29
+  m_wordSpacing: 19.17
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
@@ -1525,7 +1525,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &266652372082840345
 Transform:
@@ -1563,7 +1563,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3363249362239800382
 Transform:
@@ -1676,7 +1676,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5705
+  m_VersionIndex: 5720
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1799,7 +1799,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2717935287519998321
 Transform:
@@ -1912,7 +1912,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5705
+  m_VersionIndex: 5720
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2032,7 +2032,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!224 &4239371978204677721
 RectTransform:
@@ -2127,8 +2127,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285241272
-  m_fontColor: {r: 0.72327036, g: 0.5908975, b: 0.42077044, a: 1}
+    rgba: 4290624957
+  m_fontColor: {r: 0.74213827, g: 0.7398045, b: 0.7398045, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2155,8 +2155,8 @@ MonoBehaviour:
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
+  m_characterSpacing: -2.29
+  m_wordSpacing: 19.17
   m_lineSpacing: 0
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
@@ -2207,7 +2207,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &850377196963666770
 Transform:
@@ -2265,31 +2265,31 @@ MonoBehaviour:
   popTransitionTime: 0.25
   popHoldTime: 0.25
   popFadeTime: 0.1
-  defaultDisplayTime: 1
+  defaultDisplayTime: 0.5
   defaultTextColor: {r: 1, g: 0, b: 0.89228725, a: 1}
   warningTextColor: {r: 1, g: 0.5, b: 0, a: 1}
   errorTextColor: {r: 1, g: 0, b: 0, a: 1}
   messageStyles:
   - styleName: START
     messageColor: {r: 0.91823894, g: 0.91823894, b: 0.91823894, a: 1}
-    displayDuration: 2.5
+    displayDuration: 3.53
     showVisualBar: 1
-    barAnimationStyle: 4
-    barColor: {r: 0, g: 0.12578613, b: 0.103032365, a: 0.7254902}
-    barDuration: 2.5
+    barAnimationStyle: 5
+    barColor: {r: 0.106918216, g: 0.0077330694, b: 0.09237108, a: 0.7254902}
+    barDuration: 4.52
   - styleName: WARNING
-    messageColor: {r: 1, g: 0.3002203, b: 0, a: 1}
+    messageColor: {r: 1, g: 0.6382922, b: 0, a: 1}
     displayDuration: 1
     showVisualBar: 1
     barAnimationStyle: 3
-    barColor: {r: 0, g: 0, b: 0, a: 0.6117647}
-    barDuration: 1
+    barColor: {r: 0.30980393, g: 0.10843138, b: 0.07745098, a: 0.49411765}
+    barDuration: 0.87
   - styleName: INFO
-    messageColor: {r: 0.98742133, g: 0.98742133, b: 0.98742133, a: 1}
+    messageColor: {r: 0, g: 0, b: 0, a: 1}
     displayDuration: 2
     showVisualBar: 1
-    barAnimationStyle: 0
-    barColor: {r: 0.029172024, g: 0.37106913, b: 0.15061283, a: 0.7254902}
+    barAnimationStyle: 4
+    barColor: {r: 0, g: 0.46996632, b: 0.4716981, a: 0.7254902}
     barDuration: 2
   - styleName: DEFAULT
     messageColor: {r: 0, g: 0, b: 0, a: 1}
@@ -2299,19 +2299,19 @@ MonoBehaviour:
     barColor: {r: 1, g: 0, b: 0.45973682, a: 0.93333334}
     barDuration: 5
   - styleName: OWN
-    messageColor: {r: 0.98742133, g: 0.98742133, b: 0.98742133, a: 1}
+    messageColor: {r: 1, g: 1, b: 1, a: 1}
     displayDuration: 4
     showVisualBar: 1
-    barAnimationStyle: 0
-    barColor: {r: 0.2582809, g: 0.35220122, b: 0, a: 0.93333334}
+    barAnimationStyle: 4
+    barColor: {r: 0, g: 0.19496846, b: 0.1719784, a: 0.6901961}
     barDuration: 4
   - styleName: TITLE
     messageColor: {r: 0, g: 0, b: 0, a: 1}
-    displayDuration: 3
+    displayDuration: 2
     showVisualBar: 1
     barAnimationStyle: 5
     barColor: {r: 0, g: 0.38364854, b: 0.44705883, a: 0.93333334}
-    barDuration: 3
+    barDuration: 2
   messageLibrary:
   - messageID: DEFAULT
     messageText: Error, FIX
@@ -2329,19 +2329,19 @@ MonoBehaviour:
     messageText: Reach {0}m
     styleID: START
   - messageID: START_MEMCARD
-    messageText: Get  {0} Memory Cards
+    messageText: Hold  {0} Memory Cards
     styleID: START
   - messageID: START_TRIDOTS
-    messageText: Grab  {0} Tridots
+    messageText: Acquire  {0} Tridots
     styleID: START
   - messageID: OWN_DISTANCE
-    messageText: Goal achieved! You ran {0}m!
+    messageText: Goer! {0}m huh!
     styleID: OWN
   - messageID: OWN_MEMCARD
-    messageText: YES {0} Memory Cards
+    messageText: "Loadful {0} qD\xB4s"
     styleID: OWN
   - messageID: OWN_TRIDOTS
-    messageText: Goal achieved! You got {0} Tridots!
+    messageText: Catcher! {0} Tridots
     styleID: OWN
   notEnoughTridotsMessage: Default Message
   tridotCollectedMessage: Default
@@ -2351,6 +2351,15 @@ MonoBehaviour:
     styleID: 
   enableKeyboardTesting: 0
   testMessage: Test Message
+  testFadeInOutKey: 116
+  testPulseKey: 121
+  testBlinkKey: 117
+  testWarningKey: 105
+  testZeroTridotsKey: 111
+  testPopTransitionKey: 112
+  testPopFadeKey: 91
+  testLongerTextKey: 93
+  testLongerBarKey: 92
 --- !u!1 &9078658029536222598
 GameObject:
   m_ObjectHideFlags: 0
@@ -2365,7 +2374,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7370609796503388890
 Transform:

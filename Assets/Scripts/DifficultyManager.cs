@@ -19,64 +19,80 @@ namespace RoofTops
         [Header("Difficulty Chunks")]
         [Tooltip("Size of each difficulty chunk in meters")]
         [SerializeField] private float chunkSize = 200f;
-        
+
         [Header("Base Difficulty Parameters")]
         [SerializeField] private float baseGameSpeed = 6f;
         [SerializeField] private float baseGapSize = 2.5f;
         [SerializeField] private float baseHeightVariation = 1.0f;
-        [SerializeField] private float baseTridotFrequency = 0.25f;
-        [SerializeField] private float baseJumpPadFrequency = 0.005f;
-        [SerializeField] private float basePropFrequency = 0.001f;
+        [SerializeField] private float baseTridotFrequency = 1.25f;
+        [SerializeField] private float baseJumpPadFrequency = 1.0f;
+        [SerializeField] private float basePropFrequency = 1.0f;
+
+        [Header("Frequency Clamp Values")]
+        [Tooltip("Minimum tridot frequency")]
+        public float minTridotFrequency = 0.05f;
+        [Tooltip("Maximum tridot frequency")]
+        public float maxTridotFrequency = 0.95f;
         
+        [Tooltip("Minimum jump pad frequency")]
+        public float minJumpPadFrequency = 0.005f;
+        [Tooltip("Maximum jump pad frequency")]
+        public float maxJumpPadFrequency = 0.5f;
+        
+        [Tooltip("Minimum prop frequency")]
+        public float minPropFrequency = 0.001f;
+        [Tooltip("Maximum prop frequency")]
+        public float maxPropFrequency = 0.5f;
+
         [Header("Progression Curves")]
         [Tooltip("How game speed increases with distance")]
         [SerializeField] private AnimationCurve speedProgressionCurve = AnimationCurve.EaseInOut(0, 1, 10, 1.8f);
-        
+
         [Tooltip("How gap size increases with distance")]
         [SerializeField] private AnimationCurve gapProgressionCurve = AnimationCurve.EaseInOut(0, 1, 10, 3.0f);
-        
+
         [Tooltip("How height variation increases with distance")]
         [SerializeField] private AnimationCurve heightVariationCurve = AnimationCurve.EaseInOut(0, 1, 10, 2.5f);
-        
+
         [Tooltip("How tridots frequency changes with distance")]
         [SerializeField] private AnimationCurve tridotFrequencyCurve = AnimationCurve.EaseInOut(0, 1, 10, 0.7f);
-        
+
         [Tooltip("How jump pad frequency changes with distance")]
         [SerializeField] private AnimationCurve jumpPadFrequencyCurve = AnimationCurve.EaseInOut(0, 1, 10, 1.5f);
-        
+
         [Tooltip("How prop frequency changes with distance")]
         [SerializeField] private AnimationCurve propFrequencyCurve = AnimationCurve.EaseInOut(0, 1, 10, 1.2f);
-        
+
         [Header("AI Learning Settings")]
         [Tooltip("How quickly the AI adapts to player performance (0-1)")]
         [Range(0, 1)]
         [SerializeField] private float adaptationRate = 0.2f;
-        
+
         [Tooltip("Whether AI should automatically adjust difficulty")]
         [SerializeField] private bool enableAIAdjustment = true;
-        
+
         [Tooltip("Maximum number of deaths before AI eases difficulty")]
         [SerializeField] private int maxDeathsBeforeEasing = 3;
 
         [Header("Advanced Learning")]
         [Tooltip("Whether the system should self-tune its own parameters")]
         [SerializeField] private bool enableSelfTuning = true;
-        
+
         [Tooltip("How often to analyze historical data (in seconds)")]
         [SerializeField] private float analysisInterval = 300f; // 5 minutes
-        
+
         [Tooltip("Whether to use global patterns from all players")]
         [SerializeField] private bool useGlobalPatterns = true;
-        
+
         [Header("Distance Tracking")]
         [SerializeField] private bool showDebugInfo = true;
-        
+
         // Current state
         private float currentDistance = 0f;
         private int currentChunkIndex = 0;
         private int deathsInCurrentChunk = 0;
         private Dictionary<int, ChunkDifficultyData> chunkData = new Dictionary<int, ChunkDifficultyData>();
-        
+
         // Difficulty parameters for the current chunk
         private float currentGameSpeed;
         private float currentGapSize;
@@ -84,12 +100,12 @@ namespace RoofTops
         private float currentTridotFrequency;
         private float currentJumpPadFrequency;
         private float currentPropFrequency;
-        
+
         // References
         private ModulePool modulePool;
         private UnifiedSpawnManager spawnManager;
         private GameManager gameManager;
-        
+
         // Player performance metrics
         private List<PlayerPerformanceData> performanceHistory = new List<PlayerPerformanceData>();
         private List<PlayerPerformanceData> currentSessionPerformance = new List<PlayerPerformanceData>();
@@ -97,7 +113,7 @@ namespace RoofTops
         private float sessionStartTime;
         private float lastChunkTransitionTime;
         private float lastAnalysisTime;
-        
+
         // Advanced metrics tracking
         private int nearMisses = 0;
         private int perfectJumps = 0;
@@ -118,13 +134,13 @@ namespace RoofTops
                 Destroy(gameObject);
                 return;
             }
-            
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            
+
             // Setup database paths
             InitializeDatabasePaths();
-            
+
             // Load any saved difficulty data
             LoadAllPerformanceData();
         }
@@ -136,11 +152,11 @@ namespace RoofTops
             {
                 Directory.CreateDirectory(baseDir);
             }
-            
+
             performanceDbPath = Path.Combine(baseDir, "performance_history.json");
             learningDbPath = Path.Combine(baseDir, "learning_parameters.json");
             globalPatternsPath = Path.Combine(baseDir, "global_patterns.json");
-            
+
             if (showDebugInfo)
             {
                 Debug.Log($"Database initialized at: {baseDir}");
@@ -156,7 +172,7 @@ namespace RoofTops
                 enabled = false;
                 return;
             }
-            
+
             gameManager = GameManager.Instance;
             if (gameManager == null)
             {
@@ -164,24 +180,24 @@ namespace RoofTops
                 enabled = false;
                 return;
             }
-            
+
             // Try to find UnifiedSpawnManager
             spawnManager = FindObjectOfType<UnifiedSpawnManager>();
-            
+
             // Initialize session
             sessionStartTime = Time.time;
             lastChunkTransitionTime = Time.time;
             lastAnalysisTime = Time.time;
-            
+
             // Initialize with default values
             InitializeBaseParameters();
-            
+
             // Subscribe to events
             gameManager.onGameStarted.AddListener(OnGameStarted);
-            
+
             // Load optimized parameters if available
             LoadOptimizedParameters();
-            
+
             // Try to find and subscribe to player input/jump events
             StartCoroutine(SubscribeToPlayerEvents());
         }
@@ -190,7 +206,7 @@ namespace RoofTops
         {
             // Wait a frame to ensure player is initialized
             yield return null;
-            
+
             PlayerController player = FindObjectOfType<PlayerController>();
             if (player != null)
             {
@@ -201,17 +217,17 @@ namespace RoofTops
                 {
                     jumpEvent.AddListener(OnPlayerJump);
                 }
-                
+
                 var landEvent = player.GetType().GetField("onLand")?.GetValue(player) as UnityEngine.Events.UnityEvent<float>;
                 if (landEvent != null)
                 {
                     landEvent.AddListener(OnPlayerLand);
                 }
-                
+
                 // Alternatively, you can integrate with your existing events in PlayerController
                 // player.onJump.AddListener(OnPlayerJump);
                 // player.onLand.AddListener(OnPlayerLand);
-                
+
                 if (showDebugInfo)
                 {
                     Debug.Log("Successfully subscribed to player events");
@@ -233,22 +249,22 @@ namespace RoofTops
         {
             // landQuality should be a value from 0-1 indicating how well the player landed
             // 1 = perfect center landing, 0 = edge landing
-            
+
             PlayerController player = FindObjectOfType<PlayerController>();
             if (player != null)
             {
                 float jumpDistance = Mathf.Abs(player.transform.position.x - lastJumpStartX);
-                
+
                 // Track jump statistics
                 totalJumpDistance += jumpDistance;
                 jumpCount++;
-                
+
                 // Detect perfect jumps
                 if (landQuality > 0.8f)
                 {
                     perfectJumps++;
                 }
-                
+
                 // Detect near misses
                 if (landQuality < 0.2f)
                 {
@@ -265,7 +281,7 @@ namespace RoofTops
             currentTridotFrequency = baseTridotFrequency;
             currentJumpPadFrequency = baseJumpPadFrequency;
             currentPropFrequency = basePropFrequency;
-            
+
             // Apply initial values
             ApplyCurrentParameters();
         }
@@ -277,16 +293,16 @@ namespace RoofTops
             currentChunkIndex = 0;
             deathsInCurrentChunk = 0;
             lastDeathDistance = 0f;
-            
+
             // Reset session performance
             currentSessionPerformance.Clear();
-            
+
             // Reset jump metrics
             nearMisses = 0;
             perfectJumps = 0;
             totalJumpDistance = 0f;
             jumpCount = 0;
-            
+
             // Start with base parameters
             InitializeBaseParameters();
         }
@@ -295,10 +311,10 @@ namespace RoofTops
         {
             if (gameManager == null || !gameManager.HasGameStarted)
                 return;
-            
+
             // Update current distance from GameManager
             currentDistance = gameManager.CurrentDistance;
-            
+
             // Check if we've moved to a new chunk
             int newChunkIndex = Mathf.FloorToInt(currentDistance / chunkSize);
             if (newChunkIndex > currentChunkIndex)
@@ -306,14 +322,14 @@ namespace RoofTops
                 // We've entered a new chunk
                 OnEnterNewChunk(newChunkIndex);
             }
-            
+
             // Check for player death
             PlayerController player = FindObjectOfType<PlayerController>();
             if (player != null && player.IsDead())
             {
                 HandlePlayerDeath();
             }
-            
+
             // Periodically analyze performance data
             if (enableSelfTuning && Time.time - lastAnalysisTime > analysisInterval)
             {
@@ -333,14 +349,14 @@ namespace RoofTops
         {
             float previousChunkTime = Time.time - lastChunkTransitionTime;
             lastChunkTransitionTime = Time.time;
-            
+
             // Log previous chunk performance
             LogChunkPerformance(currentChunkIndex, previousChunkTime, deathsInCurrentChunk);
-            
+
             // Update chunk index
             currentChunkIndex = newChunkIndex;
             deathsInCurrentChunk = 0;
-            
+
             // Generate or retrieve difficulty for this chunk
             ChunkDifficultyData chunkDifficulty;
             if (chunkData.ContainsKey(currentChunkIndex))
@@ -354,10 +370,10 @@ namespace RoofTops
                 chunkDifficulty = GenerateChunkDifficulty(currentChunkIndex);
                 chunkData[currentChunkIndex] = chunkDifficulty;
             }
-            
+
             // Apply the chunk's difficulty settings
             ApplyChunkDifficulty(chunkDifficulty);
-            
+
             // Log the transition
             if (showDebugInfo)
             {
@@ -369,37 +385,37 @@ namespace RoofTops
         {
             // Calculate base progression values based on curves
             float normalizedChunk = chunkIndex * 0.1f; // Map chunk index to curve's x-axis
-            
+
             float speedMultiplier = speedProgressionCurve.Evaluate(normalizedChunk);
             float gapMultiplier = gapProgressionCurve.Evaluate(normalizedChunk);
             float heightMultiplier = heightVariationCurve.Evaluate(normalizedChunk);
             float tridotMultiplier = tridotFrequencyCurve.Evaluate(normalizedChunk);
             float jumpPadMultiplier = jumpPadFrequencyCurve.Evaluate(normalizedChunk);
             float propMultiplier = propFrequencyCurve.Evaluate(normalizedChunk);
-            
+
             // Apply AI adjustments if enabled
             if (enableAIAdjustment && chunkIndex > 0)
             {
                 (float speedAdjust, float gapAdjust, float heightAdjust) = CalculateAIAdjustments(chunkIndex);
-                
+
                 speedMultiplier *= speedAdjust;
                 gapMultiplier *= gapAdjust;
                 heightMultiplier *= heightAdjust;
             }
-            
+
             // Apply learned patterns from historical data if available
             if (useGlobalPatterns && playerSkillMetrics.Count > 0)
             {
                 AdjustBasedOnPlayerSkill(ref speedMultiplier, ref gapMultiplier, ref heightMultiplier);
             }
-            
+
             // Calculate expected player jump capability at this point
             float expectedJumpForce = 7f + (chunkIndex * 0.5f); // Base jump force + growth over time
-            
+
             // Ensure gap size never exceeds what the player can reasonably jump
             // A jump force of 7 can cross ~3 units, and 14 can cross ~6 units
             float maxJumpableGap = expectedJumpForce * 0.42f; // Conservative estimate of jump distance
-            
+
             // Create chunk data
             ChunkDifficultyData newChunk = new ChunkDifficultyData
             {
@@ -407,19 +423,19 @@ namespace RoofTops
                 gameSpeed = baseGameSpeed * speedMultiplier,
                 gapSize = Mathf.Min(baseGapSize * gapMultiplier, maxJumpableGap), // Cap based on jump capability
                 heightVariation = baseHeightVariation * heightMultiplier,
-                tridotFrequency = Mathf.Clamp(baseTridotFrequency * tridotMultiplier, 0.05f, 0.95f),
-                jumpPadFrequency = Mathf.Clamp(baseJumpPadFrequency * jumpPadMultiplier, 0.005f, 0.05f),
-                propFrequency = Mathf.Clamp(basePropFrequency * propMultiplier, 0.001f, 0.05f)
+                tridotFrequency = Mathf.Clamp(baseTridotFrequency * tridotMultiplier, minTridotFrequency, maxTridotFrequency),
+                jumpPadFrequency = Mathf.Clamp(baseJumpPadFrequency * jumpPadMultiplier, minJumpPadFrequency, maxJumpPadFrequency),
+                propFrequency = Mathf.Clamp(basePropFrequency * propMultiplier, minPropFrequency, maxPropFrequency)
             };
-            
+
             // Add some slight randomization to make each chunk feel unique
             ApplyRandomVariation(ref newChunk);
-            
+
             if (showDebugInfo && chunkIndex % 3 == 0) // Only log every 3rd chunk to reduce spam
             {
                 Debug.Log($"Generated chunk {chunkIndex} - Gap: {newChunk.gapSize:F2}m, Height: {newChunk.heightVariation:F2}m");
             }
-            
+
             return newChunk;
         }
 
@@ -427,12 +443,12 @@ namespace RoofTops
         {
             // Get player skill level
             float skillLevel = 0.5f; // Default medium
-            
+
             if (playerSkillMetrics.TryGetValue("skillLevel", out float storedSkill))
             {
                 skillLevel = storedSkill;
             }
-            
+
             // Use player's typical jump distance to adjust gap sizes
             if (playerSkillMetrics.TryGetValue("avgJumpDistance", out float jumpDist))
             {
@@ -440,10 +456,10 @@ namespace RoofTops
                 float jumpFactor = Mathf.InverseLerp(2f, 5f, jumpDist);
                 gapMultiplier *= (1.0f + (jumpFactor * 0.2f));
             }
-            
+
             // Use player skill level to adjust overall difficulty
             float skillFactor = skillLevel - 0.5f; // -0.5 to 0.5
-            
+
             // Advanced players get slightly harder, beginners get slightly easier
             speedMultiplier *= (1.0f + (skillFactor * 0.2f));
             gapMultiplier *= (1.0f + (skillFactor * 0.3f));
@@ -455,15 +471,15 @@ namespace RoofTops
             // Add small random variations to prevent predictability
             // Use ChunkIndex as seed to ensure consistent results for the same chunk
             System.Random random = new System.Random(chunk.chunkIndex * 1000);
-            
+
             float RandomValue() => (float)random.NextDouble() * 0.2f + 0.9f; // 0.9 to 1.1 range
-            
+
             chunk.gameSpeed *= RandomValue();
             chunk.gapSize *= RandomValue();
             chunk.heightVariation *= RandomValue();
-            chunk.tridotFrequency = Mathf.Clamp(chunk.tridotFrequency * RandomValue(), 0.05f, 0.95f);
-            chunk.jumpPadFrequency = Mathf.Clamp(chunk.jumpPadFrequency * RandomValue(), 0.05f, 0.95f);
-            chunk.propFrequency = Mathf.Clamp(chunk.propFrequency * RandomValue(), 0.05f, 0.95f);
+            chunk.tridotFrequency = Mathf.Clamp(chunk.tridotFrequency * RandomValue(), minTridotFrequency, maxTridotFrequency);
+            chunk.jumpPadFrequency = Mathf.Clamp(chunk.jumpPadFrequency * RandomValue(), minJumpPadFrequency, maxJumpPadFrequency);
+            chunk.propFrequency = Mathf.Clamp(chunk.propFrequency * RandomValue(), minPropFrequency, maxPropFrequency);
         }
 
         private (float speedAdjust, float gapAdjust, float heightAdjust) CalculateAIAdjustments(int chunkIndex)
@@ -472,16 +488,16 @@ namespace RoofTops
             float speedAdjust = 1.0f;
             float gapAdjust = 1.0f;
             float heightAdjust = 1.0f;
-            
+
             // Check if we have enough performance data
             if (performanceHistory.Count < 1)
                 return (speedAdjust, gapAdjust, heightAdjust);
-            
+
             // Analyze recent performance
             int deathsInRecentChunks = 0;
             float averageTimePerChunk = 0f;
             int samplesUsed = 0;
-            
+
             // Look at the last few chunks
             int samplesToUse = Mathf.Min(3, performanceHistory.Count);
             for (int i = performanceHistory.Count - 1; i >= performanceHistory.Count - samplesToUse; i--)
@@ -490,15 +506,15 @@ namespace RoofTops
                 averageTimePerChunk += performanceHistory[i].completionTime;
                 samplesUsed++;
             }
-            
+
             averageTimePerChunk /= samplesUsed;
-            
+
             // Adjust based on deaths
             if (deathsInRecentChunks > maxDeathsBeforeEasing)
             {
                 // Player is struggling, make it easier BUT NEVER SLOW DOWN
                 float easeFactor = Mathf.Clamp01(1.0f - (adaptationRate * (deathsInRecentChunks - maxDeathsBeforeEasing) / 3f));
-                
+
                 // Don't adjust speed downward, only other parameters
                 // speedAdjust *= easeFactor; // REMOVED: Never slow down
                 gapAdjust *= easeFactor;
@@ -508,18 +524,18 @@ namespace RoofTops
             {
                 // Player is doing well, make it slightly harder
                 float challengeFactor = 1.0f + (adaptationRate * 0.5f);
-                
+
                 speedAdjust *= challengeFactor; // Speed can increase
                 gapAdjust *= challengeFactor;
                 heightAdjust *= challengeFactor;
             }
-            
+
             // Clamp adjustments to reasonable ranges
             // Only allow speed to increase, never decrease
             speedAdjust = Mathf.Clamp(speedAdjust, 1.0f, 1.3f); // Changed minimum from 0.7 to 1.0
             gapAdjust = Mathf.Clamp(gapAdjust, 0.7f, 1.3f);
             heightAdjust = Mathf.Clamp(heightAdjust, 0.7f, 1.3f);
-            
+
             return (speedAdjust, gapAdjust, heightAdjust);
         }
 
@@ -537,7 +553,7 @@ namespace RoofTops
             currentTridotFrequency = chunk.tridotFrequency;
             currentJumpPadFrequency = chunk.jumpPadFrequency;
             currentPropFrequency = chunk.propFrequency;
-            
+
             // Apply parameters to game systems
             ApplyCurrentParameters();
         }
@@ -550,14 +566,14 @@ namespace RoofTops
                 modulePool.SetGameSpeed(currentGameSpeed);
                 modulePool.maxGapSize = currentGapSize;
                 modulePool.maxHeightVariation = currentHeightVariation;
-                
+
                 // Add visible debug logging for these crucial parameters
                 if (showDebugInfo)
                 {
                     Debug.Log($"<color=yellow>DIFFICULTY UPDATE:</color> Gap Size = {currentGapSize:F2}m, Height Variation = {currentHeightVariation:F2}m");
                 }
             }
-            
+
             // Apply to SpawnManager if available
             if (spawnManager != null)
             {
@@ -573,7 +589,7 @@ namespace RoofTops
         {
             deathsInCurrentChunk++;
             lastDeathDistance = currentDistance;
-            
+
             // Consider immediate difficulty adjustment for the current chunk if players die too much
             if (deathsInCurrentChunk >= maxDeathsBeforeEasing && enableAIAdjustment)
             {
@@ -586,21 +602,21 @@ namespace RoofTops
             // Get current chunk data
             if (!chunkData.TryGetValue(currentChunkIndex, out ChunkDifficultyData chunk))
                 return;
-                
+
             // Apply easing factor
             float easeFactor = Mathf.Clamp01(1.0f - (adaptationRate * 0.5f));
-            
+
             // NEVER slow down game speed
             // chunk.gameSpeed *= easeFactor; // REMOVED: Never slow down
             chunk.gapSize *= easeFactor;
             chunk.heightVariation *= easeFactor;
-            
+
             // Save changes
             chunkData[currentChunkIndex] = chunk;
-            
+
             // Apply new settings
             ApplyChunkDifficulty(chunk);
-            
+
             if (showDebugInfo)
             {
                 Debug.Log($"Eased difficulty after {deathsInCurrentChunk} deaths. Speed UNCHANGED at {currentGameSpeed}, new gap: {currentGapSize}");
@@ -611,7 +627,7 @@ namespace RoofTops
         {
             // Calculate advanced metrics for this chunk
             float avgJumpDistance = (jumpCount > 0) ? totalJumpDistance / jumpCount : 0f;
-            
+
             PlayerPerformanceData performance = new PlayerPerformanceData
             {
                 chunkIndex = chunkIndex,
@@ -623,22 +639,22 @@ namespace RoofTops
                 perfectJumps = perfectJumps,
                 averageJumpDistance = avgJumpDistance
             };
-            
+
             performanceHistory.Add(performance);
             currentSessionPerformance.Add(performance);
-            
+
             // Reset counters for next chunk
             nearMisses = 0;
             perfectJumps = 0;
             totalJumpDistance = 0f;
             jumpCount = 0;
-            
+
             // Keep history to a reasonable size
             if (performanceHistory.Count > 100)
             {
                 performanceHistory.RemoveAt(0);
             }
-            
+
             // Save performance data periodically
             if (currentSessionPerformance.Count % 5 == 0)
             {
@@ -654,7 +670,7 @@ namespace RoofTops
                 // Score based on completion time and deaths
                 float avgDeaths = (float)kvp.Value.Average(d => d.deathCount);
                 float avgTime = (float)kvp.Value.Average(d => d.completionTime);
-                
+
                 // Lower deaths and faster times = better score
                 successScores[kvp.Key] = 100f / (avgDeaths + 1) * (30f / (avgTime + 10f));
             }
@@ -665,27 +681,27 @@ namespace RoofTops
         {
             if (performanceHistory.Count < 10)
                 return; // Need enough data
-                
+
             // Group performance data by chunk indices
             Dictionary<int, List<PlayerPerformanceData>> chunkPerformance = new Dictionary<int, List<PlayerPerformanceData>>();
-            
+
             foreach (var data in performanceHistory)
             {
                 if (!chunkPerformance.ContainsKey(data.chunkIndex))
                     chunkPerformance[data.chunkIndex] = new List<PlayerPerformanceData>();
-                
+
                 chunkPerformance[data.chunkIndex].Add(data);
             }
-            
+
             // Find most successful chunk configurations using helper method
             Dictionary<int, float> successScores = GetSuccessScores(chunkPerformance);
-            
+
             // Calculate player skill metrics
             CalculatePlayerSkillMetrics();
-            
+
             // Use this data to adjust progression curves over time
             OptimizeProgressionCurves(successScores);
-            
+
             if (showDebugInfo)
             {
                 Debug.Log($"Performed learning analysis on {performanceHistory.Count} data points. Player skill level: {playerSkillMetrics["skillLevel"]:F2}");
@@ -696,20 +712,20 @@ namespace RoofTops
         {
             if (performanceHistory.Count < 5)
                 return;
-                
+
             // Calculate overall skill level (0-1)
             float avgDeaths = (float)performanceHistory.Average(d => d.deathCount);
-            float perfectJumpRatio = performanceHistory.Sum(d => d.perfectJumps) / 
+            float perfectJumpRatio = performanceHistory.Sum(d => d.perfectJumps) /
                                     (float)Mathf.Max(1, performanceHistory.Sum(d => d.perfectJumps + d.nearMisses + d.deathCount));
             float avgJumpDistance = (float)performanceHistory.Average(d => d.averageJumpDistance);
-            
+
             // Combine metrics - lower deaths, higher perfect jumps, higher jump distance = higher skill
             float skillLevel = Mathf.Clamp01(
                 (1f / (avgDeaths + 1)) * 0.4f +
                 perfectJumpRatio * 0.3f +
                 Mathf.InverseLerp(2f, 5f, avgJumpDistance) * 0.3f
             );
-            
+
             // Store metrics
             playerSkillMetrics["skillLevel"] = skillLevel;
             playerSkillMetrics["avgDeaths"] = avgDeaths;
@@ -721,15 +737,15 @@ namespace RoofTops
         {
             if (successScores.Count < 3)
                 return;
-                
+
             // Find chunks with highest success scores
             var topChunks = successScores.OrderByDescending(kvp => kvp.Value).Take(3);
-            
+
             // For each top chunk, try to replicate its difficulty pattern in future chunks
             foreach (var chunk in topChunks)
             {
                 int chunkIndex = chunk.Key;
-                
+
                 // Get difficulty data for this successful chunk
                 if (chunkData.TryGetValue(chunkIndex, out ChunkDifficultyData chunkDiff))
                 {
@@ -742,7 +758,7 @@ namespace RoofTops
         private void RecordSuccessfulPattern(int chunkIndex, ChunkDifficultyData chunkDiff)
         {
             GlobalPatternData patternData;
-            
+
             // Load existing patterns if available
             if (File.Exists(globalPatternsPath))
             {
@@ -761,7 +777,7 @@ namespace RoofTops
             {
                 patternData = new GlobalPatternData();
             }
-            
+
             // Add this pattern
             SuccessfulPattern pattern = new SuccessfulPattern
             {
@@ -772,15 +788,15 @@ namespace RoofTops
                 timestamp = DateTime.UtcNow.ToString("o"),
                 skillLevel = playerSkillMetrics.ContainsKey("skillLevel") ? playerSkillMetrics["skillLevel"] : 0.5f
             };
-            
+
             patternData.successfulPatterns.Add(pattern);
-            
+
             // Keep a reasonable size
             if (patternData.successfulPatterns.Count > 50)
             {
                 patternData.successfulPatterns.RemoveAt(0);
             }
-            
+
             // Save updated patterns
             try
             {
@@ -797,25 +813,25 @@ namespace RoofTops
         {
             if (performanceHistory.Count < 10)
                 return; // Need enough data
-                
+
             // Calculate variance in death counts across chunks
             float[] deathCounts = performanceHistory.Select(p => (float)p.deathCount).ToArray();
             float variance = CalculateVariance(deathCounts);
-            
+
             // If variance is high, increase adaptation rate to respond faster
             // If variance is low (consistent experience), decrease adaptation rate
             if (variance > 3.0f)
                 adaptationRate = Mathf.Min(adaptationRate + 0.02f, 0.8f);
             else if (variance < 1.0f)
                 adaptationRate = Mathf.Max(adaptationRate - 0.01f, 0.1f);
-                
+
             // Similarly adjust maxDeathsBeforeEasing based on player skill level
             float avgDeaths = (float)deathCounts.Average();
             maxDeathsBeforeEasing = Mathf.RoundToInt(Mathf.Clamp(avgDeaths * 0.6f, 1, 5));
-            
+
             // Save the updated learning parameters
             SaveLearningParameters();
-            
+
             if (showDebugInfo)
             {
                 Debug.Log($"Self-tuned parameters: adaptationRate={adaptationRate:F2}, maxDeathsBeforeEasing={maxDeathsBeforeEasing}");
@@ -839,12 +855,12 @@ namespace RoofTops
         {
             if (currentSessionPerformance.Count == 0)
                 return;
-            
+
             try
             {
                 // Load existing performance database if available
                 PerformanceDatabase database;
-                
+
                 if (File.Exists(performanceDbPath))
                 {
                     string existingJson = File.ReadAllText(performanceDbPath);
@@ -854,10 +870,10 @@ namespace RoofTops
                 {
                     database = new PerformanceDatabase();
                 }
-                
+
                 // Add current session data
                 string sessionId = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
-                
+
                 SessionData sessionData = new SessionData
                 {
                     sessionId = sessionId,
@@ -865,19 +881,19 @@ namespace RoofTops
                     endTime = Time.time.ToString(),
                     performanceData = currentSessionPerformance
                 };
-                
+
                 database.sessions.Add(sessionData);
-                
+
                 // Keep database to a reasonable size (max 20 sessions)
                 if (database.sessions.Count > 20)
                 {
                     database.sessions.RemoveAt(0);
                 }
-                
+
                 // Save to file
                 string json = JsonConvert.SerializeObject(database, Formatting.Indented);
                 File.WriteAllText(performanceDbPath, json);
-                
+
                 if (showDebugInfo)
                 {
                     Debug.Log($"Saved performance data: {currentSessionPerformance.Count} entries for session {sessionId}");
@@ -900,7 +916,7 @@ namespace RoofTops
                     skillMetrics = playerSkillMetrics,
                     timestamp = DateTime.UtcNow.ToString("o")
                 };
-                
+
                 string json = JsonConvert.SerializeObject(parameters, Formatting.Indented);
                 File.WriteAllText(learningDbPath, json);
             }
@@ -925,19 +941,19 @@ namespace RoofTops
                 {
                     string json = File.ReadAllText(performanceDbPath);
                     PerformanceDatabase database = JsonConvert.DeserializeObject<PerformanceDatabase>(json);
-                    
+
                     if (database != null && database.sessions != null && database.sessions.Count > 0)
                     {
                         // Get the most recent 5 sessions
                         int sessionsToUse = Mathf.Min(5, database.sessions.Count);
-                        
+
                         performanceHistory.Clear();
-                        
+
                         for (int i = database.sessions.Count - 1; i >= database.sessions.Count - sessionsToUse; i--)
                         {
                             performanceHistory.AddRange(database.sessions[i].performanceData);
                         }
-                        
+
                         if (showDebugInfo)
                         {
                             Debug.Log($"Loaded performance data: {performanceHistory.Count} entries from {sessionsToUse} sessions");
@@ -961,13 +977,13 @@ namespace RoofTops
                 {
                     string json = File.ReadAllText(learningDbPath);
                     LearningParameters parameters = JsonConvert.DeserializeObject<LearningParameters>(json);
-                    
+
                     if (parameters != null)
                     {
                         // Use the saved parameters
                         adaptationRate = parameters.adaptationRate;
                         maxDeathsBeforeEasing = parameters.maxDeathsBeforeEasing;
-                        
+
                         if (showDebugInfo)
                         {
                             Debug.Log($"Loaded optimized parameters: adaptationRate={adaptationRate:F2}, maxDeathsBeforeEasing={maxDeathsBeforeEasing}");
@@ -989,11 +1005,11 @@ namespace RoofTops
                 {
                     string json = File.ReadAllText(learningDbPath);
                     LearningParameters parameters = JsonConvert.DeserializeObject<LearningParameters>(json);
-                    
+
                     if (parameters != null && parameters.skillMetrics != null)
                     {
                         playerSkillMetrics = parameters.skillMetrics;
-                        
+
                         // Initialize default skill metrics if they don't exist
                         if (!playerSkillMetrics.ContainsKey("skillLevel"))
                             playerSkillMetrics["skillLevel"] = 0.5f;
@@ -1003,7 +1019,7 @@ namespace RoofTops
                             playerSkillMetrics["perfectJumpRatio"] = 0f;
                         if (!playerSkillMetrics.ContainsKey("avgJumpDistance"))
                             playerSkillMetrics["avgJumpDistance"] = 3f;
-                        
+
                         if (showDebugInfo)
                         {
                             Debug.Log($"Loaded player skill metrics, skill level: {playerSkillMetrics["skillLevel"]:F2}");
@@ -1038,7 +1054,7 @@ namespace RoofTops
                 { "perfectJumpRatio", 0f }, // No perfect jumps yet
                 { "avgJumpDistance", 3f }   // Average jump distance
             };
-            
+
             if (showDebugInfo)
             {
                 Debug.Log("Initialized default player skill metrics");
@@ -1096,19 +1112,19 @@ namespace RoofTops
             public int deathCount;
             public float chunkDistance;
             public string timestamp;
-            
+
             // Advanced metrics
             public int nearMisses;
             public int perfectJumps;
             public float averageJumpDistance;
         }
-        
+
         [System.Serializable]
         public class PerformanceDatabase
         {
             public List<SessionData> sessions = new List<SessionData>();
         }
-        
+
         [System.Serializable]
         public class SessionData
         {
@@ -1117,7 +1133,7 @@ namespace RoofTops
             public string endTime;
             public List<PlayerPerformanceData> performanceData = new List<PlayerPerformanceData>();
         }
-        
+
         [System.Serializable]
         public class LearningParameters
         {
@@ -1126,13 +1142,13 @@ namespace RoofTops
             public Dictionary<string, float> skillMetrics = new Dictionary<string, float>();
             public string timestamp;
         }
-        
+
         [System.Serializable]
         public class GlobalPatternData
         {
             public List<SuccessfulPattern> successfulPatterns = new List<SuccessfulPattern>();
         }
-        
+
         [System.Serializable]
         public class SuccessfulPattern
         {
@@ -1160,4 +1176,4 @@ namespace RoofTops
             if (propField != null) propField.SetValue(spawnManager, propFrequency);
         }
     }
-} 
+}

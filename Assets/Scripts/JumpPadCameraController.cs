@@ -15,7 +15,7 @@ namespace RoofTops
         public Vector3 cameraOffset = new Vector3(24, 5, -4);
         public float jumpPadFOV = 25f;
         public float lerpSpeed = 5f;
-        
+
         private bool isJumpPadTriggered;
         private Vector3 currentVelocity = Vector3.zero;
         private float currentFovVelocity = 0f;
@@ -59,7 +59,7 @@ namespace RoofTops
         private void LateUpdate()
         {
             if (playerTransform == null) return;
-            
+
             // Only do smooth logic if jump pad is triggered
             if (!isJumpPadTriggered)
             {
@@ -67,7 +67,7 @@ namespace RoofTops
                 // or simply return to do nothing until triggered.
                 return;
             }
-            
+
             Vector3 desiredPosition = playerTransform.position + cameraOffset;
             cameraTransform.position = Vector3.SmoothDamp(
                 cameraTransform.position,
@@ -98,4 +98,4 @@ namespace RoofTops
             }
         }
     }
-} 
+}

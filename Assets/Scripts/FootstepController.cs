@@ -29,4 +29,4 @@ public class FootstepController : MonoBehaviour
             rightFootstepAudio.Play();
         }
     }
-} 
+}

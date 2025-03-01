@@ -196,11 +196,11 @@ namespace RoofTops
                     !hasShownDashHint)
                 {
                     ShowDashHint();
-                    
+
                     // Save to PlayerPrefs that we've shown the dash info
                     PlayerPrefs.SetInt("HasShownDashInfo", 1);
                     PlayerPrefs.Save();
-                    
+
                     // Also update GameManager's data for the current session
                     if (GameManager.Instance.gameData != null)
                     {

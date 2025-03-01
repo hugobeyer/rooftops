@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-         /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
+/////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
 namespace RoofTops
 {
     [System.Serializable]
@@ -39,7 +39,7 @@ namespace RoofTops
         public string messageText = "Message text here";
         [Tooltip("Style to use for this message. Required field - message will use the specified style's settings.")]
         public string styleID = "";
-        
+
         // All visual and timing settings are now handled by the MessageStyle system
     }
 
@@ -50,7 +50,7 @@ namespace RoofTops
         [Header("References")]
         [SerializeField] private GameObject textObject;
         [SerializeField] private GameObject visualBarObject; // Visual bar element
-        
+
         // Additional text and visual bar objects
         [Header("Additional Message Rows")]
         [SerializeField] private GameObject textObject2; // Second text object
@@ -61,14 +61,14 @@ namespace RoofTops
         [SerializeField] private GameObject visualBarObject4; // Fourth visual bar element
         [SerializeField] private GameObject textObject5; // Fifth text object
         [SerializeField] private GameObject visualBarObject5; // Fifth visual bar element
-        
+
         [Header("Visual Bar Settings")]
         [SerializeField] private Material visualBarMaterial; // Custom material for the visual bar
-        
+
         [Header("Common Animation Settings")]
         [SerializeField] private float fadeInTime = 0.25f;
         [SerializeField] private float fadeOutTime = 0.5f;
-        
+
         [Header("Pulse & Blink Animation Settings")]
         [Tooltip("How many times the bar should pulse or blink per second")]
         [SerializeField] private float pulseFrequency = 2f; // Pulses per second
@@ -76,7 +76,7 @@ namespace RoofTops
         [SerializeField] private float pulseMinAlpha = 0.5f; // Minimum alpha during pulse
         [Range(0.8f, 1f)]
         [SerializeField] private float pulseMaxAlpha = 1f; // Maximum alpha during pulse
-        
+
         [Header("Warning Animation Settings")]
         [Tooltip("How many times the warning effect should flash per second")]
         [SerializeField] private float warningFrequency = 4f; // Flashes per second
@@ -84,12 +84,12 @@ namespace RoofTops
         [SerializeField] private float warningMinAlpha = 0.2f; // Minimum alpha during warning
         [Range(0.5f, 1f)]
         [SerializeField] private float warningMaxAlpha = 1f; // Maximum alpha during warning
-        
+
         [Header("Pop And Transition Animation Settings")]
         [SerializeField] private float popBlinkDuration = 0.2f; // Duration of initial white blink
         [SerializeField] private float popBlinkFrequency = 15f; // Blinks per second during pop
         [SerializeField] private float popTransitionTime = 0.3f; // Time to transition from white to color
-        
+
         [Header("Pop And Fade Animation Settings")]
         [SerializeField] private float popHoldTime = 0.2f; // Time to hold at full alpha
         [SerializeField] private float popFadeTime = 0.5f; // Time to fade to target alpha
@@ -123,7 +123,7 @@ namespace RoofTops
 
         [Header("Message Library")]
         [SerializeField] private List<GameMessage> messageLibrary = new List<GameMessage>();
-        
+
         // Default messages for backward compatibility
         [Header("Default Messages")]
         [Tooltip("Message to show when player doesn't have enough tridots")]
@@ -144,7 +144,7 @@ namespace RoofTops
         private Coroutine activeProgressBarCoroutine4;
         private Coroutine activeMessageCoroutine5;
         private Coroutine activeProgressBarCoroutine5;
-        
+
         // Track which rows are currently in use
         private bool isRow1Active = false;
         private bool isRow2Active = false;
@@ -161,7 +161,7 @@ namespace RoofTops
         [SerializeField] private bool enableKeyboardTesting = false;
         [Tooltip("Test message to display when using keyboard shortcuts")]
         [SerializeField] private string testMessage = "This is a test message";
-        
+
         // Add key configuration for testing
         [Header("Test Key Bindings")]
         [SerializeField] private KeyCode testFadeInOutKey = KeyCode.T;
@@ -173,7 +173,7 @@ namespace RoofTops
         [SerializeField] private KeyCode testPopFadeKey = KeyCode.LeftBracket;
         [SerializeField] private KeyCode testLongerTextKey = KeyCode.RightBracket;
         [SerializeField] private KeyCode testLongerBarKey = KeyCode.Backslash;
-        
+
         private void Awake()
         {
             // Singleton pattern
@@ -211,7 +211,7 @@ namespace RoofTops
                     Debug.LogWarning("TextMeshPro component not found on the assigned text object 2!");
                 }
             }
-            
+
             if (textObject3 != null)
             {
                 textMesh3 = textObject3.GetComponent<TextMeshPro>();
@@ -229,7 +229,7 @@ namespace RoofTops
                     Debug.LogWarning("TextMeshPro component not found on the assigned text object 4!");
                 }
             }
-            
+
             if (textObject5 != null)
             {
                 textMesh5 = textObject5.GetComponent<TextMeshPro>();
@@ -256,14 +256,14 @@ namespace RoofTops
                         instancedBarMaterial = new Material(visualBarMaterial);
                         visualBarRenderer.material = instancedBarMaterial;
                     }
-                    
+
                     // Set initial alpha to 0 (invisible)
                     Color barColor = visualBarRenderer.material.color;
                     barColor.a = 0f;
                     visualBarRenderer.material.color = barColor;
                 }
             }
-            
+
             // Initialize additional visual bar objects
             if (visualBarObject2 != null)
             {
@@ -281,14 +281,14 @@ namespace RoofTops
                         instancedBarMaterial2 = new Material(visualBarMaterial);
                         visualBarRenderer2.material = instancedBarMaterial2;
                     }
-                    
+
                     // Set initial alpha to 0 (invisible)
                     Color barColor = visualBarRenderer2.material.color;
                     barColor.a = 0f;
                     visualBarRenderer2.material.color = barColor;
                 }
             }
-            
+
             if (visualBarObject3 != null)
             {
                 visualBarRenderer3 = visualBarObject3.GetComponent<Renderer>();
@@ -305,7 +305,7 @@ namespace RoofTops
                         instancedBarMaterial3 = new Material(visualBarMaterial);
                         visualBarRenderer3.material = instancedBarMaterial3;
                     }
-                    
+
                     // Set initial alpha to 0 (invisible)
                     Color barColor = visualBarRenderer3.material.color;
                     barColor.a = 0f;
@@ -329,14 +329,14 @@ namespace RoofTops
                         instancedBarMaterial4 = new Material(visualBarMaterial);
                         visualBarRenderer4.material = instancedBarMaterial4;
                     }
-                    
+
                     // Set initial alpha to 0 (invisible)
                     Color barColor = visualBarRenderer4.material.color;
                     barColor.a = 0f;
                     visualBarRenderer4.material.color = barColor;
                 }
             }
-            
+
             if (visualBarObject5 != null)
             {
                 visualBarRenderer5 = visualBarObject5.GetComponent<Renderer>();
@@ -353,7 +353,7 @@ namespace RoofTops
                         instancedBarMaterial5 = new Material(visualBarMaterial);
                         visualBarRenderer5.material = instancedBarMaterial5;
                     }
-                    
+
                     // Set initial alpha to 0 (invisible)
                     Color barColor = visualBarRenderer5.material.color;
                     barColor.a = 0f;
@@ -375,7 +375,7 @@ namespace RoofTops
                 barColor.a = 0f;
                 visualBarRenderer.material.color = barColor;
             }
-            
+
             // Hide additional text and bars at start
             if (textMesh2 != null)
             {
@@ -390,7 +390,7 @@ namespace RoofTops
                 barColor.a = 0f;
                 visualBarRenderer2.material.color = barColor;
             }
-            
+
             if (textMesh3 != null)
             {
                 Color startColor = textMesh3.color;
@@ -418,7 +418,7 @@ namespace RoofTops
                 barColor.a = 0f;
                 visualBarRenderer4.material.color = barColor;
             }
-            
+
             if (textMesh5 != null)
             {
                 Color startColor = textMesh5.color;
@@ -442,12 +442,12 @@ namespace RoofTops
                 RegisterTestInputActions();
             }
         }
-        
+
         private void BuildMessageDictionary()
         {
             messageDict.Clear();
             styleDict.Clear();
-                     /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
+            /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
             // Add all styles from the style library to the dictionary
             foreach (MessageStyle style in messageStyles)
             {
@@ -464,10 +464,10 @@ namespace RoofTops
                     Debug.LogWarning($"GameMessageDisplay: Duplicate style name '{style.styleName}' found in library");
                 }
             }
-            
 
-            
-            
+
+
+
             // Add all messages from the library to the dictionary
             foreach (GameMessage message in messageLibrary)
             {
@@ -484,11 +484,11 @@ namespace RoofTops
                     Debug.LogWarning($"GameMessageDisplay: Duplicate message ID '{message.messageID}' found in library");
                 }
             }
-            
+
             // Ensure all required messages exist
             EnsureRequiredMessages();
         }
-        
+
         private void EnsureRequiredMessages()
         {
             // Define required messages with default text
@@ -502,14 +502,14 @@ namespace RoofTops
                 { "OWN_TRIDOT", "Goal reached: {0} tridots!" },
                 { "OWN_MEMCARD", "Goal reached: {0} memcards!" }
             };
-            
+
             // Check each required message and add if missing
             foreach (var pair in requiredMessages)
             {
                 if (!messageDict.ContainsKey(pair.Key))
                 {
                     Debug.LogWarning($"Adding missing required message: {pair.Key}");
-                    
+
                     // Create a new message
                     GameMessage newMessage = new GameMessage
                     {
@@ -517,10 +517,10 @@ namespace RoofTops
                         messageText = pair.Value,
                         styleID = "Default" // Use default style
                     };
-                    
+
                     // Add to dictionary
                     messageDict.Add(pair.Key, newMessage);
-                    
+
                     // Add to library for persistence
                     messageLibrary.Add(newMessage);
                 }
@@ -536,7 +536,7 @@ namespace RoofTops
         {
             return messageDict.ContainsKey(messageID);
         }
-        
+
         /// <summary>
         /// Checks if a style with the specified name exists in the style library
         /// </summary>
@@ -544,7 +544,7 @@ namespace RoofTops
         {
             return styleDict.ContainsKey(styleName);
         }
-        
+
         /// <summary>
         /// Gets a style by name, returns null if not found
         /// </summary>
@@ -564,12 +564,12 @@ namespace RoofTops
         public void ShowMessageByID(string messageID, params object[] formatArgs)
         {
             Debug.Log($"ShowMessageByID called with ID: {messageID}");
-            
+
             // Check for required message IDs
             CheckRequiredMessageIDs();
-            
+
             GameMessage message;
-            
+
             // Try to get the message from the dictionary
             if (!messageDict.TryGetValue(messageID, out message))
             {
@@ -578,11 +578,11 @@ namespace RoofTops
                 Debug.LogWarning($"GameMessageDisplay: Message ID '{messageID}' not found. No message will be shown.");
                 return;
             }
-            
+
             Debug.Log($"Found message with ID {messageID}: {message.messageText}");
-            
+
             string formattedText;
-            
+
             // Check if formatArgs is empty or if the message doesn't contain any format placeholders
             if (formatArgs.Length == 0 || !message.messageText.Contains("{"))
             {
@@ -601,16 +601,16 @@ namespace RoofTops
                     formattedText = message.messageText;
                 }
             }
-            
+
             // Get the style for this message
             MessageStyle style = null;
-            
+
             // Try to get the specified style
             if (!string.IsNullOrEmpty(message.styleID))
             {
                 styleDict.TryGetValue(message.styleID, out style);
             }
-            
+
             // If no style was found, use the default style
             if (style == null)
             {
@@ -621,7 +621,7 @@ namespace RoofTops
                     style = messageStyles[0];
                     Debug.LogWarning($"GameMessageDisplay: Style '{message.styleID}' not found for message '{messageID}'. Using first style as fallback.");
                 }
-                
+
                 // If we still don't have a style, use hardcoded default values
                 if (style == null)
                 {
@@ -630,9 +630,9 @@ namespace RoofTops
                     return;
                 }
             }
-            
+
             Debug.Log($"Using style: {style.styleName} for message ID: {messageID}");
-            
+
             // Apply the style settings
             if (style.showVisualBar)
             {
@@ -647,19 +647,19 @@ namespace RoofTops
                 ShowMessageInAvailableRow(formattedText, style.displayDuration, style.messageColor);
             }
         }
-        
+
         private void CheckRequiredMessageIDs()
         {
-            string[] requiredIDs = new string[] { 
-                "START_DEFAULT", 
-                "START_DISTANCE", 
-                "START_TRIDOT", 
+            string[] requiredIDs = new string[] {
+                "START_DEFAULT",
+                "START_DISTANCE",
+                "START_TRIDOT",
                 "START_MEMCARD",
                 "OWN_DISTANCE",
                 "OWN_TRIDOT",
                 "OWN_MEMCARD"
             };
-            
+
             Debug.Log("Checking for required message IDs:");
             foreach (var id in requiredIDs)
             {
@@ -720,12 +720,12 @@ namespace RoofTops
                 StartCoroutine(QueueMessageAfterDelay(message, duration, color));
             }
         }
-        
+
         private IEnumerator QueueMessageAfterDelay(string message, float duration, Color color)
         {
             // Wait until row 1 is free
             yield return new WaitUntil(() => !isRow1Active);
-            
+
             // Show the message in row 1
             ShowMessageInRow1(message, duration, color);
         }
@@ -767,12 +767,12 @@ namespace RoofTops
                 StartCoroutine(QueueVisualBarMessageAfterDelay(message, animationStyle, barColor, textDuration, barDuration, textColor));
             }
         }
-        
+
         private IEnumerator QueueVisualBarMessageAfterDelay(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor)
         {
             // Wait until row 1 is free
             yield return new WaitUntil(() => !isRow1Active);
-            
+
             // Show the message in row 1
             ShowMessageWithVisualBarInRow1(message, animationStyle, barColor, textDuration, barDuration, textColor);
         }
@@ -825,7 +825,7 @@ namespace RoofTops
         public void ShowMessageInRow1(string message, float duration, Color color)
         {
             if (textMesh == null) return;
-            
+
             // Stop any active message display for row 1
             if (activeMessageCoroutine != null)
             {
@@ -849,7 +849,7 @@ namespace RoofTops
         public void ShowMessageInRow2(string message, float duration, Color color)
         {
             if (textMesh2 == null) return;
-            
+
             // Stop any active message display for row 2
             if (activeMessageCoroutine2 != null)
             {
@@ -873,7 +873,7 @@ namespace RoofTops
         public void ShowMessageInRow3(string message, float duration, Color color)
         {
             if (textMesh3 == null) return;
-            
+
             // Stop any active message display for row 3
             if (activeMessageCoroutine3 != null)
             {
@@ -897,7 +897,7 @@ namespace RoofTops
         public void ShowMessageInRow4(string message, float duration, Color color)
         {
             if (textMesh4 == null) return;
-            
+
             // Stop any active message display for row 4
             if (activeMessageCoroutine4 != null)
             {
@@ -921,7 +921,7 @@ namespace RoofTops
         public void ShowMessageInRow5(string message, float duration, Color color)
         {
             if (textMesh5 == null) return;
-            
+
             // Stop any active message display for row 5
             if (activeMessageCoroutine5 != null)
             {
@@ -1092,13 +1092,13 @@ namespace RoofTops
         {
             if (textDuration < 0) textDuration = defaultDisplayTime;
             if (barDuration < 0) barDuration = textDuration; // Use text duration if bar duration not specified
-            
+
             // Ensure durations include fade times
             float totalTextDuration = textDuration;
             float totalBarDuration = barDuration;
-            
+
             Color messageTextColor = textColor ?? defaultTextColor;
-            
+
             ShowMessageInRow1(message, totalTextDuration, messageTextColor);
             ShowVisualBarInRow1(animationStyle, barColor, totalBarDuration);
         }
@@ -1110,13 +1110,13 @@ namespace RoofTops
         {
             if (textDuration < 0) textDuration = defaultDisplayTime;
             if (barDuration < 0) barDuration = textDuration; // Use text duration if bar duration not specified
-            
+
             // Ensure durations include fade times
             float totalTextDuration = textDuration;
             float totalBarDuration = barDuration;
-            
+
             Color messageTextColor = textColor ?? defaultTextColor;
-            
+
             ShowMessageInRow2(message, totalTextDuration, messageTextColor);
             ShowVisualBarInRow2(animationStyle, barColor, totalBarDuration);
         }
@@ -1128,13 +1128,13 @@ namespace RoofTops
         {
             if (textDuration < 0) textDuration = defaultDisplayTime;
             if (barDuration < 0) barDuration = textDuration; // Use text duration if bar duration not specified
-            
+
             // Ensure durations include fade times
             float totalTextDuration = textDuration;
             float totalBarDuration = barDuration;
-            
+
             Color messageTextColor = textColor ?? defaultTextColor;
-            
+
             ShowMessageInRow3(message, totalTextDuration, messageTextColor);
             ShowVisualBarInRow3(animationStyle, barColor, totalBarDuration);
         }
@@ -1145,13 +1145,13 @@ namespace RoofTops
         public void ShowMessageWithVisualBarInRow4(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
         {
             if (textMesh4 == null || visualBarRenderer4 == null) return;
-            
+
             // Use default text color if not specified
             Color messageColor = textColor ?? defaultTextColor;
-            
+
             // Show the message
             ShowMessageInRow4(message, textDuration, messageColor);
-            
+
             // Show the visual bar
             ShowVisualBarInRow4(animationStyle, barColor, barDuration > 0 ? barDuration : textDuration);
         }
@@ -1162,13 +1162,13 @@ namespace RoofTops
         public void ShowMessageWithVisualBarInRow5(string message, BarAnimationStyle animationStyle, Color barColor, float textDuration, float barDuration, Color? textColor = null)
         {
             if (textMesh5 == null || visualBarRenderer5 == null) return;
-            
+
             // Use default text color if not specified
             Color messageColor = textColor ?? defaultTextColor;
-            
+
             // Show the message
             ShowMessageInRow5(message, textDuration, messageColor);
-            
+
             // Show the visual bar
             ShowVisualBarInRow5(animationStyle, barColor, barDuration > 0 ? barDuration : textDuration);
         }
@@ -1192,61 +1192,61 @@ namespace RoofTops
                 StopCoroutine(activeMessageCoroutine);
                 activeMessageCoroutine = null;
             }
-            
+
             if (activeProgressBarCoroutine != null)
             {
                 StopCoroutine(activeProgressBarCoroutine);
                 activeProgressBarCoroutine = null;
             }
-            
+
             if (activeMessageCoroutine2 != null)
             {
                 StopCoroutine(activeMessageCoroutine2);
                 activeMessageCoroutine2 = null;
             }
-            
+
             if (activeProgressBarCoroutine2 != null)
             {
                 StopCoroutine(activeProgressBarCoroutine2);
                 activeProgressBarCoroutine2 = null;
             }
-            
+
             if (activeMessageCoroutine3 != null)
             {
                 StopCoroutine(activeMessageCoroutine3);
                 activeMessageCoroutine3 = null;
             }
-            
+
             if (activeProgressBarCoroutine3 != null)
             {
                 StopCoroutine(activeProgressBarCoroutine3);
                 activeProgressBarCoroutine3 = null;
             }
-            
+
             if (activeMessageCoroutine4 != null)
             {
                 StopCoroutine(activeMessageCoroutine4);
                 activeMessageCoroutine4 = null;
             }
-            
+
             if (activeProgressBarCoroutine4 != null)
             {
                 StopCoroutine(activeProgressBarCoroutine4);
                 activeProgressBarCoroutine4 = null;
             }
-            
+
             if (activeMessageCoroutine5 != null)
             {
                 StopCoroutine(activeMessageCoroutine5);
                 activeMessageCoroutine5 = null;
             }
-            
+
             if (activeProgressBarCoroutine5 != null)
             {
                 StopCoroutine(activeProgressBarCoroutine5);
                 activeProgressBarCoroutine5 = null;
             }
-            
+
             // Hide main text and bar
             if (textMesh != null)
             {
@@ -1254,14 +1254,14 @@ namespace RoofTops
                 hideColor.a = 0f;
                 textMesh.color = hideColor;
             }
-            
+
             if (visualBarRenderer != null)
             {
                 Color barColor = visualBarRenderer.material.color;
                 barColor.a = 0f;
                 visualBarRenderer.material.color = barColor;
             }
-            
+
             // Hide additional text and bars
             if (textMesh2 != null)
             {
@@ -1269,56 +1269,56 @@ namespace RoofTops
                 hideColor.a = 0f;
                 textMesh2.color = hideColor;
             }
-            
+
             if (visualBarRenderer2 != null)
             {
                 Color barColor = visualBarRenderer2.material.color;
                 barColor.a = 0f;
                 visualBarRenderer2.material.color = barColor;
             }
-            
+
             if (textMesh3 != null)
             {
                 Color hideColor = textMesh3.color;
                 hideColor.a = 0f;
                 textMesh3.color = hideColor;
             }
-            
+
             if (visualBarRenderer3 != null)
             {
                 Color barColor = visualBarRenderer3.material.color;
                 barColor.a = 0f;
                 visualBarRenderer3.material.color = barColor;
             }
-            
+
             if (textMesh4 != null)
             {
                 Color hideColor = textMesh4.color;
                 hideColor.a = 0f;
                 textMesh4.color = hideColor;
             }
-            
+
             if (visualBarRenderer4 != null)
             {
                 Color barColor = visualBarRenderer4.material.color;
                 barColor.a = 0f;
                 visualBarRenderer4.material.color = barColor;
             }
-            
+
             if (textMesh5 != null)
             {
                 Color hideColor = textMesh5.color;
                 hideColor.a = 0f;
                 textMesh5.color = hideColor;
             }
-            
+
             if (visualBarRenderer5 != null)
             {
                 Color barColor = visualBarRenderer5.material.color;
                 barColor.a = 0f;
                 visualBarRenderer5.material.color = barColor;
             }
-            
+
             // Reset row status
             isRow1Active = false;
             isRow2Active = false;
@@ -1335,7 +1335,7 @@ namespace RoofTops
         {
             // Set the message text
             textMesh.text = message;
-            
+
             // Set base color (with alpha 0)
             Color displayColor = color;
             displayColor.a = 0f;
@@ -1400,7 +1400,7 @@ namespace RoofTops
         {
             // Get the material
             Material barMaterial = renderer.material;
-            
+
             // Get current color but keep RGB values, only modify alpha
             Color barColor = barMaterial.color;
             barColor.a = 0f;
@@ -1412,33 +1412,33 @@ namespace RoofTops
                 case BarAnimationStyle.FadeInOut:
                     yield return StartCoroutine(FadeInOutAnimation(barMaterial, duration));
                     break;
-                    
+
                 case BarAnimationStyle.Pulse:
                     yield return StartCoroutine(PulseAnimation(barMaterial, duration));
                     break;
-                    
+
                 case BarAnimationStyle.Blink:
                     yield return StartCoroutine(BlinkAnimation(barMaterial, duration));
                     break;
-                    
+
                 case BarAnimationStyle.Warning:
                     yield return StartCoroutine(WarningAnimation(barMaterial, duration));
                     break;
-                    
+
                 case BarAnimationStyle.PopAndTransition:
                     yield return StartCoroutine(PopAndTransitionAnimation(barMaterial, duration));
                     break;
-                    
+
                 case BarAnimationStyle.PopAndFade:
                     yield return StartCoroutine(PopAndFadeAnimation(barMaterial, duration));
                     break;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = barMaterial.color;
             barColor.a = 0f;
             barMaterial.color = barColor;
-            
+
             // Update row status
             if (row == 1)
             {
@@ -1465,7 +1465,7 @@ namespace RoofTops
         private IEnumerator FadeInOutAnimation(Material material, float duration)
         {
             Color barColor = material.color;
-            
+
             // Fade in
             float elapsedTime = 0f;
             while (elapsedTime < fadeInTime)
@@ -1476,7 +1476,7 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             barColor = material.color;
             barColor.a = 1f;
             material.color = barColor;
@@ -1494,17 +1494,17 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = material.color;
             barColor.a = 0f;
             material.color = barColor;
         }
-        
+
         private IEnumerator PulseAnimation(Material material, float duration)
         {
             Color barColor = material.color;
-            
+
             // Initial fade in
             float elapsedTime = 0f;
             while (elapsedTime < fadeInTime)
@@ -1515,11 +1515,11 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Use full duration for pulse effect (not subtracting fade times)
             float pulseTime = duration;
             elapsedTime = 0f;
-            
+
             while (elapsedTime < pulseTime)
             {
                 // Calculate pulse alpha using sine wave
@@ -1527,11 +1527,11 @@ namespace RoofTops
                 barColor = material.color;
                 barColor.a = Mathf.Lerp(pulseMinAlpha, pulseMaxAlpha, pulseAlpha); // Pulse between min and max alpha
                 material.color = barColor;
-                
+
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Fade out
             elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
@@ -1542,17 +1542,17 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = material.color;
             barColor.a = 0f;
             material.color = barColor;
         }
-        
+
         private IEnumerator BlinkAnimation(Material material, float duration)
         {
             Color barColor = material.color;
-            
+
             // Initial fade in
             float elapsedTime = 0f;
             while (elapsedTime < fadeInTime)
@@ -1563,11 +1563,11 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Use full duration for blink effect (not subtracting fade times)
             float blinkTime = duration;
             elapsedTime = 0f;
-            
+
             while (elapsedTime < blinkTime)
             {
                 // Calculate blink alpha (on or off)
@@ -1575,11 +1575,11 @@ namespace RoofTops
                 barColor = material.color;
                 barColor.a = blinkValue; // Either 0 or 1
                 material.color = barColor;
-                
+
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Fade out
             elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
@@ -1590,17 +1590,17 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = material.color;
             barColor.a = 0f;
             material.color = barColor;
         }
-        
+
         private IEnumerator WarningAnimation(Material material, float duration)
         {
             Color barColor = material.color;
-            
+
             // Initial fade in
             float elapsedTime = 0f;
             while (elapsedTime < fadeInTime)
@@ -1611,11 +1611,11 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Use full duration for warning effect (not subtracting fade times)
             float warningTime = duration;
             elapsedTime = 0f;
-            
+
             while (elapsedTime < warningTime)
             {
                 // Calculate warning flash alpha using sine wave
@@ -1623,11 +1623,11 @@ namespace RoofTops
                 barColor = material.color;
                 barColor.a = Mathf.Lerp(warningMinAlpha, warningMaxAlpha, warningAlpha); // Flash between min and max alpha
                 material.color = barColor;
-                
+
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Fade out
             elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
@@ -1638,7 +1638,7 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = material.color;
             barColor.a = 0f;
@@ -1649,16 +1649,16 @@ namespace RoofTops
         {
             Color barColor = material.color;
             Color originalColor = barColor;
-            
+
             // Pop in with white color
             barColor = Color.white;
             barColor.a = 1f;
             material.color = barColor;
-            
+
             // Quick blink
             float blinkDuration = popBlinkDuration;
             float blinkElapsed = 0f;
-            
+
             while (blinkElapsed < blinkDuration)
             {
                 // Blink between white and original color
@@ -1666,33 +1666,33 @@ namespace RoofTops
                 barColor = blinkValue > 0.5f ? Color.white : originalColor;
                 barColor.a = 1f;
                 material.color = barColor;
-                
+
                 blinkElapsed += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Transition from white to original color
             float transitionTime = popTransitionTime;
             float transitionElapsed = 0f;
-            
+
             while (transitionElapsed < transitionTime)
             {
                 barColor = Color.Lerp(Color.white, originalColor, transitionElapsed / transitionTime);
                 barColor.a = 1f;
                 material.color = barColor;
-                
+
                 transitionElapsed += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Set to original color
             barColor = originalColor;
             barColor.a = 1f;
             material.color = barColor;
-            
+
             // Display for full duration (not subtracting previous effect times)
             yield return new WaitForSeconds(duration);
-            
+
             // Fade out
             float elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
@@ -1703,7 +1703,7 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = material.color;
             barColor.a = 0f;
@@ -1713,37 +1713,37 @@ namespace RoofTops
         private IEnumerator PopAndFadeAnimation(Material material, float duration)
         {
             Color barColor = material.color;
-            
+
             // Pop in with full alpha
             barColor.a = 1f;
             material.color = barColor;
-            
+
             // Hold for a moment
             yield return new WaitForSeconds(popHoldTime);
-            
+
             // Fade to target alpha
             float fadeTime = popFadeTime;
             float fadeElapsed = 0f;
             float targetAlpha = 0.7f; // Target alpha value
-            
+
             while (fadeElapsed < fadeTime)
             {
                 barColor = material.color;
                 barColor.a = Mathf.Lerp(1f, targetAlpha, fadeElapsed / fadeTime);
                 material.color = barColor;
-                
+
                 fadeElapsed += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Set to target alpha
             barColor = material.color;
             barColor.a = targetAlpha;
             material.color = barColor;
-            
+
             // Display for full duration (not subtracting previous effect times)
             yield return new WaitForSeconds(duration);
-            
+
             // Fade out
             float elapsedTime = 0f;
             while (elapsedTime < fadeOutTime)
@@ -1754,7 +1754,7 @@ namespace RoofTops
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
             // Ensure alpha is 0 at the end
             barColor = material.color;
             barColor.a = 0f;
@@ -1770,23 +1770,23 @@ namespace RoofTops
             {
                 Destroy(instancedBarMaterial);
             }
-            
+
             // Clean up additional instanced materials
             if (instancedBarMaterial2 != null)
             {
                 Destroy(instancedBarMaterial2);
             }
-            
+
             if (instancedBarMaterial3 != null)
             {
                 Destroy(instancedBarMaterial3);
             }
-            
+
             if (instancedBarMaterial4 != null)
             {
                 Destroy(instancedBarMaterial4);
             }
-            
+
             if (instancedBarMaterial5 != null)
             {
                 Destroy(instancedBarMaterial5);
@@ -1804,51 +1804,60 @@ namespace RoofTops
             InputManager.Instance.RegisterAction("TestPopFade", testPopFadeKey);
             InputManager.Instance.RegisterAction("TestLongerText", testLongerTextKey);
             InputManager.Instance.RegisterAction("TestLongerBar", testLongerBarKey);
-            
+
             // Subscribe to events
-            InputManager.Instance.SubscribeToPressed("TestFadeInOut", () => {
+            InputManager.Instance.SubscribeToPressed("TestFadeInOut", () =>
+            {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.FadeInOut, Color.white, 2.0f, 2.0f);
                 Debug.Log("Testing FadeInOut animation with white bar");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestPulse", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestPulse", () =>
+            {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Pulse, Color.green, 2.0f, 2.0f);
                 Debug.Log("Testing Pulse animation with green bar");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestBlink", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestBlink", () =>
+            {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Blink, Color.blue, 2.0f, 2.0f);
                 Debug.Log("Testing Blink animation with blue bar");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestWarning", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestWarning", () =>
+            {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Warning, Color.red, 2.0f, 2.0f);
                 Debug.Log("Testing Warning animation with red bar");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestZeroTridots", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestZeroTridots", () =>
+            {
                 ShowMessageByID("ZERO_TRIDOTS", 3);
                 Debug.Log("Testing ZERO_TRIDOTS message");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestPopTransition", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestPopTransition", () =>
+            {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndTransition, new Color(0.5f, 0f, 0.5f), 2.0f, 2.0f);
                 Debug.Log("Testing PopAndTransition animation (white to purple)");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestPopFade", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestPopFade", () =>
+            {
                 Color orangeWithAlpha = new Color(1f, 0.5f, 0f, 0.7f); // Orange with 70% alpha
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndFade, orangeWithAlpha, 2.0f, 2.0f);
                 Debug.Log("Testing PopAndFade animation with orange color");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestLongerText", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestLongerText", () =>
+            {
                 Color blueWithAlpha = new Color(0f, 0.5f, 1f, 0.7f); // Blue with 70% alpha
                 ShowMessageWithVisualBar("Text stays longer than bar", BarAnimationStyle.FadeInOut, blueWithAlpha, 3.0f, 1.5f);
                 Debug.Log("Testing different durations - text: 3.0s, bar: 1.5s");
             });
-            
-            InputManager.Instance.SubscribeToPressed("TestLongerBar", () => {
+
+            InputManager.Instance.SubscribeToPressed("TestLongerBar", () =>
+            {
                 Color greenWithAlpha = new Color(0f, 0.8f, 0.2f, 0.7f); // Green with 70% alpha
                 ShowMessageWithVisualBar("Bar stays longer than text", BarAnimationStyle.FadeInOut, greenWithAlpha, 1.5f, 3.0f);
                 Debug.Log("Testing different durations - text: 1.5s, bar: 3.0s");
@@ -1859,7 +1868,7 @@ namespace RoofTops
         {
             // Only process keyboard input if testing is enabled and InputManager doesn't exist
             if (!enableKeyboardTesting) return;
-            
+
             // Fallback to direct input if InputManager doesn't exist
             if (!InputManager.Exists())
             {
@@ -1924,4 +1933,4 @@ namespace RoofTops
             }
         }
     }
-} 
+}

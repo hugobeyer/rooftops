@@ -17,6 +17,6 @@ namespace RoofTops
             float bestDistance = GameManager.Instance.gameData.bestDistance;
             bestText.text = $"{bestDistance:F1} m";
         }
-        
-    } 
-} 
+
+    }
+}

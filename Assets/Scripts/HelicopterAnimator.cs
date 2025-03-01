@@ -69,7 +69,7 @@ public class HelicopterAnimator : MonoBehaviour
         transform.position = newPos;
 
         // --- Banking (Roll) Effect ---
-        float accelerationZ = - (maxZ - minZ) * (omega * omega / 2f) * Mathf.Sin(omega * t - Mathf.PI / 2);
+        float accelerationZ = -(maxZ - minZ) * (omega * omega / 2f) * Mathf.Sin(omega * t - Mathf.PI / 2);
         float maxAcc = (maxZ - minZ) * (omega * omega / 2f);
         float multiplier = (maxAcc != 0) ? (maxBankAngle / maxAcc) : 0f;
         float desiredRoll = Mathf.Clamp(-accelerationZ * multiplier, -maxBankAngle, maxBankAngle);
@@ -83,4 +83,4 @@ public class HelicopterAnimator : MonoBehaviour
         Quaternion variationRotation = Quaternion.Euler(pitchOffset, yawOffset, currentRoll);
         transform.rotation = baseRotation * variationRotation;
     }
-} 
+}

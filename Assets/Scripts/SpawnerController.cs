@@ -10,8 +10,12 @@ namespace RoofTops
         [Header("Spawn Settings")]
         public GameObject tridotSpotPrefab;
         public GameObject jumpPadPrefab;
+        [Tooltip("Array of prop prefabs to spawn randomly")]
+        public GameObject[] propPrefabs;
         public float tridotSpotFrequency = 0.5f;
         public float jumpPadFrequency = 0.5f;
+        [Tooltip("Probability of spawning a prop (0-1)")]
+        public float propFrequency = 0.3f;
 
         private ModulePool modulePool;
         private GameObject lastProcessedModule;
@@ -54,15 +58,36 @@ namespace RoofTops
 
             foreach (var spot in spots)
             {
-                if (Random.value < tridotSpotFrequency)
+                float randomValue = Random.value;
+                float totalProbability = 0f;
+                
+                // Check for tridot spawn
+                totalProbability += tridotSpotFrequency;
+                if (randomValue < totalProbability)
                 {
                     GameObject item = Instantiate(tridotSpotPrefab, spot.position, Quaternion.identity);
                     item.transform.SetParent(module.transform);
                 }
-                else if (Random.value < jumpPadFrequency)
+                // Check for jumppad spawn
+                else
                 {
-                    GameObject item = Instantiate(jumpPadPrefab, spot.position, Quaternion.identity);
-                    item.transform.SetParent(module.transform);
+                    totalProbability += jumpPadFrequency;
+                    if (randomValue < totalProbability)
+                    {
+                        GameObject item = Instantiate(jumpPadPrefab, spot.position, Quaternion.identity);
+                        item.transform.SetParent(module.transform);
+                    }
+                    // Check for prop spawn
+                    else if (propPrefabs != null && propPrefabs.Length > 0)
+                    {
+                        totalProbability += propFrequency;
+                        if (randomValue < totalProbability)
+                        {
+                            int randomIndex = Random.Range(0, propPrefabs.Length);
+                            GameObject item = Instantiate(propPrefabs[randomIndex], spot.position, Quaternion.identity);
+                            item.transform.SetParent(module.transform);
+                        }
+                    }
                 }
             }
         }

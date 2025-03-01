@@ -8,16 +8,16 @@ namespace RoofTops
         [Header("Tridots Settings")]
         public int scoreValue = 1;
         public float rotationSpeed = 90f;
-        
+
         [Header("Audio")]
         public AudioSource audioSource;  // Reference to the AudioSource component
         [Range(0.8f, 1.2f)] public float minPitch = 0.9f;
         [Range(0.8f, 1.2f)] public float maxPitch = 1.1f;
-        
+
         [Header("VFX")]
         public GameObject collectVFXPrefab;  // Assign particle effect prefab in inspector
         public float vfxYOffset = 0.5f;  // Default offset of 0.5 units up
-        
+
         [Header("Explosion Effect")]
         public float explosionDuration = 0.25f;
         private Material material;
@@ -51,10 +51,10 @@ namespace RoofTops
 
         private void OnTriggerEnter(Collider other)
         {
-            if(other.CompareTag("Player") && !isCollected)  // Add collected check
+            if (other.CompareTag("Player") && !isCollected)  // Add collected check
             {
                 isCollected = true;  // Stop rotation immediately
-                
+
                 // Spawn collection VFX
                 if (collectVFXPrefab != null)
                 {
@@ -62,14 +62,14 @@ namespace RoofTops
                     GameObject vfx = Instantiate(collectVFXPrefab, spawnPos, Quaternion.identity);
                     vfx.transform.SetParent(transform);
                 }
-                
+
                 // Play collection sound with random pitch
                 if (audioSource != null)
                 {
                     audioSource.pitch = Random.Range(minPitch, maxPitch);
                     audioSource.Play();
                 }
-                
+
                 // Update tridots centrally via EconomyManager (AddTridots internally updates gameData)
                 if (EconomyManager.Instance != null)
                 {
@@ -79,7 +79,7 @@ namespace RoofTops
                 {
                     Debug.LogWarning("EconomyManager.Instance is null in TridotsSpot.OnTriggerEnter");
                 }
-                
+
                 // Remove ScoreManager code and replace with comment
                 // Score is now handled through EconomyManager
 
@@ -91,30 +91,30 @@ namespace RoofTops
         private IEnumerator ExplodeAndDestroy()
         {
             float elapsed = 0;
-            
+
             if (material != null)
             {
                 // Enable keyword if not already enabled
                 material.EnableKeyword("_EXPLODE");
-                
+
                 while (elapsed < explosionDuration)
                 {
                     elapsed += Time.deltaTime;
                     float progress = elapsed / explosionDuration;
-                    
+
                     // Set the _Explode property from 0 to 1
                     material.SetFloat("_Explode", progress);
-                    
+
                     yield return null;
                 }
             }
-            
+
             // Wait for audio to finish if it's playing
             if (audioSource != null && audioSource.isPlaying)
             {
                 yield return new WaitForSeconds(audioSource.clip.length);
             }
-            
+
             Destroy(gameObject);
         }
 
@@ -133,4 +133,4 @@ namespace RoofTops
             Gizmos.DrawWireCube(transform.position, Vector3.one * 0.5f);
         }
     }
-} 
+}

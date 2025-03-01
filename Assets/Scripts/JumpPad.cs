@@ -8,17 +8,17 @@ namespace RoofTops
         public float baseJumpForce = 15f;
         public float forceIncreaseRate = 0.1f; // Increases by 10% per second
         private float currentJumpForce;
-        
+
         [Header("Audio")]
         public AudioSource jumpPadSource;
         public AudioClip jumpPadSound;
         [Range(0.0f, 1.0f)] public float jumpPadVolume = 1f;
-        
+
         [Header("Effect Settings")]
         public float effectDuration = 1.5f;     // Duration of pitch/filter effect
         public float effectPitch = 0.7f;        // Pitch during effect (optional)
         public GameObject jumpPadEffectPrefab;  // Add this field
-        
+
         // Animation parameter hashes
         private readonly int jumpSpeedMultiplierHash = Animator.StringToHash("jumpSpeedMultiplier");
         private readonly int jumpTriggerHash = Animator.StringToHash("jumpTrigger");
@@ -65,10 +65,10 @@ namespace RoofTops
                     {
                         jumpPadSource.Play();
                     }
-                    
+
                     // Add audio filter effect with configurable duration and pitch
                     GameManager.Instance?.ActivateJumpPadAudioEffect(effectDuration, effectPitch);
-                    
+
                     // Trigger camera effect
                     cameraController?.OnJumpPadTriggered(true);
 
@@ -77,16 +77,16 @@ namespace RoofTops
                     Vector3 velocity = (Vector3)velocityField.GetValue(player);
                     velocity.y = currentJumpForce;
                     velocityField.SetValue(player, velocity);
-                    
+
                     // Get animator and set jump speed
                     Animator animator = player.GetComponent<Animator>();
-                    if(animator != null)
+                    if (animator != null)
                     {
                         float timeToApex = currentJumpForce / -Physics.gravity.y;  // Time to reach highest point
                         float totalAirTime = timeToApex * 2;  // Total time in air (up + down)
                         float animationLength = 1f;
                         float jumpSpeedRatio = animationLength / totalAirTime;
-                        
+
                         animator.SetFloat(jumpSpeedMultiplierHash, jumpSpeedRatio);
                         animator.SetTrigger(jumpTriggerHash);
                     }
@@ -94,7 +94,7 @@ namespace RoofTops
                     // Calculate blend amount based on current jump force
                     float blendAmount = (currentJumpForce - baseJumpForce) / baseJumpForce;  // This gives 0 at base force, 1 at 2x base force
                     blendAmount = Mathf.Clamp01(blendAmount);  // Ensure it stays between 0 and 1
-                    
+
                     // Trigger camera effect with player transform and jump force
                     if (CameraZoomEffect.Instance != null)
                     {
@@ -114,4 +114,4 @@ namespace RoofTops
             }
         }
     }
-} 
+}

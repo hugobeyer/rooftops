@@ -34,7 +34,7 @@ namespace RoofTops
         {
             // Update our own tracking
             currentTridots += amount;
-            
+
             // Track metrics
             IncrementMetric("tridot_collected_total", amount);
 
@@ -52,7 +52,7 @@ namespace RoofTops
             // Update our own tracking
             currentMemcards += amount;
             Debug.Log("AddMemcards: currentMemcards updated to " + currentMemcards);
-            
+
             // Update metrics
             IncrementMetric("memcard_collected_total", amount);
 
@@ -80,17 +80,17 @@ namespace RoofTops
         {
             return currentDistance;
         }
-        
+
         public int GetCurrentTridots()
         {
             return currentTridots;
         }
-        
+
         public int GetCurrentMemcards()
         {
             return currentMemcards;
         }
-        
+
         // Reset current run values
         public void ResetCurrentRunValues()
         {
@@ -99,4 +99,4 @@ namespace RoofTops
             currentMemcards = 0;
         }
     }
-} 
+}
