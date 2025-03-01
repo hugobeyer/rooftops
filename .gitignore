@@ -57,4 +57,7 @@ Icon?
 ehthumbs.db
 Thumbs.db 
 
+.utmp
 debug_log*.txt
+
+ProjectSettings/Packages/com.unity.*/
