@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
+
 /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
 namespace RoofTops
 {
@@ -14,6 +16,14 @@ namespace RoofTops
         Warning,         // Warning-style flashing
         PopAndTransition, // POP in white, blink quickly, then transition to selected color
         PopAndFade        // POP with full alpha, then fade to selected alpha
+    }
+
+    [System.Serializable]
+    public enum MovementAxis
+    {
+        X,
+        Y,
+        Z
     }
 
     [System.Serializable]
@@ -30,6 +40,22 @@ namespace RoofTops
         [Tooltip("Optional separate duration for the visual bar (if <= 0, uses the text duration)")]
         [Range(0f, 5f)]
         public float barDuration = 0f;
+
+        [Header("PopOut Feature")]
+        [Range(0f, 1f)]
+        public float popOutDistance = 0.00f; // Normalized distance for pop-out on X or Z axes
+        [Range(0f, 1f)]
+        public float popOutTime = 0.0f;     // Normalized time factor for pop-out (will use cubic easing)
+        [Tooltip("Axis for pop-out movement")]
+        public MovementAxis popOutAxis = MovementAxis.X;
+
+        [Header("Exit Move Feature")]
+        [Range(0f, 1f)]
+        public float exitMoveDistance = 0.0f; // Normalized distance for exit move on X or Z axes when the message closes
+        [Tooltip("Color applied when the exit move effect is triggered, before fading")]
+        public Color exitMoveColor = Color.white;
+        [Tooltip("Axis for exit move movement")]
+        public MovementAxis exitMoveAxis = MovementAxis.X;
     }
 
     [System.Serializable]
@@ -118,6 +144,18 @@ namespace RoofTops
         [SerializeField] private Color warningTextColor = new Color(1f, 0.5f, 0f); // Orange
         [SerializeField] private Color errorTextColor = Color.red;
 
+        [Header("DOTween Text Animation Settings")]
+        public float dotweenTextFadeInTime = 0.5f;
+        public float dotweenTextDisplayDuration = 2.0f;
+        public float dotweenTextFadeOutTime = 0.5f;
+        public Color dotweenTextTargetColor = Color.white;
+
+        [Header("DOTween Visual Bar Animation Settings")]
+        public float dotweenBarFadeInTime = 0.5f;
+        public float dotweenBarDisplayDuration = 2.0f;
+        public float dotweenBarFadeOutTime = 0.5f;
+        public Color dotweenBarTargetColor = Color.white;
+
         [Header("Message Styles")]
         [SerializeField] private List<MessageStyle> messageStyles = new List<MessageStyle>();
 
@@ -126,11 +164,6 @@ namespace RoofTops
 
         // Default messages for backward compatibility
         [Header("Default Messages")]
-        [Tooltip("Message to show when player doesn't have enough tridots")]
-        [SerializeField] private string notEnoughTridotsMessage = "Need {0} tridots to dash!";
-        [Tooltip("Message to show when player collects a tridot")]
-        [SerializeField] private string tridotCollectedMessage = "Tridot collected! ({0})";
-        [Tooltip("Message to show when a new achievement tier is revealed")]
         [SerializeField] private GameMessage newTierRevealedMessage;
 
         // Track active coroutines for each message row
@@ -563,8 +596,6 @@ namespace RoofTops
         /// </summary>
         public void ShowMessageByID(string messageID, params object[] formatArgs)
         {
-            Debug.Log($"ShowMessageByID called with ID: {messageID}");
-
             // Check for required message IDs
             CheckRequiredMessageIDs();
 
@@ -579,8 +610,6 @@ namespace RoofTops
                 return;
             }
 
-            Debug.Log($"Found message with ID {messageID}: {message.messageText}");
-
             string formattedText;
 
             // Check if formatArgs is empty or if the message doesn't contain any format placeholders
@@ -593,7 +622,6 @@ namespace RoofTops
                 try
                 {
                     formattedText = string.Format(message.messageText, formatArgs);
-                    Debug.Log($"Formatted text: {formattedText}");
                 }
                 catch (System.FormatException)
                 {
@@ -631,19 +659,15 @@ namespace RoofTops
                 }
             }
 
-            Debug.Log($"Using style: {style.styleName} for message ID: {messageID}");
-
             // Apply the style settings
             if (style.showVisualBar)
             {
                 // Use separate bar duration if specified, otherwise use text duration
                 float barDuration = style.barDuration > 0 ? style.barDuration : style.displayDuration;
-                Debug.Log($"Showing message with visual bar: {formattedText}");
                 ShowMessageWithVisualBarInAvailableRow(formattedText, style.barAnimationStyle, style.barColor, style.displayDuration, barDuration, style.messageColor);
             }
             else
             {
-                Debug.Log($"Showing message without visual bar: {formattedText}");
                 ShowMessageInAvailableRow(formattedText, style.displayDuration, style.messageColor);
             }
         }
@@ -659,28 +683,11 @@ namespace RoofTops
                 "OWN_TRIDOT",
                 "OWN_MEMCARD"
             };
-
-            Debug.Log("Checking for required message IDs:");
-            foreach (var id in requiredIDs)
-            {
-                if (messageDict.ContainsKey(id))
-                {
-                    Debug.Log($"  - {id}: FOUND");
-                }
-                else
-                {
-                    Debug.LogError($"  - {id}: MISSING");
-                }
-            }
         }
 
         private void DumpMessageIDs()
         {
-            Debug.Log($"Registered message IDs ({messageDict.Count}):");
-            foreach (var key in messageDict.Keys)
-            {
-                Debug.Log($"  - {key}");
-            }
+            // Remove all debug logs in this method
         }
 
         /// <summary>
@@ -1761,6 +1768,50 @@ namespace RoofTops
             material.color = barColor;
         }
 
+
+        public void AnimateMessageWithDOTween(TextMeshPro tmp, string message, float displayDuration, Color targetColor, float fadeInTime, float fadeOutTime, int row)
+        {
+            if (tmp == null) return;
+            // Set the message text
+            tmp.text = message;
+
+            // Start with zero alpha
+            Color initialColor = new Color(targetColor.r, targetColor.g, targetColor.b, 0f);
+            tmp.color = initialColor;
+
+            // Create a DOTween sequence animating the text color
+            Sequence seq = DOTween.Sequence();
+            seq.Append(DOTween.To(() => tmp.color, x => tmp.color = x, targetColor, fadeInTime));    // Fade in
+            seq.AppendInterval(displayDuration);                 // Hold
+            seq.Append(DOTween.To(() => tmp.color, x => tmp.color = x, new Color(targetColor.r, targetColor.g, targetColor.b, 0f), fadeOutTime)); // Fade out
+            seq.OnComplete(() =>
+            {
+                // Mark the row as free
+                switch (row)
+                {
+                    case 1: isRow1Active = false; break;
+                    case 2: isRow2Active = false; break;
+                    case 3: isRow3Active = false; break;
+                    case 4: isRow4Active = false; break;
+                    case 5: isRow5Active = false; break;
+                }
+            });
+        }
+
+        public void AnimateVisualBarWithDOTween(Renderer renderer, BarAnimationStyle animationStyle, float duration, Color targetColor, float fadeInTime, float fadeOutTime, int row)
+        {
+            if (renderer == null) return;
+
+            // Access the instanced material of the visual bar (assuming it has been instanced already)
+            Material mat = renderer.material;
+            Color initialBarColor = new Color(targetColor.r, targetColor.g, targetColor.b, 0f);
+            mat.color = initialBarColor;
+
+            Sequence seq = DOTween.Sequence();
+            seq.Append(mat.DOColor(targetColor, fadeInTime));
+            seq.AppendInterval(duration);
+            seq.Append(mat.DOColor(new Color(targetColor.r, targetColor.g, targetColor.b, 0f), fadeOutTime));
+        }
         #endregion
 
         private void OnDestroy()
@@ -1809,58 +1860,49 @@ namespace RoofTops
             InputManager.Instance.SubscribeToPressed("TestFadeInOut", () =>
             {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.FadeInOut, Color.white, 2.0f, 2.0f);
-                Debug.Log("Testing FadeInOut animation with white bar");
             });
 
             InputManager.Instance.SubscribeToPressed("TestPulse", () =>
             {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Pulse, Color.green, 2.0f, 2.0f);
-                Debug.Log("Testing Pulse animation with green bar");
             });
 
             InputManager.Instance.SubscribeToPressed("TestBlink", () =>
             {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Blink, Color.blue, 2.0f, 2.0f);
-                Debug.Log("Testing Blink animation with blue bar");
             });
 
             InputManager.Instance.SubscribeToPressed("TestWarning", () =>
             {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Warning, Color.red, 2.0f, 2.0f);
-                Debug.Log("Testing Warning animation with red bar");
             });
 
             InputManager.Instance.SubscribeToPressed("TestZeroTridots", () =>
             {
                 ShowMessageByID("ZERO_TRIDOTS", 3);
-                Debug.Log("Testing ZERO_TRIDOTS message");
             });
 
             InputManager.Instance.SubscribeToPressed("TestPopTransition", () =>
             {
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndTransition, new Color(0.5f, 0f, 0.5f), 2.0f, 2.0f);
-                Debug.Log("Testing PopAndTransition animation (white to purple)");
             });
 
             InputManager.Instance.SubscribeToPressed("TestPopFade", () =>
             {
                 Color orangeWithAlpha = new Color(1f, 0.5f, 0f, 0.7f); // Orange with 70% alpha
                 ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndFade, orangeWithAlpha, 2.0f, 2.0f);
-                Debug.Log("Testing PopAndFade animation with orange color");
             });
 
             InputManager.Instance.SubscribeToPressed("TestLongerText", () =>
             {
                 Color blueWithAlpha = new Color(0f, 0.5f, 1f, 0.7f); // Blue with 70% alpha
                 ShowMessageWithVisualBar("Text stays longer than bar", BarAnimationStyle.FadeInOut, blueWithAlpha, 3.0f, 1.5f);
-                Debug.Log("Testing different durations - text: 3.0s, bar: 1.5s");
             });
 
             InputManager.Instance.SubscribeToPressed("TestLongerBar", () =>
             {
                 Color greenWithAlpha = new Color(0f, 0.8f, 0.2f, 0.7f); // Green with 70% alpha
                 ShowMessageWithVisualBar("Bar stays longer than text", BarAnimationStyle.FadeInOut, greenWithAlpha, 1.5f, 3.0f);
-                Debug.Log("Testing different durations - text: 1.5s, bar: 3.0s");
             });
         }
 
@@ -1877,58 +1919,49 @@ namespace RoofTops
                 {
                     // T key - Test FadeInOut animation with white bar
                     ShowMessageWithVisualBar(testMessage, BarAnimationStyle.FadeInOut, Color.white, 2.0f, 2.0f);
-                    Debug.Log("Testing FadeInOut animation with white bar");
                 }
                 else if (Input.GetKeyDown(testPulseKey))
                 {
                     // Y key - Test Pulse animation with green bar
                     ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Pulse, Color.green, 2.0f, 2.0f);
-                    Debug.Log("Testing Pulse animation with green bar");
                 }
                 else if (Input.GetKeyDown(testBlinkKey))
                 {
                     // U key - Test Blink animation with blue bar
                     ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Blink, Color.blue, 2.0f, 2.0f);
-                    Debug.Log("Testing Blink animation with blue bar");
                 }
                 else if (Input.GetKeyDown(testWarningKey))
                 {
                     // I key - Test Warning animation with red bar
                     ShowMessageWithVisualBar(testMessage, BarAnimationStyle.Warning, Color.red, 2.0f, 2.0f);
-                    Debug.Log("Testing Warning animation with red bar");
                 }
                 else if (Input.GetKeyDown(testZeroTridotsKey))
                 {
                     // O key - Test "Zero Tridots" message
                     ShowMessageByID("ZERO_TRIDOTS", 3);
-                    Debug.Log("Testing ZERO_TRIDOTS message");
                 }
                 else if (Input.GetKeyDown(testPopTransitionKey))
                 {
                     // P key - Test PopAndTransition animation (white to purple)
                     ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndTransition, new Color(0.5f, 0f, 0.5f), 2.0f, 2.0f);
-                    Debug.Log("Testing PopAndTransition animation (white to purple)");
                 }
                 else if (Input.GetKeyDown(testPopFadeKey))
                 {
                     // [ key - Test PopAndFade animation with orange color
                     Color orangeWithAlpha = new Color(1f, 0.5f, 0f, 0.7f); // Orange with 70% alpha
                     ShowMessageWithVisualBar(testMessage, BarAnimationStyle.PopAndFade, orangeWithAlpha, 2.0f, 2.0f);
-                    Debug.Log("Testing PopAndFade animation with orange color");
                 }
                 else if (Input.GetKeyDown(testLongerTextKey))
                 {
                     // ] key - Test different durations (text longer than bar)
                     Color blueWithAlpha = new Color(0f, 0.5f, 1f, 0.7f); // Blue with 70% alpha
                     ShowMessageWithVisualBar("Text stays longer than bar", BarAnimationStyle.FadeInOut, blueWithAlpha, 3.0f, 1.5f);
-                    Debug.Log("Testing different durations - text: 3.0s, bar: 1.5s");
                 }
                 else if (Input.GetKeyDown(testLongerBarKey))
                 {
                     // \ key - Test different durations (bar longer than text)
                     Color greenWithAlpha = new Color(0f, 0.8f, 0.2f, 0.7f); // Green with 70% alpha
                     ShowMessageWithVisualBar("Bar stays longer than text", BarAnimationStyle.FadeInOut, greenWithAlpha, 1.5f, 3.0f);
-                    Debug.Log("Testing different durations - text: 1.5s, bar: 3.0s");
                 }
             }
         }

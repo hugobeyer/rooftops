@@ -107,7 +107,7 @@ public class DelayedActivation : MonoBehaviour
       // Find and subscribe to player death events if needed
       if (activateOnDeath || deactivateOnDeath)
       {
-         PlayerController player = FindObjectOfType<PlayerController>();
+         PlayerController player = FindFirstObjectByType<PlayerController>();
          if (player != null)
          {
             // Use a custom approach to detect death since PlayerController doesn't have a direct death event
