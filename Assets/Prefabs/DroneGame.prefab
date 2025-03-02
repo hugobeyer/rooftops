@@ -905,13 +905,13 @@ MonoBehaviour:
   forwardDistanceFromPlayer: 6
   maxHorizontalDistance: 2
   maxAltitude: 20
-  initialPositionOffset: {x: 7.94, y: -3.39, z: -30.6}
+  initialPositionOffset: {x: 7.94, y: -3.39, z: -28.1}
   initialMoveSpeed: 12
   arcHeight: 5
-  arcControlPoint: {x: 0, y: 13.59, z: 5.21}
-  repositionSpeed: 2.75
-  randomMovementInterval: 2.6
-  maxRepositionDistance: 1
+  arcControlPoint: {x: 0, y: 3.87, z: 3.6}
+  repositionSpeed: 2
+  randomMovementInterval: 2
+  maxRepositionDistance: 2
   minMoveDuration: 0.5
   movementCurve:
     serializedVersion: 2
@@ -947,17 +947,17 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   maxBankAngle: 30
-  bankSpeed: 1.5
-  minMovementForBanking: 0.01
+  bankSpeed: 5
+  minMovementForBanking: 0
   maxSpeedForBanking: 5
   enableExitBehavior: 1
-  exitVector: {x: 0, y: 5, z: -10}
+  exitVector: {x: 0, y: 8.07, z: -10.26}
   exitSpeed: 10
-  exitDelay: 5
+  exitDelay: 2
   exitEasing: 1
-  exitMovementDuration: 1
+  exitMovementDuration: 4
   turnAroundDuringInitialMove: 1
-  initialRotationSpeed: 2
+  initialRotationSpeed: 5
   initialEasing: 2
   droneVisual: {fileID: 0}
 --- !u!1001 &2065653499928224438

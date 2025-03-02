@@ -47,6 +47,12 @@ namespace RoofTops
         [Tooltip("Y offset for spawned items (height)")]
         [SerializeField] private float spawnY = 0.0f;
 
+        [Header("Jump Settings")]
+        [Tooltip("Minimum height difference required to place a jump pad")]
+        [SerializeField] private float minHeightForJumpPad = 2f;
+        [Tooltip("Maximum height that can be safely jumped with current jump force")]
+        [SerializeField] private float maxJumpableHeight;
+
         [Header("Spawn Delay")]
         [Tooltip("Time (seconds) to wait before spawning anything when the game starts.")]
         [SerializeField] private float spawnDelay = 13f;
@@ -69,6 +75,11 @@ namespace RoofTops
 
         private void Start()
         {
+            // Calculate max jumpable height using physics
+            float gravity = Physics.gravity.magnitude;
+            float jumpForce = 15f; // Get this from player settings or serialize it
+            maxJumpableHeight = (jumpForce * jumpForce) / (2f * gravity);
+
             // Instead of spawning immediately, wait for 'spawnDelay' seconds
             Invoke(nameof(EnableSpawning), spawnDelay);
 
@@ -134,36 +145,51 @@ namespace RoofTops
 
         private void SpawnItem()
         {
-            // If no spawn points exist, skip spawning
             if (spawnPoints.Count == 0)
             {
                 Debug.LogWarning("No spawn points found. Skipping spawn.");
                 return;
             }
 
-            // Probability-based approach (like before)
-            float roll = Random.value;
-            float cumulativeChance = 0f;
-
-            float nothingChance = Mathf.Max(0, 1f - (tridotFrequency + jumpPadFrequency + propFrequency));
-            cumulativeChance += nothingChance;
-
-            if (roll < cumulativeChance)
-                return; // "Spawn nothing"
+            // Get height difference at spawn point
+            Transform chosenPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
+            float heightDifference = GetHeightDifferenceAhead(chosenPoint.position);
 
             GameObject spawnedItem = null;
 
-            // Spawn logic for tridots / jump pad / prop
-            cumulativeChance += tridotFrequency;
-            if (roll < cumulativeChance && tridotPrefab != null)
+            // If significant height difference, prioritize jump pad
+            if (heightDifference >= minHeightForJumpPad && heightDifference <= maxJumpableHeight)
             {
-                spawnedItem = Instantiate(tridotPrefab, Vector3.zero, Quaternion.identity);
+                if (jumpPadPrefab != null)
+                {
+                    spawnedItem = Instantiate(jumpPadPrefab, chosenPoint.position, Quaternion.identity);
+                    
+                    // Adjust jump pad force based on required height
+                    JumpPad jumpPad = spawnedItem.GetComponent<JumpPad>();
+                    if (jumpPad != null)
+                    {
+                        float requiredForce = Mathf.Sqrt(2f * Physics.gravity.magnitude * (heightDifference + 1f));
+                        jumpPad.baseJumpForce = requiredForce;
+                    }
+                }
             }
             else
             {
-                cumulativeChance += jumpPadFrequency;
-                if (roll < cumulativeChance && jumpPadPrefab != null)
-                    spawnedItem = Instantiate(jumpPadPrefab, Vector3.zero, Quaternion.identity);
+                // Your existing probability-based spawning for other items
+                float roll = Random.value;
+                float cumulativeChance = 0f;
+
+                float nothingChance = Mathf.Max(0, 1f - (tridotFrequency + propFrequency));
+                cumulativeChance += nothingChance;
+
+                if (roll < cumulativeChance)
+                    return;
+
+                cumulativeChance += tridotFrequency;
+                if (roll < cumulativeChance && tridotPrefab != null)
+                {
+                    spawnedItem = Instantiate(tridotPrefab, Vector3.zero, Quaternion.identity);
+                }
                 else if (propPrefabs != null && propPrefabs.Length > 0)
                 {
                     int randomIndex = Random.Range(0, propPrefabs.Length);
@@ -173,16 +199,9 @@ namespace RoofTops
 
             if (spawnedItem != null)
             {
-                // Pick a random spawn point from our list
-                Transform chosenPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
-                
-                // Place the item at the chosen point
                 spawnedItem.transform.position = chosenPoint.position;
-
-                // Track in activeItems so we can move/destroy it
                 activeItems.Add(spawnedItem);
-
-                Debug.Log($"[UnifiedSpawnManager] Spawned {spawnedItem.name} at {chosenPoint.position}.");
+                Debug.Log($"[UnifiedSpawnManager] Spawned {spawnedItem.name} at {chosenPoint.position}");
             }
         }
 
@@ -264,6 +283,29 @@ namespace RoofTops
             results.AddRange(spawnPointsByName.Except(spawnPointsByTag));
 
             return results;
+        }
+
+        private float GetHeightDifferenceAhead(Vector3 position)
+        {
+            // Cast rays to detect height differences
+            RaycastHit hit1, hit2;
+            float currentHeight = position.y;
+            float aheadHeight = currentHeight;
+
+            // Cast down at current position
+            if (Physics.Raycast(position + Vector3.up * 10f, Vector3.down, out hit1, 20f))
+            {
+                currentHeight = hit1.point.y;
+            }
+
+            // Cast down ahead to check next platform
+            Vector3 aheadPos = position + Vector3.forward * 10f; // Adjust distance as needed
+            if (Physics.Raycast(aheadPos + Vector3.up * 10f, Vector3.down, out hit2, 20f))
+            {
+                aheadHeight = hit2.point.y;
+            }
+
+            return Mathf.Abs(aheadHeight - currentHeight);
         }
     }
 }

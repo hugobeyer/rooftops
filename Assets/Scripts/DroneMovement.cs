@@ -122,8 +122,36 @@ public class DroneMovement : MonoBehaviour
         if (enableExitBehavior && !isExiting && Time.time >= exitStartTime)
         {
             isExiting = true;
+            exitTweenStarted = false;  // Reset this flag
+            exitStartPos = transform.position;  // Capture current position
         }
-        else if (!isExiting)
+
+        if (isExiting)
+        {
+            if (!exitTweenStarted)
+            {
+                exitTweenStarted = true;
+                exitStartPos = transform.position;
+                Debug.Log("Drone exit animation started!");
+            }
+            float exitElapsed = Time.time - exitStartTime;
+            float tExit = Mathf.Clamp01(exitElapsed / exitMovementDuration);
+            float easedTExit = ApplyEasing(exitEasing, tExit);
+            Vector3 targetExitPos = exitStartPos + exitVector.normalized * (exitSpeed * exitMovementDuration);
+            transform.position = Vector3.Lerp(exitStartPos, targetExitPos, easedTExit);
+            
+            Quaternion targetExitRotation = Quaternion.LookRotation(exitVector.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetExitRotation, bankSpeed * Time.deltaTime);
+
+            // Add destruction when exit is complete
+            if (tExit >= 1.0f)
+            {
+                Destroy(gameObject);
+            }
+            return;
+        }
+
+        if (!isExiting)
         {
             if (Time.time > nextPositionChangeTime && !isInitialMove)
             {
