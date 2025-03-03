@@ -121,6 +121,8 @@ namespace RoofTops
 
         public bool IsDead => isDead;
 
+        public bool IsDashing => isDashing;
+
         void Awake()
         {
             cc = GetComponent<CharacterController>();
@@ -231,7 +233,7 @@ namespace RoofTops
 
             if (isDead)
             {
-                if (InputActionManager.Exists() && InputActionManager.Instance.isJumpPressed)
+                if (InputActionManager.Exists() && InputActionManager.Instance.IsJumping)
                 {
                     StartCoroutine(DelayedReset());
                 }
@@ -749,7 +751,7 @@ namespace RoofTops
         private void SetupInputActions()
         {
             InputActionManager.Instance.OnJumpPressed.AddListener(OnJumpPressed);
-            InputActionManager.Instance.OnDoubleJumpActivated.AddListener(OnDoubleJumpActivated);
+            InputActionManager.Instance.OnDoubleJumpPressedActivated.AddListener(OnDoubleJumpActivated);
             InputActionManager.Instance.OnJumpHeldStarted.AddListener(OnJumpHeldStarted);
             InputActionManager.Instance.OnJumpHeldUpdate.AddListener(OnJumpHeldUpdate);
             InputActionManager.Instance.OnJumpReleased.AddListener(OnJumpReleased);
@@ -760,7 +762,7 @@ namespace RoofTops
         private void TaredownInputActions()
         {
             InputActionManager.Instance.OnJumpPressed.RemoveListener(OnJumpPressed);
-            InputActionManager.Instance.OnDoubleJumpActivated.RemoveListener(OnDoubleJumpActivated);
+            InputActionManager.Instance.OnDoubleJumpPressedActivated.RemoveListener(OnDoubleJumpActivated);
             InputActionManager.Instance.OnJumpHeldStarted.RemoveListener(OnJumpHeldStarted);
             InputActionManager.Instance.OnJumpHeldUpdate.RemoveListener(OnJumpHeldUpdate);
             InputActionManager.Instance.OnJumpReleased.RemoveListener(OnJumpReleased);
@@ -768,7 +770,7 @@ namespace RoofTops
 
         private void OnJumpPressed()
         {
-            if(InputActionManager.Instance.IsHoldingJump || !cc.isGrounded)
+            if(isOnJumpPad || !cc.isGrounded)
             {
                 return;
             }

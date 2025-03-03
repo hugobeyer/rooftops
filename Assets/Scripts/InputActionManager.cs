@@ -16,7 +16,7 @@ public class InputActionManager : MonoBehaviour
     public UnityEvent OnJumpReleased = new UnityEvent();
     public UnityEvent OnJumpHeldStarted = new UnityEvent();
     public UnityEvent OnJumpHeldUpdate = new UnityEvent();
-    public UnityEvent OnDoubleJumpActivated = new UnityEvent();
+    public UnityEvent OnDoubleJumpPressedActivated = new UnityEvent();
 
     [Header("Input Actions")]
     [SerializeField]
@@ -26,9 +26,9 @@ public class InputActionManager : MonoBehaviour
     [SerializeField]
     private float jumpPressedTimeThreshold = 0.1f;
 
-    private float lastJumpActionStarted = 0.0f;
-    private float jumpActionStarted = 0.0f;
-    private bool resetDoubleJump = false;
+    //private float lastJumpActionStarted = 0.0f;
+    //private float jumpActionStarted = 0.0f;
+    //private bool resetDoubleJump = false;
 
     [SerializeField]
     private float doubleJumpTimeThreshold = 0.1f;
@@ -44,7 +44,7 @@ public class InputActionManager : MonoBehaviour
     public bool IsHoldingJump => isJumping && jumpPressedTime >= jumpPressedTimeThreshold;
 
     private Coroutine jumpHeldCoroutine;
-    private Coroutine doubleJumpActivatedCoroutine;
+    //private Coroutine doubleJumpActivatedCoroutine;
 
     #endregion // Properties
 
@@ -66,7 +66,15 @@ public class InputActionManager : MonoBehaviour
 
     private void Start()
     {
-        doubleJumpActivatedCoroutine = this.StartCoroutine(DoubleJumpActivatedCoroutine());
+       // doubleJumpActivatedCoroutine = this.StartCoroutine(DoubleJumpActivatedCoroutine());
+    }
+
+    private void Update()
+    {
+        if(multiTapTime > 0)
+        {
+            multiTapTime -= Time.deltaTime;
+        }
     }
 
     private void OnEnable()
@@ -98,35 +106,47 @@ public class InputActionManager : MonoBehaviour
 
     #region Input Actions Logic
 
+    float multiTapTime = 0f;
+    [SerializeField]
+    float multiTapTimeDistance = 0.1f;
+
     private void HandleJumpAction(InputAction.CallbackContext context)
     {
         switch (context.phase)
         {
             case InputActionPhase.Started:
-                jumpActionStarted = Time.realtimeSinceStartup;
+             //   jumpActionStarted = Time.realtimeSinceStartup;
                 break;
             case InputActionPhase.Performed:
+
                 jumpPressedTime = 0f;
                 isJumping = true;
-
                 if(jumpHeldCoroutine != null)
                 {
                     this.StopCoroutine(jumpHeldCoroutine);
                     jumpHeldCoroutine = null;
                 }
                 jumpHeldCoroutine = this.StartCoroutine(JumpPressedCoroutine());
-                OnJumpPressed.Invoke();
+                if (multiTapTime > 0)
+                {
+                    OnDoubleJumpPressedActivated.Invoke();
+                    multiTapTime = 0;
+                }
+                else
+                {
+                    OnJumpPressed.Invoke();
+                }
                 break;
             case InputActionPhase.Canceled:
                 isJumping = false;
                 this.StopCoroutine(jumpHeldCoroutine);
                 OnJumpReleased.Invoke();
-                
-                if(resetDoubleJump)
-                {
-                    resetDoubleJump = false;
-                    lastJumpActionStarted = Time.realtimeSinceStartup;
-                }
+                multiTapTime = multiTapTimeDistance;
+                //if(resetDoubleJump)
+                //{
+                //    resetDoubleJump = false;
+                //    lastJumpActionStarted = Time.realtimeSinceStartup;
+                //}
                 break;
         }
     }
@@ -178,18 +198,18 @@ public class InputActionManager : MonoBehaviour
         }
     }
 
-    private IEnumerator DoubleJumpActivatedCoroutine()
-    {
-        for (; ; )
-        {
-            if(!resetDoubleJump && 
-                (jumpActionStarted - lastJumpActionStarted) >= doubleJumpTimeThreshold)
-            {
-                OnDoubleJumpActivated.Invoke();
-                resetDoubleJump = true;
-            }
-            yield return new WaitForEndOfFrame();
-        }
-    }
+    //private IEnumerator DoubleJumpActivatedCoroutine()
+    //{
+    //    for (; ; )
+    //    {
+    //        if(!resetDoubleJump && 
+    //            (jumpActionStarted - lastJumpActionStarted) >= doubleJumpTimeThreshold)
+    //        {
+    //            OnDoubleJumpActivated.Invoke();
+    //            resetDoubleJump = true;
+    //        }
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //}
     #endregion // Couroutines
 }
