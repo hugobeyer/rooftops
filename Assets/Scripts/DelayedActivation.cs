@@ -135,12 +135,12 @@ public class DelayedActivation : MonoBehaviour
 
    private IEnumerator CheckForPlayerDeath(PlayerController player)
    {
-      bool wasAlive = !player.IsDead();
+      bool wasAlive = !player.IsDead;
 
       while (true)
       {
          // Check if player just died (was alive but now is dead)
-         if (wasAlive && player.IsDead())
+         if (wasAlive && player.IsDead)
          {
             // Handle activation on death
             if (activateOnDeath && !hasActivatedOnDeath)
@@ -165,7 +165,7 @@ public class DelayedActivation : MonoBehaviour
          }
 
          // Update previous state
-         wasAlive = !player.IsDead();
+         wasAlive = !player.IsDead;
 
          // Wait before checking again
          yield return new WaitForSeconds(0.1f);

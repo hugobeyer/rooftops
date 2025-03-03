@@ -117,15 +117,9 @@ namespace RoofTops
         }
         public bool IsGroundedOnTrigger { get { return cc != null && cc.isGrounded; } }
 
-        public bool IsDashing { get { return isDashing; } }
+        public bool IsOnJumpPad => isOnJumpPad;
 
-        // Add public property to expose jump pad state
-        public bool IsOnJumpPad { get { return isOnJumpPad; } }
-
-        public bool IsDead()
-        {
-            return isDead;
-        }
+        public bool IsDead => isDead;
 
         void Awake()
         {
@@ -780,7 +774,6 @@ namespace RoofTops
             }
             
             _velocity.y = jumpForce;
-            holdingJump = true;
             colorEffects?.StartSlowdownEffect();
             GameManager.Instance.IncreaseGravity();
             // Ensure we complete the jump animation
