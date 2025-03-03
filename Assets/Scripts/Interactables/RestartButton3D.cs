@@ -1,23 +1,26 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using RoofTops;
+using UnityEngine.InputSystem;
 
 public class RestartButton3D : MonoBehaviour
 {
-    void Awake()
+    #region Properties
+    [SerializeField]
+    private InputAction restartInputAction;
+
+    #endregion // Properties
+
+    void Start()
     {
-        // Register a restart action with InputManager if it exists
-        if (InputManager.Exists())
-        {
-            InputManager.Instance.RegisterAction("RestartGame", KeyCode.R);
-            InputManager.Instance.SubscribeToPressed("RestartGame", RestartGame);
-        }
+        restartInputAction.Enable();
+        restartInputAction.performed += ctx => RestartGame();
     }
 
     void Update()
     {
         // Only handle direct touch input if InputManager doesn't exist
-        if (!InputManager.Exists())
+        if (!InputActionManager.Exists())
         {
             HandleTouchInput();
         }

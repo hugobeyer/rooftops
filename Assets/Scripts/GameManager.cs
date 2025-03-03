@@ -176,7 +176,7 @@ namespace RoofTops
         private float currentGravity;
 
         [Header("Required Components")]
-        public InputManager inputManager;  // Change to public so you can assign in inspector
+        public InputActionManager inputManager;  // Change to public so you can assign in inspector
         public FootstepController footstepController;  // Add this line to reference footsteps
 
         [Header("Death UI")]
@@ -256,7 +256,7 @@ namespace RoofTops
             // Find InputManager if not assigned
             if (inputManager == null)
             {
-                inputManager = FindFirstObjectByType<InputManager>();
+                inputManager = FindFirstObjectByType<InputActionManager>();
             }
 
             currentGravity = defaultGravity;
@@ -361,7 +361,7 @@ namespace RoofTops
         {
             if (!HasGameStarted)
             {
-                if (InputManager.Instance != null && InputManager.Instance.isJumpPressed)
+                if (InputActionManager.Instance != null && InputActionManager.Instance.isJumpPressed)
                 {
                     StartGame();
                 }
