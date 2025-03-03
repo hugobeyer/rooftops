@@ -400,9 +400,32 @@ public class NoiseMovement : MonoBehaviour
         deathStartFOV = GetComponent<Camera>().fieldOfView;
 
         // 2) Final position/rotation
-        Vector3 finalPosition = (deathCameraTarget != null) 
-            ? deathCameraTarget.position + deathOffset
-            : transform.position;
+        Vector3 finalPosition;
+        
+        // Check if player is on a jump pad or has extreme velocity
+        PlayerController playerController = deathCameraTarget?.GetComponent<PlayerController>();
+        bool isOnJumpPad = playerController != null && playerController.IsOnJumpPad;
+        
+        if (isOnJumpPad)
+        {
+            // Use a more constrained offset for jump pad deaths
+            Vector3 limitedOffset = new Vector3(
+                Mathf.Clamp(deathOffset.x, -2f, 2f),
+                Mathf.Clamp(deathOffset.y, -2f, 2f),
+                Mathf.Clamp(deathOffset.z, -2f, 2f)
+            );
+            
+            finalPosition = (deathCameraTarget != null) 
+                ? deathCameraTarget.position + limitedOffset
+                : transform.position;
+        }
+        else
+        {
+            // Normal death offset
+            finalPosition = (deathCameraTarget != null) 
+                ? deathCameraTarget.position + deathOffset
+                : transform.position;
+        }
 
         Vector3 finalLookAtPos = (deathCameraTarget != null)
             ? (deathCameraTarget.position + upOffset)

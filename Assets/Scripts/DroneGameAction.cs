@@ -27,6 +27,15 @@ public class DroneGameAction : MonoBehaviour
     private GameObject activeDrone;
     private bool isDroneActive => activeDrone != null;
     private bool isWaitingForNextSpawn = false;
+    
+    private void CheckForExistingDrones()
+    {
+        DroneMovement[] existingDrones = FindObjectsOfType<DroneMovement>();
+        if (existingDrones.Length > 0)
+        {
+            activeDrone = existingDrones[0].gameObject;
+        }
+    }
 
     void Start()
     {
@@ -50,6 +59,14 @@ public class DroneGameAction : MonoBehaviour
             // Only spawn a new drone if there isn't one active and we're not in a waiting period
             if (!isDroneActive && !isWaitingForNextSpawn && actionPrefabs != null && actionPrefabs.Length > 0)
             {
+                // Double-check for any drones in the scene before spawning
+                CheckForExistingDrones();
+                if (isDroneActive)
+                {
+                    yield return new WaitForSeconds(1.0f);
+                    continue;
+                }
+                
                 Debug.Log("Spawning new drone");
                 
                 // Randomly choose one prefab from the available array.
@@ -76,6 +93,13 @@ public class DroneGameAction : MonoBehaviour
             // If no drone is active and we're not waiting, start the delay for the next spawn
             if (!isDroneActive && !isWaitingForNextSpawn)
             {
+                // Double-check for any drones in the scene before starting delay
+                CheckForExistingDrones();
+                if (isDroneActive)
+                {
+                    continue;
+                }
+                
                 isWaitingForNextSpawn = true;
                 float randomDelay = Random.Range(spawnDelayMin, spawnDelayMax);
                 Debug.Log($"Waiting {randomDelay} seconds before spawning next drone");
@@ -87,14 +111,47 @@ public class DroneGameAction : MonoBehaviour
     
     private IEnumerator WaitForDroneDestruction(GameObject drone)
     {
-        // Wait until the drone is null (destroyed)
-        while (drone != null)
+        // First, wait until the drone starts its exit animation
+        DroneMovement droneMovement = drone.GetComponent<DroneMovement>();
+        bool exitStarted = false;
+        
+        // Wait for the drone to start exiting or be destroyed
+        while (drone != null && !exitStarted)
         {
+            if (droneMovement != null && droneMovement.enableExitBehavior)
+            {
+                exitStarted = true;
+                Debug.Log("Drone exit animation started, waiting for animation to complete");
+                
+                // Wait for the exit animation to complete plus a small buffer
+                float exitTime = droneMovement.exitDuration + 0.5f;
+                yield return new WaitForSeconds(exitTime);
+                
+                // Even if the drone is still not destroyed (which it should be by now),
+                // we'll consider it "done" for spawning purposes
+                break;
+            }
+            
             yield return null;
         }
         
-        Debug.Log("Drone was destroyed, can spawn a new one now");
+        // If the drone was destroyed before exit animation started, just wait a moment
+        if (!exitStarted && drone == null)
+        {
+            Debug.Log("Drone was destroyed before exit animation started");
+            yield return new WaitForSeconds(1.0f);
+        }
+        
+        Debug.Log("Drone was destroyed or exit animation completed, can spawn a new one now");
         activeDrone = null;
+
+        // Calculate a random delay before spawning the next drone
+        float randomDelay = Random.Range(spawnDelayMin, spawnDelayMax);
+        Debug.Log($"Waiting {randomDelay} seconds before spawning next drone");
+        yield return new WaitForSeconds(randomDelay);
+
+        // Allow the next drone to spawn
+        isWaitingForNextSpawn = false;
     }
     
     // Set layer recursively for all children

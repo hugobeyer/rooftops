@@ -122,13 +122,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e101087a36c2bf74787af75d2db56db1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseJumpForce: 12
-  forceIncreaseRate: 0.02
+  baseJumpForce: 10
+  forceIncreaseRate: 0.005
   jumpPadSource: {fileID: 6382349415752984916}
   jumpPadSound: {fileID: 8300000, guid: ecbacaf77a483844aa75bc767bc03970, type: 3}
   jumpPadVolume: 1
   effectDuration: 1.5
-  effectPitch: 0.74
+  effectPitch: 0.75
   jumpPadEffectPrefab: {fileID: 5100973187427930839, guid: d7759dc7d7ab8dc4d965e7cd44b4c1b2, type: 3}
 --- !u!82 &6382349415752984916
 AudioSource:

@@ -143,10 +143,10 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HeightFogSpread: 20.2
-    - _HeightFog_Offset: 44.19
+    - _HeightFogSpread: 75.7
+    - _HeightFog_Offset: 4.4
     - _HeightFog_Spread: 285.58
-    - _Height_Exponential: 48.2
+    - _Height_Exponential: 14.8
     - _Hue: 0.613
     - _Lerp: 0
     - _Metallic: 0
@@ -184,7 +184,7 @@ Material:
     - _aaa: 0.03
     - _aggg: -32.4
     - _fuzz: 0.6
-    - _mix: 0.84
+    - _mix: 0.5
     - _off: 6.82
     - _off_1: -2.6
     - _off_2: -0.94
@@ -214,7 +214,7 @@ Material:
     - _FOGS_COlor: {r: 0.10670064, g: 0.28292808, b: 0.40880498, a: 1}
     - _Fade: {r: 1, g: 1, b: 1, a: 0}
     - _Fog_Color: {r: 0.59748423, g: 0.59748423, b: 0.59748423, a: 0}
-    - _HeightFog_Color: {r: 0.51572317, g: 0.38269907, b: 0.18001652, a: 1}
+    - _HeightFog_Color: {r: 0.654088, g: 0.25408617, b: 0.20774487, a: 1}
     - _HeightFog_Warm: {r: 0.76729554, g: 0.34848216, b: 0, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _PathColor: {r: 0.10254725, g: 0.5345911, b: 0.42340174, a: 1}
@@ -226,7 +226,7 @@ Material:
     - _SpotTiltVector: {r: 0, g: 0, b: 0, a: 0}
     - _Vector3: {r: 0.71, g: -3.47, b: -1.86, a: 0}
     - _ax: {r: 1.28, g: -1.69, b: -5.54, a: 0}
-    - _fresnelcol: {r: 0, g: 0.22739013, b: 0.1455297, a: 0}
+    - _fresnelcol: {r: 0.29264018, g: 0.7389904, b: 0.5030152, a: 0}
     - _offsetsh: {r: 0.01, g: 6.21, b: -0.08, a: 0}
     - _spotOffsetVector: {r: 0, g: 0, b: 0, a: 0}
     - _spotTiltVector: {r: 0, g: 0, b: 0, a: 0}

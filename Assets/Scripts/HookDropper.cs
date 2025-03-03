@@ -4,12 +4,11 @@ using System.Collections;
 
 public class HookDropper : MonoBehaviour
 {
-    public Vector3 initialVelocity;
     [Header("Drop Settings")]
     [SerializeField] private GameObject dropPrefab;
     [SerializeField] private float spawnInterval = 1f; // Time between spawns
     [SerializeField] private float dropDelay = 2f; // Delay before the first drop
-
+    [SerializeField] private int maxDrops = 9; // Maximum number of hooks to drop before exiting
 
     public int groupSize = 3;
     public float groupSpacing = 0.5f;
@@ -25,9 +24,8 @@ public class HookDropper : MonoBehaviour
     [Tooltip("Current number of drops performed")]
     public int dropCount = 0;
     
-    private float timer;
     private float nextDropTime;
-    private int dropsMade = 0; // Keep track of how many drops have happened
+    private DroneMovement droneMovement;
 
     public bool IsEnabled
     {
@@ -35,7 +33,7 @@ public class HookDropper : MonoBehaviour
         set
         {
             isEnabled = value;
-            timer = 0f; // Reset timer when enabled/disabled
+            nextDropTime = Time.time + dropDelay; // Reset next drop time when enabled/disabled
         }
     }
     
@@ -48,7 +46,6 @@ public class HookDropper : MonoBehaviour
     {
         // Reset drop count at start
         dropCount = 0;
-        dropsMade = 0;
         
         // If no player reference has been assigned, try to find one using the "Player" tag.
         if (playerReference == null)
@@ -58,6 +55,13 @@ public class HookDropper : MonoBehaviour
             {
                 playerReference = player.transform;
             }
+        }
+
+        // Get reference to the drone movement component
+        droneMovement = GetComponentInParent<DroneMovement>();
+        if (droneMovement == null)
+        {
+            droneMovement = GetComponent<DroneMovement>();
         }
 
         // Initialize the next drop time, adding the delay
@@ -75,15 +79,28 @@ public class HookDropper : MonoBehaviour
 
         if (!isEnabled || dropPrefab == null) return;
 
+        // Check if we've reached the maximum number of drops
+        if (dropCount >= maxDrops)
+        {
+            // If we have a drone movement component, trigger its exit
+            if (droneMovement != null && !droneMovement.enableExitBehavior)
+            {
+                Debug.Log($"HookDropper: Reached maximum drops ({maxDrops}). Triggering drone exit.");
+                droneMovement.TriggerExit();
+                isEnabled = false; // Disable the dropper
+            }
+            return;
+        }
+
         if (Time.time >= nextDropTime)
         {
             DropObject();
-            dropsMade++; // Increment drop count
+            dropCount++; // Increment drop count
             
             nextDropTime = Time.time + spawnInterval;
 
             // After every groupSize drops, add extra group spacing.
-            if (groupSize > 0 && dropsMade % groupSize == 0)
+            if (groupSize > 0 && dropCount % groupSize == 0)
             {
                 nextDropTime += groupSpacing;
             }
@@ -92,18 +109,23 @@ public class HookDropper : MonoBehaviour
 
     private void DropObject()
     {
-        // Instantiate WITHOUT parenting initially
-        GameObject currentDrop = Instantiate(dropPrefab, transform.position, Quaternion.identity);
+        // Store the drop position with a downward offset to avoid interfering with the drone's raycast
+        Vector3 dropPosition = transform.position + new Vector3(0, -0.5f, 0);
+        
+        // Instantiate at the offset position with identity rotation
+        GameObject currentDrop = Instantiate(dropPrefab, dropPosition, Quaternion.identity);
 
-        // Then, parent to the world
+        // Ensure it's not parented to anything (in world space)
         currentDrop.transform.SetParent(null);
 
-        // Get the Rigidbody of the instantiated object
+        // No need to apply velocity - gravity will handle it
+        // Just make sure the Rigidbody is not kinematic if it exists
         Rigidbody rb = currentDrop.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            // Assuming initialVelocity is set in the Inspector
-            rb.linearVelocity = initialVelocity;
+            rb.isKinematic = false;
+            // Zero out any initial velocity to ensure clean gravity-only fall
+            rb.linearVelocity = Vector3.zero;
         }
 
         // Increment the drop count

@@ -44,12 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3efcbddcfd26344e93ef3d0b58681fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVelocity: {x: 0, y: 0, z: 0}
   dropPrefab: {fileID: 7363997286965981369, guid: 318a30ebb0bb983408e2af225cbdfcba, type: 3}
-  spawnInterval: 2
-  dropDelay: 3
-  groupSize: 3
-  groupSpacing: 0.5
+  spawnInterval: 1.5
+  dropDelay: 4
+  groupSize: 2
+  groupSpacing: 1
   isEnabled: 1
   playerReference: {fileID: 1706896920531967638, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
   dropCount: 0

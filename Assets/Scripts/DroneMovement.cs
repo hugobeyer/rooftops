@@ -1,6 +1,7 @@
 using UnityEngine;
 using RoofTops;
 using System.Collections;
+using DG.Tweening;  // Add this at the top with other using statements
 namespace RoofTops
 {
     public enum EasingOption
@@ -36,11 +37,13 @@ public class DroneMovement : MonoBehaviour
     public float maxSpeedForBanking = 5f; // Speed at which full bank is applied
     [Header("Exit Behavior")]
     public bool enableExitBehavior = false;
+    [Tooltip("Direction the drone will fly when exiting")]
     public Vector3 exitVector = new Vector3(0, 5, -10);
-    public float exitSpeed = 10f;
+    [Tooltip("How long the exit animation plays before the drone is destroyed")]
+    public float exitDuration = 2.0f;
+    [Tooltip("Easing type for the exit movement")]
     public EasingOption exitEasing = EasingOption.Out;
-    public float exitMovementDuration = 1.0f;
-    public float exitAnimDuration = 1.0f; // Duration of the exit animation before destruction
+    
     [Header("Initial Movement")]
     public bool turnAroundDuringInitialMove = true;
     public float initialRotationSpeed = 2.0f;
@@ -53,11 +56,6 @@ public class DroneMovement : MonoBehaviour
     public float altitudeMargin = 2.0f;
     [Header("Effects")]
     public GameObject destructionParticleEffect;
-    [Header("Drop Control")]
-    [Tooltip("Time before the drone exits automatically")]
-    public float exitTime = 10f;
-    [Tooltip("Random variation in exit time (±)")]
-    public float exitTimeVariation = 2f;
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     private bool isInitialMove = true; // Flag for initial movement
@@ -69,8 +67,6 @@ public class DroneMovement : MonoBehaviour
     private float hoverTime = 0f;
     private bool isExiting = false;
     private float exitStartTime = 0f;
-    private float turnRate = 0f; // Initialize turnRate to 0
-    private float currentSpeed = 0f; // Holds the current movement speed
     private bool exitTweenStarted = false;
     private Vector3 exitStartPos;
     private PlayerController playerController;
@@ -78,7 +74,6 @@ public class DroneMovement : MonoBehaviour
     private bool dashBaseRecorded = false; // Flag to check if dash base position was recorded
     private float dashTimer = 0f; // Added for the new dash logic
     private float dashDuration = 1f; // Added for the new dash logic
-    private float scheduledExitTime; // When the drone should exit
     void Start()
     {
         // Make sure exit behavior is disabled at start
@@ -97,6 +92,7 @@ public class DroneMovement : MonoBehaviour
         float distance = Vector3.Distance(moveStartPosition, targetPosition);
         moveDuration = Mathf.Max(distance / initialMoveSpeed, 0.5f);
         targetRotation = transform.rotation;
+        
         // Find the PlayerController if not already assigned.
         if (playerController == null)
         {
@@ -106,12 +102,6 @@ public class DroneMovement : MonoBehaviour
                 playerController = playerObj.GetComponent<PlayerController>();
             }
         }
-        // Schedule the exit time with some random variation
-        float randomVariation = Random.Range(-exitTimeVariation, exitTimeVariation);
-        scheduledExitTime = Time.time + exitTime + randomVariation;
-        Debug.Log($"[DRONE EXIT DEBUG] Drone will exit automatically in {exitTime + randomVariation} seconds");
-        // Start the exit timer
-        StartCoroutine(ExitTimer());
     }
     void Update()
     {
@@ -129,31 +119,43 @@ public class DroneMovement : MonoBehaviour
         }
         // Apply hover and wobble effects
         ApplyHoverAndWobble();
-        // The dash response is handled in FixedUpdate via HandleDashBehavior
         // Maintain altitude safety
         AltitudeSafetyCheck();
     }
     private void HandleExitMovement()
     {
         float exitTimeElapsed = Time.time - exitStartTime;
+        float normalizedTime = Mathf.Clamp01(exitTimeElapsed / exitDuration);
+        
         if (!exitTweenStarted)
         {
             exitTweenStarted = true;
             // Log exit start
             Debug.Log("Drone starting exit movement");
+            
             // Disable any HookDropper component
             HookDropper dropper = GetComponentInChildren<HookDropper>();
             if (dropper != null)
             {
                 dropper.enabled = false;
-                Debug.Log("Disabled HookDropper during exit");
+            }
+            
+            // Disable collisions during exit
+            Collider[] colliders = GetComponentsInChildren<Collider>();
+            foreach (Collider col in colliders)
+            {
+                col.enabled = false;
             }
         }
-        // Move along exit vector
-        transform.position = Vector3.Lerp(exitStartPos, exitStartPos + exitVector * 50f, exitTimeElapsed / exitMovementDuration);
-        // Optional: Add some rotation during exit
-        transform.Rotate(Vector3.up * exitTimeElapsed * 180f, Space.World);
-        // We no longer destroy the drone here; instead, it will be destroyed by ExitAndDestroy coroutine
+        
+        // Apply easing to the movement for a more natural exit
+        float easedTime = ApplyEasing(exitEasing, normalizedTime);
+        
+        // Move along exit vector with easing
+        transform.position = Vector3.Lerp(exitStartPos, exitStartPos + exitVector * 50f, easedTime);
+        
+        // Add some rotation during exit
+        transform.Rotate(Vector3.up * Time.deltaTime * 180f, Space.World);
     }
     private void HandleInitialMovement()
     {
@@ -242,27 +244,6 @@ public class DroneMovement : MonoBehaviour
         }
         return 0f;
     }
-    public void TriggerExitAfterDelay(float delay)
-    {
-        Debug.Log($"[DRONE EXIT DEBUG] TriggerExitAfterDelay called with delay: {delay}");
-        if (delay <= 0)
-        {
-            // Trigger exit immediately
-            Debug.Log("[DRONE EXIT DEBUG] Triggering exit immediately");
-            enableExitBehavior = true;
-            // Also start the exit destruction coroutine
-            StartCoroutine(ExitAndDestroy());
-        }
-        else
-        {
-            // Schedule exit after delay
-            Debug.Log($"[DRONE EXIT DEBUG] Scheduling exit after {delay} seconds");
-            Invoke("TriggerExit", delay);
-        }
-        // Make the exit more dramatic with random values
-        exitVector = new Vector3(Random.Range(-5f, 5f), Random.Range(10f, 15f), Random.Range(-15f, -5f));
-        exitSpeed = Random.Range(15f, 25f);
-    }
     public void TriggerExit()
     {
         if (!enableExitBehavior)
@@ -271,8 +252,7 @@ public class DroneMovement : MonoBehaviour
             exitStartPos = transform.position;
             exitStartTime = Time.time;
             exitTweenStarted = false;
-            // Log exit trigger
-            Debug.Log("Drone exit triggered");
+            
             // Start coroutine to wait for exit animation duration and then destroy the drone
             StartCoroutine(ExitAndDestroy());
         }
@@ -280,76 +260,75 @@ public class DroneMovement : MonoBehaviour
     private IEnumerator ExitAndDestroy()
     {
         // Wait for the exit animation to complete
-        yield return new WaitForSeconds(exitAnimDuration);
-        Debug.Log("Exit animation completed. Destroying drone.");
+        yield return new WaitForSeconds(exitDuration);
+        
+        // Destroy the drone
         Destroy(gameObject);
     }
     private void FixedUpdate()
     {
         // DASH LOGIC: When the player is dashing, simulate the dash effect on the drone.
+        // ONLY respond to ACTUAL dashes, not dash attempts
         if (playerController != null && playerController.IsDashing)
         {
             HandleDashBehavior();
         }
         else
         {
-            // Not dashing—reset dash state.
-            dashBaseRecorded = false;
+            // Player is no longer dashing
+            if (dashBaseRecorded)
+            {
+                // If we recorded a dash position but didn't hit the drone, return to original position
+                // Use a faster lerp speed for quick return
+                transform.position = Vector3.Lerp(transform.position, dashBasePos, Time.fixedDeltaTime * 10f);
+                
+                // If we're close enough to the original position, consider it returned
+                if (Vector3.Distance(transform.position, dashBasePos) < 0.1f)
+                {
+                    dashBaseRecorded = false;
+                }
+            }
+            else
+            {
+                // Not dashing and not returning—reset dash state.
+                dashBaseRecorded = false;
+            }
         }
     }
     private void HandleDashBehavior()
     {
-        // If already exiting, don't process dash hit logic again
         if (enableExitBehavior)
             return;
-            
-        // Compute vector from the player to the drone.
+
         Vector3 relative = transform.position - playerController.transform.position;
         float dot = Vector3.Dot(relative.normalized, playerController.transform.forward);
-        // Thresholds: if the drone is very much in front (dot > 0.8) and within 5 units, it is "hit".
+
         float thresholdDot = 0.8f;
         float thresholdDistance = 5f;
+
         if (dot > thresholdDot && relative.magnitude < thresholdDistance)
         {
-            // The drone is in the danger zone – instantiate the destruction particle effect if assigned.
             if (destructionParticleEffect != null)
             {
                 GameObject effect = Instantiate(destructionParticleEffect, transform.position, transform.rotation);
-                effect.transform.parent = null; // Ensure effect stays in world space
-            }
-            
-            // Instead of destroying, trigger exit behavior
-            DroneCollisionHandler collisionHandler = GetComponent<DroneCollisionHandler>();
-            if (collisionHandler != null)
-            {
-                collisionHandler.TriggerExitAndDestroy();
-            }
-            else
-            {
-                // If no collision handler, just trigger exit
-                TriggerExit();
-            }
-            return;
-        }
-        else
-        {
-            // Record the drone's base position once when dash starts.
-            if (!dashBaseRecorded)
-            {
-                dashBasePos = transform.position;
-                dashBaseRecorded = true;
-                dashTimer = 0f; // Reset dash timer at the start.
+                effect.transform.parent = null;
             }
 
-            dashTimer += Time.fixedDeltaTime;
-            float t = Mathf.Clamp01(dashTimer / dashDuration);
-            
-            // The offset is constant during the dash
+            Destroy(gameObject); // Immediately destroy the drone
+            return;
+        }
+
+        if (!dashBaseRecorded)
+        {
+            dashBasePos = transform.position;
+            dashBaseRecorded = true;
+
             float currentOffset = playerController.dashSpeedMultiplier;
-            
-            // Move consistently in world space -Z direction with the same speed
-            Vector3 newPos = dashBasePos + (Vector3.back * currentOffset);
-            transform.position = newPos;
+            Vector3 dodgeOffset = new Vector3(0, currentOffset * 0.3f, -currentOffset);
+            Vector3 targetPosition = dashBasePos + dodgeOffset;
+
+            transform.DOKill();
+            transform.DOMove(targetPosition, 0.2f).SetEase(Ease.OutQuad);
         }
     }
     private void AltitudeSafetyCheck()
@@ -359,7 +338,12 @@ public class DroneMovement : MonoBehaviour
             // Cast a ray from 10 units above the drone to detect the ground.
             Vector3 rayOrigin = transform.position + Vector3.up * 10f;
             RaycastHit hit;
-            if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 20f))
+            
+            // Create a layer mask that only includes the Ground layer (layer 12)
+            int groundLayerMask = 1 << 12; // Layer 12 is Ground
+            
+            // Use the layer mask in the raycast
+            if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 20f, groundLayerMask))
             {
                 // Calculate base altitude from the ground plus an altitude margin.
                 float baseAltitude = hit.point.y + altitudeMargin;
@@ -377,26 +361,7 @@ public class DroneMovement : MonoBehaviour
     }
     private void OnDestroy()
     {
-        // When this drone is destroyed, only destroy the HookDropper on this drone
-        HookDropper dropper = GetComponentInChildren<HookDropper>();
-        if (dropper != null)
-        {
-            Debug.Log("Destroying HookDropper on this drone");
-            Destroy(dropper.gameObject);
-        }
-        // Log that this drone was destroyed
-        Debug.Log("Drone was destroyed: " + gameObject.name);
-    }
-    // Simple timer to trigger exit after a set time
-    private IEnumerator ExitTimer()
-    {
-        // Wait until the scheduled exit time
-        yield return new WaitForSeconds(exitTime + Random.Range(-exitTimeVariation, exitTimeVariation));
-        // Only exit if we haven't already started exiting
-        if (!enableExitBehavior)
-        {
-            Debug.Log("[DRONE EXIT DEBUG] Exit timer completed, triggering exit");
-            TriggerExit();
-        }
+        // Clean up any DOTween animations to prevent memory leaks
+        transform.DOKill();
     }
 }

@@ -118,6 +118,9 @@ namespace RoofTops
 
         public bool IsDashing { get { return isDashing; } }
 
+        // Add public property to expose jump pad state
+        public bool IsOnJumpPad { get { return isOnJumpPad; } }
+
         public bool IsDead()
         {
             return isDead;

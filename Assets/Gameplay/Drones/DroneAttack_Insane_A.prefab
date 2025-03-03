@@ -47,35 +47,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hoverSpeed: 1
-  hoverAmplitude: 0.25
+  hoverAmplitude: 1
   wobbleSpeed: 3
   wobbleAmount: 5
-  minHeightAboveGround: 0.1
-  maxHeightAboveGround: 3
+  minHeightAboveGround: 0.25
+  maxHeightAboveGround: 4
   forwardDistanceFromPlayer: 5
   maxAltitude: 3
-  initialPositionOffset: {x: 15, y: -5, z: -5}
-  initialMoveSpeed: 15
+  initialPositionOffset: {x: 12, y: -5, z: -15}
+  initialMoveSpeed: 10
   arcHeight: 5
-  arcControlPoint: {x: 62.4, y: 9.25, z: 10.67}
-  maxBankAngle: 15
-  bankSpeed: 1.5
+  arcControlPoint: {x: 10, y: 10, z: 1}
+  maxBankAngle: 25
+  bankSpeed: 3
   minMovementForBanking: 0
-  maxSpeedForBanking: 12
-  enableExitBehavior: 1
-  exitVector: {x: 32, y: 25, z: -40}
-  exitSpeed: 24
-  exitEasing: 2
-  exitMovementDuration: 5
-  exitAnimDuration: 1
+  maxSpeedForBanking: 90
+  enableExitBehavior: 0
+  exitVector: {x: 2, y: 1, z: -2}
+  exitDuration: 6
+  exitEasing: 0
   turnAroundDuringInitialMove: 1
-  initialRotationSpeed: 3
+  initialRotationSpeed: 2
   initialEasing: 1
   droneVisual: {fileID: 0}
   altitudeMargin: 2
   destructionParticleEffect: {fileID: 872546229359842840, guid: eb363c54b9a91064fb9bfa8599d47efa, type: 3}
-  exitTime: 10
-  exitTimeVariation: 2
 --- !u!1001 &1707769294747996150
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -90,7 +86,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6039270893672896306, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.325
       objectReference: {fileID: 0}
     - target: {fileID: 6039270893672896306, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: m_LocalPosition.z
@@ -129,12 +125,20 @@ PrefabInstance:
       value: Dropper
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
+      propertyPath: maxDrops
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: dropDelay
-      value: 4
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
+      propertyPath: groupSize
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: groupSpacing
-      value: 0.65
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: numberOfDrops
@@ -142,7 +146,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: spawnInterval
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: destroyDropper

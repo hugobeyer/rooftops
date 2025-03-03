@@ -46,6 +46,14 @@ public class DelayedActivation : MonoBehaviour
    [Tooltip("How long the objects stay active before deactivating (in seconds)")]
    public float activeTime = 3.0f;
 
+   [Header("Destroy Settings")]
+   [Tooltip("Should these objects be destroyed instead of just deactivated?")]
+   public bool destroyInsteadOfDeactivate = false;
+   [Tooltip("Should these objects be automatically destroyed after a delay?")]
+   public bool autoDestroy = false;
+   [Tooltip("How long to wait before destroying the objects (in seconds)")]
+   public float destroyDelay = 5.0f;
+
    [Header("Timeline Signal Settings")]
    [Tooltip("Should these objects respond to Timeline signals?")]
    public bool useTimelineSignals = false;
@@ -180,16 +188,65 @@ public class DelayedActivation : MonoBehaviour
       }
    }
 
+   private void SetTargetsActive(bool active)
+   {
+      if (targetObjects.Count > 0)
+      {
+         foreach (GameObject target in targetObjects)
+         {
+            if (target != null)
+            {
+               target.SetActive(active);
+            }
+         }
+      }
+      else
+      {
+         // If no targets specified, control this GameObject
+         gameObject.SetActive(active);
+      }
+
+      // Invoke appropriate event
+      if (active)
+      {
+         onActivated.Invoke();
+         
+         // If auto-deactivate is enabled, schedule deactivation
+         if (autoDeactivate)
+         {
+            StartCoroutine(DeactivateAfterDelay(activeTime));
+         }
+         
+         // If auto-destroy is enabled, schedule destruction
+         if (autoDestroy)
+         {
+            StartCoroutine(DestroyAfterDelay(destroyDelay));
+         }
+      }
+      else
+      {
+         onDeactivated.Invoke();
+      }
+   }
+
    private IEnumerator DeactivateAfterDelay(float delay)
    {
-      // Wait for the specified delay
       yield return new WaitForSeconds(delay);
-
-      // Deactivate the GameObjects
-      SetTargetsActive(false);
-
-      // Clear the coroutine reference
-      deathDeactivationCoroutine = null;
+      
+      if (destroyInsteadOfDeactivate)
+      {
+         DestroyTargets();
+      }
+      else
+      {
+         SetTargetsActive(false);
+      }
+      
+      // Clear the coroutine reference if this was called from death deactivation
+      if (deathDeactivationCoroutine != null)
+      {
+         deathDeactivationCoroutine = null;
+      }
    }
 
    private void OnDestroy()
@@ -201,29 +258,7 @@ public class DelayedActivation : MonoBehaviour
       }
    }
 
-   // Helper method to set all targets active or inactive
-   private void SetTargetsActive(bool active)
-   {
-      foreach (GameObject target in targetObjects)
-      {
-         if (target != null)
-         {
-            target.SetActive(active);
-         }
-      }
-
-      // Trigger appropriate event
-      if (active)
-      {
-         onActivated?.Invoke();
-      }
-      else
-      {
-         onDeactivated?.Invoke();
-      }
-   }
-
-   // Public method to manually trigger activation with the configured delay
+   // Helper method to manually trigger activation with the configured delay
    public void TriggerActivation()
    {
       StartCoroutine(ActivateAfterDelay(gameStartDelay));
@@ -247,6 +282,35 @@ public class DelayedActivation : MonoBehaviour
       StartCoroutine(DeactivateAfterDelay(delay));
    }
 
+   // Public method to destroy target objects
+   public void DestroyTargets()
+   {
+      if (targetObjects.Count > 0)
+      {
+         foreach (GameObject obj in targetObjects)
+         {
+            if (obj != null)
+            {
+               Destroy(obj);
+            }
+         }
+      }
+      else
+      {
+         // If no targets specified, destroy this GameObject
+         Destroy(gameObject);
+      }
+
+      // Trigger the deactivation event since the objects are effectively "deactivated"
+      onDeactivated.Invoke();
+   }
+
+   // Public method to destroy target objects after a delay
+   public void DestroyTargets(float delay)
+   {
+      StartCoroutine(DestroyAfterDelay(delay));
+   }
+
    // Reset activation flags (useful for game restart)
    public void ResetActivationState()
    {
@@ -264,6 +328,13 @@ public class DelayedActivation : MonoBehaviour
 
       // Reset to initial state
       SetTargetsActive(activeOnStart);
+   }
+
+   // Coroutine to destroy objects after a delay
+   private IEnumerator DestroyAfterDelay(float delay)
+   {
+      yield return new WaitForSeconds(delay);
+      DestroyTargets();
    }
 
    // Timeline signal receivers
