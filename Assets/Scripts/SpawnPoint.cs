@@ -30,8 +30,8 @@ public class SpawnPoint : MonoBehaviour
     void OnDrawGizmos()
     {
         // This draws a small sphere in the Scene view for visualization
-        Gizmos.color = Color.gray;
-        Gizmos.DrawSphere(transform.position, 0.325f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(transform.position, 0.075f);
     }
 
     // 1) If a relevant object enters, set isOccupied to true.

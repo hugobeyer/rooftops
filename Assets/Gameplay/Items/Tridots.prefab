@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6520385930782345317}
   - component: {fileID: 615266451496580347}
   - component: {fileID: 5479036864348674179}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Tridots
   m_TagString: TridotSpot
   m_Icon: {fileID: 0}

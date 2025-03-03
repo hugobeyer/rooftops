@@ -709,7 +709,7 @@ namespace RoofTops
         }
 
         // New method to handle the overall game over (player death) logic.
-        public void HandlePlayerDeath(float finalDistance)
+        public void HandlePlayerDeath(float finalDistance, GameObject collidingHook = null)
         {
             // Save stats
             RecordFinalDistance(finalDistance);
@@ -1062,9 +1062,6 @@ namespace RoofTops
             }
         }
 
-
-
-
-
+        // Add this method to GameManager
     }
 }

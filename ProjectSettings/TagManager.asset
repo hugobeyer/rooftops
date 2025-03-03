@@ -29,10 +29,10 @@ TagManager:
   - ShadowReceiver
   - Ground
   - Memcards
-  - 
-  - 
-  - 
-  - 
+  - Hook
+  - Item
+  - Prop
+  - Drone
   - Building
   - DeathDetector
   - Messages

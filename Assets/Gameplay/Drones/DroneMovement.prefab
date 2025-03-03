@@ -45,70 +45,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0725ece55b567cd4abf070ce1fd0c387, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoverSpeed: 2
+  hoverSpeed: 0
   hoverAmplitude: 0.3
   wobbleSpeed: 3
   wobbleAmount: 5
-  minHeightAboveGround: 1
+  minHeightAboveGround: 0.5
   maxHeightAboveGround: 2
-  forwardDistanceFromPlayer: 3
-  maxHorizontalDistance: 2
+  forwardDistanceFromPlayer: 5
   maxAltitude: 2
-  initialPositionOffset: {x: 4, y: -15, z: -15}
-  initialMoveSpeed: 3
+  initialPositionOffset: {x: 12, y: -15, z: -15}
+  initialMoveSpeed: 15
   arcHeight: 2
   arcControlPoint: {x: 0, y: 3, z: 5}
-  repositionSpeed: 1.5
-  randomMovementInterval: 2
-  maxRepositionDistance: 1
-  minMoveDuration: 0.5
-  movementCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.5
-      value: 0.5
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  maxBankAngle: 25
+  maxBankAngle: 15
   bankSpeed: 1.5
   minMovementForBanking: 0
-  maxSpeedForBanking: 5
-  enableExitBehavior: 1
-  exitVector: {x: 0, y: 5, z: -10}
-  exitSpeed: 10
-  exitDelay: 5
-  exitEasing: 1
-  exitMovementDuration: 1
+  maxSpeedForBanking: 12
+  enableExitBehavior: 0
+  exitVector: {x: 25, y: 15, z: -10}
+  exitSpeed: 9
+  exitEasing: 0
+  exitMovementDuration: 5
   turnAroundDuringInitialMove: 1
   initialRotationSpeed: 2
-  initialEasing: 2
+  initialEasing: 1
   droneVisual: {fileID: 0}
+  altitudeMargin: 2
+  destructionParticleEffect: {fileID: 872546229359842840, guid: eb363c54b9a91064fb9bfa8599d47efa, type: 3}
+  exitTime: 10
+  exitTimeVariation: 2
 --- !u!1001 &6896274256494031984
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -118,8 +83,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 5296990669229924048}
     m_Modifications:
     - target: {fileID: 430631150913233509, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 430631150913233509, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
       propertyPath: m_VersionIndex
-      value: 19
+      value: 73
+      objectReference: {fileID: 0}
+    - target: {fileID: 3600588499394661101, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: m_Mesh
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5181886774203543479, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
       propertyPath: m_Name
@@ -164,6 +137,26 @@ PrefabInstance:
     - target: {fileID: 7902424802088312088, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034922491078291228, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: tweens.Array.data[0].delay
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034922491078291228, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: tweens.Array.data[1].delay
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034922491078291228, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: tweens.Array.data[2].delay
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034922491078291228, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: tweens.Array.data[0].easingCurveType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034922491078291228, guid: 8425ee98399deb441ab5f82df2731e81, type: 3}
+      propertyPath: tweens.Array.data[1].easingCurveType
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

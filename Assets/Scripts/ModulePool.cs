@@ -233,10 +233,9 @@ namespace RoofTops
             }
             
             float deltaTime = Time.deltaTime;
-            if (DifficultyManager.Instance == null) // Only use GameManager if DifficultyManager doesn't exist
-            {
-                gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
-            }
+            // Always use GameManager's speed increase logic, ignoring DifficultyManager
+            gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
+            
             moduleMovement.Translate(Vector3.back * gameSpeed * deltaTime); // Single Translate call
 
             activeModules.RemoveAll(module => module == null); // Clean up nulls
@@ -558,6 +557,13 @@ namespace RoofTops
         // Method to set game speed externally (used by DifficultyManager)
         public void SetGameSpeed(float newSpeed)
         {
+            // Ignore calls from DifficultyManager, but allow other components to set speed
+            if (UnityEngine.StackTraceUtility.ExtractStackTrace().Contains("DifficultyManager"))
+            {
+                // Do nothing when called from DifficultyManager
+                return;
+            }
+            
             gameSpeed = newSpeed;
         }
 
@@ -571,3 +577,8 @@ namespace RoofTops
         }
     }
 }
+
+
+
+
+

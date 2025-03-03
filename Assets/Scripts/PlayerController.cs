@@ -116,6 +116,8 @@ namespace RoofTops
         }
         public bool IsGroundedOnTrigger { get { return cc != null && cc.isGrounded; } }
 
+        public bool IsDashing { get { return isDashing; } }
+
         public bool IsDead()
         {
             return isDead;

@@ -176,7 +176,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.071958244, g: 0.06111305, b: 0.18867922, a: 1}
     - _Color: {r: 0, g: 0, b: 0, a: 1}
-    - _ColorEdge: {r: 0.14465404, g: 0.12327435, b: 0.08051497, a: 0}
+    - _ColorEdge: {r: 0, g: 0, b: 0, a: 0}
     - _ColorJump: {r: 0.106918216, g: 0.03746628, b: 0.004370851, a: 0}
     - _DashColor: {r: 2.1435473, g: 0.27934536, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

@@ -2,6 +2,9 @@ using DG.Tweening;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public enum DOTweenTweenType 
 {
@@ -50,6 +53,9 @@ public class TweenOption
     [Tooltip("Whether to use the specified initial value instead of the current transform value")]
     public bool useInitialValue = false;
     
+    [Tooltip("Whether to use the current editor position as the initial value (Editor only)")]
+    public bool useEditorPositionAsInitial = false;
+    
     [Tooltip("Duration (in seconds) for the tween")]
     public float duration = 1.0f;
     
@@ -73,6 +79,9 @@ public class TweenOption
     
     [Tooltip("If true, this tween will be added relative to the current property value (does not overwrite)")]
     public bool isAdditive = false;
+    
+    [Tooltip("If true, debug visualization will be shown for this tween")]
+    public bool showDebugVisuals = false;
 }
 
 public class DOTweenConfigurator : MonoBehaviour 
@@ -83,6 +92,60 @@ public class DOTweenConfigurator : MonoBehaviour
 
     [Tooltip("If true, all tween options will be played sequentially in a single sequence (allowing additive stacking)")]
     public bool playInSequence = false;
+    
+    [Header("Debug Visualization")]
+    [Tooltip("Enable debug visualization for movement paths")]
+    public bool enableDebugVisualization = false;
+    [Tooltip("Number of points to visualize along the path")]
+    public int debugPathResolution = 20;
+    [Tooltip("Duration to show debug visualization (in seconds)")]
+    public float debugVisualizationDuration = 3f;
+    [Tooltip("Color for the debug path")]
+    public Color debugPathColor = Color.yellow;
+    [Tooltip("Enable visualization in editor (without playing)")]
+    public bool showInEditor = true;
+    
+    private List<Vector3[]> debugPaths = new List<Vector3[]>();
+    
+    #if UNITY_EDITOR
+    // Store the editor position for each tween option
+    private Dictionary<int, Vector3> editorPositions = new Dictionary<int, Vector3>();
+    private Dictionary<int, Vector3> editorLocalPositions = new Dictionary<int, Vector3>();
+    private Dictionary<int, Quaternion> editorRotations = new Dictionary<int, Quaternion>();
+    private Dictionary<int, Quaternion> editorLocalRotations = new Dictionary<int, Quaternion>();
+    private Dictionary<int, Vector3> editorScales = new Dictionary<int, Vector3>();
+    
+    private void OnValidate()
+    {
+        // Store current transform values for each tween option
+        for (int i = 0; i < tweens.Count; i++)
+        {
+            var option = tweens[i];
+            
+            if (option.useEditorPositionAsInitial)
+            {
+                switch (option.tweenType)
+                {
+                    case DOTweenTweenType.Move:
+                        editorPositions[i] = transform.position;
+                        break;
+                    case DOTweenTweenType.LocalMove:
+                        editorLocalPositions[i] = transform.localPosition;
+                        break;
+                    case DOTweenTweenType.Rotate:
+                        editorRotations[i] = transform.rotation;
+                        break;
+                    case DOTweenTweenType.LocalRotate:
+                        editorLocalRotations[i] = transform.localRotation;
+                        break;
+                    case DOTweenTweenType.Scale:
+                        editorScales[i] = transform.localScale;
+                        break;
+                }
+            }
+        }
+    }
+    #endif
 
     /// <summary>
     /// Automatically executes tweens marked with Play On Start.
@@ -135,20 +198,52 @@ public class DOTweenConfigurator : MonoBehaviour
         Tween t = CreateTween(option);
         if (t != null)
             t.Play();
+        
+        // Draw debug visualization if enabled
+        if (enableDebugVisualization && option.showDebugVisuals && 
+            (option.tweenType == DOTweenTweenType.Move || option.tweenType == DOTweenTweenType.LocalMove))
+        {
+            DrawMovementPath(option);
+        }
     }
 
     // Creates and returns a tween based on a unity transform for a given TweenOption.
     private Tween CreateTween(TweenOption option)
     {
         Tween tween = null;
+        
+        #if UNITY_EDITOR
+        // Apply editor position if needed and we're in play mode
+        if (!Application.isPlaying && option.useEditorPositionAsInitial)
+        {
+            // This is just for visualization in editor, actual values will be set at runtime
+            return null;
+        }
+        #endif
+        
         switch (option.tweenType)
         {
             case DOTweenTweenType.Move:
             {
+                Vector3 initialPos = transform.position;
+                
                 if (option.useInitialValue)
                 {
-                    transform.position = option.initialValue;
+                    // Make initial position relative to current position
+                    transform.position = transform.position + option.initialValue;
                 }
+                #if UNITY_EDITOR
+                else if (Application.isPlaying && option.useEditorPositionAsInitial)
+                {
+                    // Find the index of this option in the tweens list
+                    int index = tweens.IndexOf(option);
+                    if (index >= 0 && editorPositions.ContainsKey(index))
+                    {
+                        transform.position = editorPositions[index];
+                    }
+                }
+                #endif
+                
                 if (option.isAdditive)
                     tween = transform.DOBlendableMoveBy(option.targetValue, option.duration)
                         .SetEase(GetEase(option));
@@ -161,8 +256,21 @@ public class DOTweenConfigurator : MonoBehaviour
             {
                 if (option.useInitialValue)
                 {
-                    transform.localPosition = option.initialValue;
+                    // Make initial position relative to current local position
+                    transform.localPosition = transform.localPosition + option.initialValue;
                 }
+                #if UNITY_EDITOR
+                else if (Application.isPlaying && option.useEditorPositionAsInitial)
+                {
+                    // Find the index of this option in the tweens list
+                    int index = tweens.IndexOf(option);
+                    if (index >= 0 && editorLocalPositions.ContainsKey(index))
+                    {
+                        transform.localPosition = editorLocalPositions[index];
+                    }
+                }
+                #endif
+                
                 if (option.isAdditive)
                     tween = transform.DOBlendableLocalMoveBy(option.targetValue, option.duration)
                         .SetEase(GetEase(option));
@@ -175,36 +283,87 @@ public class DOTweenConfigurator : MonoBehaviour
             {
                 if (option.useInitialValue)
                 {
-                    transform.rotation = Quaternion.Euler(option.initialValue);
+                    // Make initial rotation relative to current rotation
+                    transform.rotation = transform.rotation * Quaternion.Euler(option.initialValue);
                 }
+                #if UNITY_EDITOR
+                else if (Application.isPlaying && option.useEditorPositionAsInitial)
+                {
+                    // Find the index of this option in the tweens list
+                    int index = tweens.IndexOf(option);
+                    if (index >= 0 && editorRotations.ContainsKey(index))
+                    {
+                        transform.rotation = editorRotations[index];
+                    }
+                }
+                #endif
+                
                 if (option.isAdditive)
+                {
+                    // Use DOBlendableRotateBy for additive rotation
                     tween = transform.DOBlendableRotateBy(option.targetValue, option.duration)
                         .SetEase(GetEase(option));
+                }
                 else
-                    tween = transform.DORotate(option.targetValue, option.duration)
+                {
+                    // For non-additive, use the target rotation directly
+                    tween = transform.DORotate(option.targetValue, option.duration, RotateMode.FastBeyond360)
                         .SetEase(GetEase(option));
+                }
                 break;
             }
             case DOTweenTweenType.LocalRotate:
             {
                 if (option.useInitialValue)
                 {
-                    transform.localRotation = Quaternion.Euler(option.initialValue);
+                    // Make initial rotation relative to current local rotation
+                    transform.localRotation = transform.localRotation * Quaternion.Euler(option.initialValue);
                 }
+                #if UNITY_EDITOR
+                else if (Application.isPlaying && option.useEditorPositionAsInitial)
+                {
+                    // Find the index of this option in the tweens list
+                    int index = tweens.IndexOf(option);
+                    if (index >= 0 && editorLocalRotations.ContainsKey(index))
+                    {
+                        transform.localRotation = editorLocalRotations[index];
+                    }
+                }
+                #endif
+                
                 if (option.isAdditive)
+                {
+                    // Use DOBlendableLocalRotateBy for additive local rotation
                     tween = transform.DOBlendableLocalRotateBy(option.targetValue, option.duration)
                         .SetEase(GetEase(option));
+                }
                 else
-                    tween = transform.DOLocalRotate(option.targetValue, option.duration)
+                {
+                    // For non-additive, use the target rotation directly
+                    tween = transform.DOLocalRotate(option.targetValue, option.duration, RotateMode.FastBeyond360)
                         .SetEase(GetEase(option));
+                }
                 break;
             }
             case DOTweenTweenType.Scale:
             {
                 if (option.useInitialValue)
                 {
-                    transform.localScale = option.initialValue;
+                    // Make initial scale relative to current scale
+                    transform.localScale = Vector3.Scale(transform.localScale, option.initialValue);
                 }
+                #if UNITY_EDITOR
+                else if (Application.isPlaying && option.useEditorPositionAsInitial)
+                {
+                    // Find the index of this option in the tweens list
+                    int index = tweens.IndexOf(option);
+                    if (index >= 0 && editorScales.ContainsKey(index))
+                    {
+                        transform.localScale = editorScales[index];
+                    }
+                }
+                #endif
+                
                 if (option.isAdditive)
                     tween = transform.DOBlendableScaleBy(option.targetValue, option.duration)
                         .SetEase(GetEase(option));
@@ -322,4 +481,182 @@ public class DOTweenConfigurator : MonoBehaviour
         }
         return Ease.Linear;
     }
+    
+    /// <summary>
+    /// Draws a debug visualization of the movement path for a tween
+    /// </summary>
+    private void DrawMovementPath(TweenOption option)
+    {
+        Vector3[] pathPoints = CalculatePathPoints(option);
+        
+        // Store the path for drawing in OnDrawGizmos
+        debugPaths.Add(pathPoints);
+        
+        // Schedule removal of the debug path after the specified duration
+        StartCoroutine(RemoveDebugPathAfterDelay(pathPoints, debugVisualizationDuration));
+    }
+    
+    /// <summary>
+    /// Calculates points along the path for a given tween option
+    /// </summary>
+    private Vector3[] CalculatePathPoints(TweenOption option)
+    {
+        Vector3 startPos;
+        Vector3 endPos;
+        
+        #if UNITY_EDITOR
+        int index = tweens.IndexOf(option);
+        #endif
+        
+        if (option.tweenType == DOTweenTweenType.Move)
+        {
+            #if UNITY_EDITOR
+            if (!Application.isPlaying && option.useEditorPositionAsInitial && index >= 0 && editorPositions.ContainsKey(index))
+            {
+                startPos = editorPositions[index];
+            }
+            else
+            #endif
+            {
+                startPos = option.useInitialValue ? transform.position + option.initialValue : transform.position;
+            }
+            
+            endPos = option.isAdditive ? startPos + option.targetValue : option.targetValue;
+        }
+        else if (option.tweenType == DOTweenTweenType.LocalMove)
+        {
+            #if UNITY_EDITOR
+            if (!Application.isPlaying && option.useEditorPositionAsInitial && index >= 0 && editorLocalPositions.ContainsKey(index))
+            {
+                startPos = editorLocalPositions[index];
+            }
+            else
+            #endif
+            {
+                startPos = option.useInitialValue ? transform.localPosition + option.initialValue : transform.localPosition;
+            }
+            
+            endPos = option.isAdditive ? startPos + option.targetValue : option.targetValue;
+            
+            // Convert local positions to world positions for visualization
+            if (transform.parent != null)
+            {
+                startPos = transform.parent.TransformPoint(startPos);
+                endPos = transform.parent.TransformPoint(endPos);
+            }
+        }
+        else
+        {
+            // For non-movement tweens, return empty array
+            return new Vector3[0];
+        }
+        
+        // Create an array to store path points
+        Vector3[] pathPoints = new Vector3[debugPathResolution];
+        
+        // Calculate points along the path based on the easing function
+        for (int i = 0; i < debugPathResolution; i++)
+        {
+            float t = (float)i / (debugPathResolution - 1);
+            float easedT = DOVirtual.EasedValue(0, 1, t, GetEase(option));
+            pathPoints[i] = Vector3.Lerp(startPos, endPos, easedT);
+        }
+        
+        return pathPoints;
+    }
+    
+    private System.Collections.IEnumerator RemoveDebugPathAfterDelay(Vector3[] pathPoints, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        debugPaths.Remove(pathPoints);
+    }
+    
+    private void OnDrawGizmos()
+    {
+        if (!enableDebugVisualization)
+            return;
+            
+        // Draw runtime paths
+        if (debugPaths != null && debugPaths.Count > 0)
+        {
+            DrawPaths(debugPaths, debugPathColor);
+        }
+        
+        // Draw editor paths if enabled
+        #if UNITY_EDITOR
+        if (showInEditor && !Application.isPlaying)
+        {
+            DrawEditorPaths();
+        }
+        #endif
+    }
+    
+    private void DrawPaths(List<Vector3[]> paths, Color color)
+    {
+        Gizmos.color = color;
+        
+        // Draw all stored debug paths
+        foreach (Vector3[] path in paths)
+        {
+            if (path.Length == 0)
+                continue;
+                
+            // Draw lines connecting the points
+            for (int i = 0; i < path.Length - 1; i++)
+            {
+                Gizmos.DrawLine(path[i], path[i + 1]);
+            }
+            
+            // Draw spheres at each point
+            for (int i = 0; i < path.Length; i++)
+            {
+                Gizmos.DrawSphere(path[i], 0.05f);
+            }
+            
+            // Draw a larger sphere at the start and end points
+            Gizmos.DrawSphere(path[0], 0.1f);
+            Gizmos.DrawSphere(path[path.Length - 1], 0.1f);
+        }
+    }
+    
+    #if UNITY_EDITOR
+    /// <summary>
+    /// Draws paths for all movement tweens in the editor
+    /// </summary>
+    private void DrawEditorPaths()
+    {
+        List<Vector3[]> editorPaths = new List<Vector3[]>();
+        
+        // Update stored positions if needed
+        OnValidate();
+        
+        foreach (var option in tweens)
+        {
+            if (option.showDebugVisuals && 
+                (option.tweenType == DOTweenTweenType.Move || option.tweenType == DOTweenTweenType.LocalMove))
+            {
+                Vector3[] pathPoints = CalculatePathPoints(option);
+                if (pathPoints.Length > 0)
+                {
+                    editorPaths.Add(pathPoints);
+                }
+            }
+        }
+        
+        // Use a slightly different color for editor paths
+        Color editorColor = debugPathColor;
+        editorColor.a = 0.7f;
+        DrawPaths(editorPaths, editorColor);
+        
+        // Add labels for start and end points
+        foreach (var path in editorPaths)
+        {
+            if (path.Length > 0)
+            {
+                Handles.Label(path[0], "Start");
+                Handles.Label(path[path.Length - 1], "End");
+            }
+        }
+    }
+    #endif
 } 

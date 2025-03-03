@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3334804310288864184}
+  - component: {fileID: 2938879928972732651}
   m_Layer: 0
   m_Name: DroneGameAction
   m_TagString: Untagged
@@ -25,9 +26,32 @@ Transform:
   m_GameObject: {fileID: 8807251031393001481}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.9576824, y: 2.1069565, z: 2.3797169}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2938879928972732651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8807251031393001481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ee2d4bbe2623d40aa4fefa9e294b8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actionPrefabs:
+  - {fileID: 0}
+  spawnParent: {fileID: 0}
+  spawnPosition: {x: 0, y: 0, z: 0}
+  hookDropper: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
+  destroyDropperAfterTime: 1
+  dropperLifetime: 5
+  numberOfDrops: -1
+  spawnDelayMin: 3
+  spawnDelayMax: 8
+  exitDelayAfterLastDrop: 0.5
