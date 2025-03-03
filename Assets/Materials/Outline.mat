@@ -107,7 +107,7 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _DebugMode: 0
-    - _DepthSensitivity: 10
+    - _DepthSensitivity: 3.35
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -118,8 +118,8 @@ Material:
     - _GlossyReflections: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OutlineThickness: 5
-    - _OutlineThreshold: 0.01
+    - _OutlineThickness: 10
+    - _OutlineThreshold: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1

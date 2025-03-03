@@ -26,7 +26,7 @@ TagManager:
   - 
   - 
   - moduleshit
-  - ShadowReceiver
+  - ShadowCaster
   - Ground
   - Memcards
   - Hook
@@ -60,7 +60,7 @@ TagManager:
   m_RenderingLayers:
   - Default
   - 3DText
-  - Light Layer 2
+  - ShadowReceivers
   - Light Layer 3
   - Light Layer 4
   - Light Layer 5

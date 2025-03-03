@@ -1,0 +1,21 @@
+<dependencies>
+  <unityversion>4.1.14.1</unityversion>
+  <androidPackages>
+    <androidPackage spec="tv.superawesome.sdk.publisher:superawesome:9.4.0">
+      <repositories>
+        <repository>https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo/</repository>
+      </repositories>
+    </androidPackage>
+  </androidPackages>
+  <androidPackages>
+    <androidPackage spec="com.unity3d.ads-mediation:superawesome-adapter:4.1.10">
+    </androidPackage>
+  </androidPackages>
+  <iosPods>
+    <iosPod name="IronSourceSuperAwesomeAdapter" version="4.1.13.1">
+      <sources>
+        <source>https://github.com/CocoaPods/Specs</source>
+      </sources>
+    </iosPod>
+  </iosPods>
+</dependencies>

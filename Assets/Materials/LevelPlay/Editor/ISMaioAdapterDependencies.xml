@@ -1,0 +1,21 @@
+<dependencies>
+  <unityversion>4.1.14.15</unityversion>
+  <androidPackages>
+    <androidPackage spec="com.unity3d.ads-mediation:maio-adapter:4.1.11">
+    </androidPackage>
+  </androidPackages>
+  <androidPackages>
+    <androidPackage spec="com.maio:android-sdk:1.1.16@aar">
+      <repositories>
+        <repository>https://imobile-maio.github.io/maven</repository>
+      </repositories>
+    </androidPackage>
+  </androidPackages>
+  <iosPods>
+    <iosPod name="IronSourceMaioAdapter" version="4.1.11.15">
+      <sources>
+        <source>https://github.com/CocoaPods/Specs</source>
+      </sources>
+    </iosPod>
+  </iosPods>
+</dependencies>

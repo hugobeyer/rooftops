@@ -126,6 +126,8 @@ Material:
     - _Cone_1: 6.3
     - _Cull: 2
     - _Cutoff: 0.5
+    - _CylinderBottom: -0.04
+    - _CylinderHeight: 0.72
     - _DashLerp: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
@@ -157,11 +159,13 @@ Material:
     - _Path_Width: -2.78
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _Radius: 0.41
     - _Range: 0.1
     - _ReceiveShadows: 1
     - _Rings: 24.28
     - _Ringsojt: -0.2
     - _Saturation: 0.66
+    - _SkewAmount: -1.04
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SoapPass: 0.1
@@ -178,6 +182,7 @@ Material:
     - _Use_Rings: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
+    - _aNGLE: 128.57
     - _aggg: -32.4
     - _fuzz: 0.6
     - _pathwidth: -0.58
@@ -186,6 +191,7 @@ Material:
     - _rrrtr: -68.89
     - _rrrtr_1: -15
     m_Colors:
+    - _Axis: {r: 0.45, g: 0.8, b: 0.72, a: 0}
     - _BaseColor: {r: 0.42276418, g: 1, b: 0, a: 1}
     - _BrightColor: {r: 0.053953465, g: 0.44960132, b: 0.55345905, a: 0}
     - _BrightMask: {r: 0.84385777, g: 0.8742138, b: 0.71751505, a: 0}
@@ -207,10 +213,11 @@ Material:
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Orientation: {r: 0, g: 2.04, b: 0.07, a: 0}
     - _PathColor: {r: 0.03530311, g: 0.5345911, b: 0.067049764, a: 1}
-    - _PlayerPosition: {r: 0, g: -0.18843639, b: 0, a: 0}
+    - _PlayerPosition: {r: 0, g: -0.95432806, b: 0, a: 0}
     - _Proj0: {r: 0.27, g: 4.49, b: 0, a: 0}
     - _Proj2: {r: 2.57, g: 0.39, b: 0, a: 0}
     - _Rings_Color: {r: 1, g: 1, b: 1, a: 0}
+    - _ShadowColor: {r: 0.49685526, g: 0.35779825, b: 0.4438811, a: 0}
     - _ShadowOff: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpotOffsetVector: {r: 3.259884, g: 3.259884, b: 3.259884, a: 0}

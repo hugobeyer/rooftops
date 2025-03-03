@@ -45,13 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0725ece55b567cd4abf070ce1fd0c387, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoverSpeed: 1
+  hoverSpeed: 4
   hoverAmplitude: 1
   wobbleSpeed: 3
   wobbleAmount: 5
   minHeightAboveGround: 0.25
-  maxHeightAboveGround: 4
-  forwardDistanceFromPlayer: 5
+  maxHeightAboveGround: 3
+  forwardDistanceFromPlayer: 3
   maxAltitude: 3
   initialPositionOffset: {x: 12, y: -5, z: -15}
   initialMoveSpeed: 10
@@ -66,7 +66,7 @@ MonoBehaviour:
   exitDuration: 6
   exitEasing: 0
   turnAroundDuringInitialMove: 1
-  initialRotationSpeed: 2
+  initialRotationSpeed: 3
   initialEasing: 1
   droneVisual: {fileID: 0}
   altitudeMargin: 2
