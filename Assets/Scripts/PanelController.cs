@@ -1,14 +1,18 @@
 using UnityEngine;
-using UnityEngine.EventSystems; // Required for UI event interfaces
+using UnityEngine.EventSystems;
+using UnityEngine.UI; // Required for UI event interfaces
 
 public class PanelController : MonoBehaviour//, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    private RectTransform rectTransform;
+    //private RectTransform rectTransform;
     //private bool isHolding = false;
+    Button button;
 
     void Start()
     {
-        rectTransform = GetComponent<RectTransform>();
+        //button = GetComponent<Button>();
+        //button.onClick.AddListener(() => );
+        //rectTransform = GetComponent<RectTransform>();
     }
 
     //void Update()
@@ -39,7 +43,7 @@ public class PanelController : MonoBehaviour//, IPointerDownHandler, IPointerUpH
     //    //    return;
     //    //}
     //    //isHolding = true;
-    //    //InputActionManager.Instance.SetJumpPressed();
+    //    //InputActionManager.Instance.c();
     //}
 
     //public void OnPointerUp(PointerEventData eventData)

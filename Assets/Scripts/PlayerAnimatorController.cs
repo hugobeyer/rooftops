@@ -453,10 +453,10 @@ namespace RoofTops
         {
             if (!InputActionManager.Exists()) return;
 
-            bool isJumpPressed = InputActionManager.Instance.isJumpPressed;
+            bool isJumpPressed = InputActionManager.Instance.IsJumping;
 
             // Change Input.GetButtonDown check to use InputManager
-            if (InputActionManager.Instance.isJumpPressed && playerController.IsGroundedOnCollider && !holdingJump && canJumpTrigger)
+            if (InputActionManager.Instance.IsJumping && playerController.IsGroundedOnCollider && !holdingJump && canJumpTrigger)
             {
                 jumpStartTime = Time.time;
                 animator.SetBool(smallJumpBoolHash, false); // Reset at start of jump

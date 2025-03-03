@@ -13,6 +13,9 @@ namespace RoofTops
 
         [SerializeField]
         private TMPro.TextMeshProUGUI isHeldTimeState = null;
+
+        [SerializeField]
+        private TMPro.TextMeshProUGUI positionState = null;
         #endregion // Properties
 
 
@@ -25,9 +28,8 @@ namespace RoofTops
             InputActionManager.Instance.OnJumpReleased.AddListener(JumpReleased);
             InputActionManager.Instance.OnJumpHeldStarted.AddListener(JumpHeldPerformed);
             InputActionManager.Instance.OnJumpHeldUpdate.AddListener(JumpHeldUpdatePerformed);
+            InputActionManager.Instance.OnDoubleJumpPressedActivated.AddListener(DoubleJumpPerformed);
         }
-
-
 
         private void OnDisable()
         {
@@ -35,12 +37,10 @@ namespace RoofTops
             InputActionManager.Instance.OnJumpReleased.RemoveListener(JumpReleased);
             InputActionManager.Instance.OnJumpHeldStarted.RemoveListener(JumpHeldPerformed);
             InputActionManager.Instance.OnJumpHeldUpdate.RemoveListener(JumpHeldUpdatePerformed);
-
+            InputActionManager.Instance.OnDoubleJumpPressedActivated.RemoveListener(DoubleJumpPerformed);
         }
 
         #endregion // Unity Methods
-
-
 
         private void JumpReleased()
         {
@@ -52,6 +52,9 @@ namespace RoofTops
         private void JumpPerformed()
         {
             jumpEventStateText.text = "Jumping!";
+
+            Vector2 position = InputActionManager.Instance.PointerPosition;
+            positionState.text = $"X: {position.x} Y: {position.y}";
         }
 
         private void JumpHeldPerformed()
@@ -62,6 +65,11 @@ namespace RoofTops
         private void JumpHeldUpdatePerformed()
         {
             isHeldTimeState.text = InputActionManager.Instance.JumpPressedTime.ToString();
+        }
+
+        private void DoubleJumpPerformed()
+        {
+            jumpEventStateText.text = "Double Jumped!";
         }
 
     }

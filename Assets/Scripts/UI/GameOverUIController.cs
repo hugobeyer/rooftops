@@ -20,6 +20,7 @@ public class GameOverUIController : MonoBehaviour
     
     public void ShowGameOver(float finalDistance, bool isNewBest)
     {
+        GameManager.RequestGameStateChange(GameStates.GameOver);
         gameOverPanel.SetActive(true);
         finalScoreText.text = $"{finalDistance:F1} m";
         newBestText.gameObject.SetActive(isNewBest);

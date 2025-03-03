@@ -7,6 +7,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using UnityEngine.Events;
+using static UnityEditorInternal.VersionControl.ListControl;
 
 namespace RoofTops
 {
@@ -325,10 +327,13 @@ namespace RoofTops
             {
                 targetMaterial.SetFloat("_UsePath", 0f);
             }
+            OnGameStateChanged += HandleGameStateChanged;
         }
 
-        void Start()
+        private void Start()
         {
+            GamesState = GameStates.MainMenu;
+            
             if (pauseIndicator != null)
             {
                 pauseIndicator.SetActive(false);
@@ -357,14 +362,14 @@ namespace RoofTops
             }
         }
 
-        public void Update()
+        private void Update()
         {
             if (!HasGameStarted)
             {
-                if (InputActionManager.Instance != null && InputActionManager.Instance.isJumpPressed)
-                {
-                    StartGame();
-                }
+            //    if (InputActionManager.Instance != null && InputActionManager.Instance.isJumpPressed)
+            //    {
+            //        StartGame();
+            //    }
                 return;
             }
 
@@ -425,6 +430,12 @@ namespace RoofTops
             }
         }
 
+        private void OnDestroy()
+        {
+
+            OnGameStateChanged -= HandleGameStateChanged;
+        }
+
         public void TogglePause()
         {
             if (!isPaused)
@@ -442,6 +453,7 @@ namespace RoofTops
                 }
             }
 
+            GamesState = IsPaused ? previousState : GameStates.Paused;
             IsPaused = !IsPaused;
 
             if (IsPaused)
@@ -587,6 +599,7 @@ namespace RoofTops
 
         public void StartGame()
         {
+            GamesState = GameStates.Playing;
             if (!HasGameStarted)
             {
                 HasGameStarted = true;
@@ -716,6 +729,8 @@ namespace RoofTops
         // New method to handle the overall game over (player death) logic.
         public void HandlePlayerDeath(float finalDistance, GameObject collidingHook = null)
         {
+            GamesState = GameStates.GameOver;
+
             // Save stats
             RecordFinalDistance(finalDistance);
 
@@ -791,6 +806,8 @@ namespace RoofTops
 
         private IEnumerator ShowDeathUI()
         {
+            GamesState = GameStates.GameOver;
+
             // Wait for camera movement and ragdoll to settle
             yield return new WaitForSeconds(deathUIPanelDelay);
 
@@ -1060,6 +1077,7 @@ namespace RoofTops
 
         private void OnApplicationPause(bool pauseStatus)
         {
+            GamesState = pauseStatus ? GameStates.Paused : previousState;
             // Save data when the application is paused (e.g., when switching to another app on mobile)
             if (pauseStatus)
             {
@@ -1068,5 +1086,65 @@ namespace RoofTops
         }
 
         // Add this method to GameManager
+
+        private void HandleGameStateChanged(GameStates oldState, GameStates newState)
+        {
+            if(newState == GameStates.MainMenu)
+            {
+                InputActionManager.Instance.OnJumpPressed.AddListener(StartGame);
+            }
+            else
+            {
+                InputActionManager.Instance.OnJumpPressed.RemoveListener(StartGame);
+            }
+        }
+
+
+        #region Game State
+
+        public delegate void GameStateChanged(GameStates oldState, GameStates newState);
+
+        public static GameStateChanged OnGameStateChanged;
+        private static GameStates previousState = GameStates.StartingUp;
+        private static GameStates currentState = GameStates.StartingUp;
+
+        public static GameStates GamesState
+        {
+            get
+            {
+                return currentState;
+            }
+            private set
+            {
+                if (currentState != value)
+                {
+                    previousState = currentState;
+                    currentState = value;
+                    OnGameStateChanged?.Invoke(previousState, currentState);
+                }
+            }
+        }
+
+
+        public static bool RequestGameStateChange(GameStates state)
+        {
+            if (currentState == state)
+            {
+                return false;
+            }
+            GamesState = state;
+            return true;
+        }
+        #endregion // Game State
+    }
+
+    public enum GameStates
+    {
+        StartingUp,
+        MainMenu,
+        Playing,
+        Paused,
+        GameOver,
+        ShuttingDown
     }
 }

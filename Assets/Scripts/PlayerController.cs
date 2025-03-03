@@ -169,24 +169,29 @@ namespace RoofTops
                 tertiaryDashMaterial.SetFloat(dashLerpID, 0f);
                 tertiaryDashMaterial.SetFloat(additionalShaderParamID, 0f);
             }
+
+            SetupInputActions();
         }
 
         void Update()
         {
             // Prevent any jump or dash logic if the game hasn't started
-            if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted)
+            switch (GameManager.GamesState)
             {
-                return;
+                case GameStates.Playing:
+                case GameStates.GameOver:
+                break;
+                default: return;
             }
 
             // Track air state for landing detection
             bool isGroundedNow = cc.isGrounded;
             if (!isGroundedNow && isGroundedNow != wasInAir)
             {
-                // Just took off
-                jumpStartPosition = transform.position;
-                // Fire jump event
-                onJump.Invoke();
+                //// Just took off
+                //jumpStartPosition = transform.position;
+                //// Fire jump event
+                //onJump.Invoke();
 
                 // Check if we've shown the dash hint before using PlayerPrefs
                 bool hasShownDashHint = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
@@ -247,6 +252,8 @@ namespace RoofTops
                 return;
             }
 
+            //jumpForce += jumpForceGrowthRate * Time.deltaTime;
+
             if (modulePool != null)
             {
                 runSpeedMultiplier = modulePool.gameSpeed / GameManager.Instance.normalGameSpeed;
@@ -287,9 +294,14 @@ namespace RoofTops
             }
 
             // If you still want local incremental logic, keep this line:
-            jumpForce += jumpForceGrowthRate * Time.deltaTime;
+           // jumpForce += jumpForceGrowthRate * Time.deltaTime;
         }
 
+        private void OnDestroy()
+        {
+            TearDownInputActions();
+        }
+ 
         private void HandleJumpMetrics()
         {
             // Calculate jump distance
@@ -300,50 +312,50 @@ namespace RoofTops
                 Debug.Log($"Jump metrics - Distance: {jumpDistance:F2}m");
         }
 
-        void HandleJumpInput()
-        {
-            if (isOnJumpPad || !InputActionManager.Exists()) return;
+        //void HandleJumpInput()
+        //{
+        //    if (isOnJumpPad || !InputActionManager.Exists()) return;
 
-            //bool jumpTapped = InputActionManager.Instance.isJumpPressed;
-            //bool jumpHeld = InputActionManager.Instance.isJumpHeld;
-         //   bool jumpReleased = InputActionManager.Instance.isJumpReleased;
+        //    //bool jumpTapped = InputActionManager.Instance.isJumpPressed;
+        //    //bool jumpHeld = InputActionManager.Instance.isJumpHeld;
+        // //   bool jumpReleased = InputActionManager.Instance.isJumpReleased;
 
-            if (cc.isGrounded)
-            {
-                // Reset gravity when grounded
-                GameManager.Instance.ResetGravity();
+        //    if (cc.isGrounded)
+        //    {
+        //        // Reset gravity when grounded
+        //        GameManager.Instance.ResetGravity();
 
-                // Handle tap jump - only if not holding from previous jump
-                if (jumpTapped && !holdingJump)
-                {
-                    //_velocity.y = jumpForce;
-                    //holdingJump = true;
-                    //colorEffects?.StartSlowdownEffect();
-                    //GameManager.Instance.IncreaseGravity();
-                    //// Ensure we complete the jump animation
-                    //var animator = GetComponent<PlayerAnimatorController>();
-                    //if (animator != null)
-                    //{
-                    //    animator.TriggerJumpAnimation(jumpForce);
-                    //}
-                }
-                // Handle charge jump start
-                else if (jumpTapped && !isChargingJump)
-                {
-                    isChargingJump = true;
-                    holdingJump = true;
-                    currentChargedJumpForce = jumpForce;
-                    colorEffects?.StartSlowdownEffect();
-                }
-                // Handle charging
-                else if (jumpHeld && isChargingJump)
-                {
-                    currentChargedJumpForce = Mathf.Min(currentChargedJumpForce + jumpChargeRate * Time.deltaTime, maxJumpForce);
-                }
-            }
+        //        //// Handle tap jump - only if not holding from previous jump
+        //        //if (jumpTapped && !holdingJump)
+        //        //{
+        //        //    //_velocity.y = jumpForce;
+        //        //    //holdingJump = true;
+        //        //    //colorEffects?.StartSlowdownEffect();
+        //        //    //GameManager.Instance.IncreaseGravity();
+        //        //    //// Ensure we complete the jump animation
+        //        //    //var animator = GetComponent<PlayerAnimatorController>();
+        //        //    //if (animator != null)
+        //        //    //{
+        //        //    //    animator.TriggerJumpAnimation(jumpForce);
+        //        //    //}
+        //        //}
+        //        // Handle charge jump start
+        //        //else if (jumpTapped && !isChargingJump)
+        //        //{
+        //        //    isChargingJump = true;
+        //        //    holdingJump = true;
+        //        //    currentChargedJumpForce = jumpForce;
+        //        //    colorEffects?.StartSlowdownEffect();
+        //        //}
+        //        // Handle charging
+        //        //else if (jumpHeld && isChargingJump)
+        //        //{
+        //        //    currentChargedJumpForce = Mathf.Min(currentChargedJumpForce + jumpChargeRate * Time.deltaTime, maxJumpForce);
+        //        //}
+        //    }
 
             
-        }
+        //}
 
         void HandleDashInput()
         {
@@ -751,18 +763,17 @@ namespace RoofTops
         private void SetupInputActions()
         {
             InputActionManager.Instance.OnJumpPressed.AddListener(OnJumpPressed);
-            InputActionManager.Instance.OnDoubleJumpPressedActivated.AddListener(OnDoubleJumpActivated);
+            InputActionManager.Instance.OnDoubleJumpPressedActivated.AddListener(OnDashActivated);
             InputActionManager.Instance.OnJumpHeldStarted.AddListener(OnJumpHeldStarted);
             InputActionManager.Instance.OnJumpHeldUpdate.AddListener(OnJumpHeldUpdate);
             InputActionManager.Instance.OnJumpReleased.AddListener(OnJumpReleased);
 
         }
 
-
-        private void TaredownInputActions()
+        private void TearDownInputActions()
         {
             InputActionManager.Instance.OnJumpPressed.RemoveListener(OnJumpPressed);
-            InputActionManager.Instance.OnDoubleJumpPressedActivated.RemoveListener(OnDoubleJumpActivated);
+            InputActionManager.Instance.OnDoubleJumpPressedActivated.RemoveListener(OnDashActivated);
             InputActionManager.Instance.OnJumpHeldStarted.RemoveListener(OnJumpHeldStarted);
             InputActionManager.Instance.OnJumpHeldUpdate.RemoveListener(OnJumpHeldUpdate);
             InputActionManager.Instance.OnJumpReleased.RemoveListener(OnJumpReleased);
@@ -770,11 +781,27 @@ namespace RoofTops
 
         private void OnJumpPressed()
         {
-            if(isOnJumpPad || !cc.isGrounded)
+            if(GameManager.GamesState != GameStates.Playing)
             {
                 return;
             }
-            
+            if (isOnJumpPad || !cc.isGrounded)
+            {
+                return;
+            }
+
+            if (!wasInAir)
+            {
+                // Just took off
+                jumpStartPosition = transform.position;
+                // Fire jump event
+                onJump.Invoke();
+            }
+
+
+                // Reset gravity when grounded
+                GameManager.Instance.ResetGravity();
+
             _velocity.y = jumpForce;
             colorEffects?.StartSlowdownEffect();
             GameManager.Instance.IncreaseGravity();
@@ -784,15 +811,30 @@ namespace RoofTops
             {
                 animator.TriggerJumpAnimation(jumpForce);
             }
+
+            isChargingJump = true;
+            holdingJump = true;
+            currentChargedJumpForce = jumpForce;
+            colorEffects?.StartSlowdownEffect();
+            jumpForce += jumpForceGrowthRate * Time.deltaTime;
         }
 
-        private void OnDoubleJumpActivated()
+        private void OnDashActivated()
         {
+            if (GameManager.GamesState != GameStates.Playing)
+            {
+                return;
+            }
+
+            //if (!cc.isGrounded)
+            //{
+            //    return;
+            //}
             HandleDashInput();
         }
 
         private void OnJumpReleased()
-        {
+        {  
             // If we were charging and started the charge grounded, apply the jump
             if (isChargingJump && cc.isGrounded)
             {
@@ -816,12 +858,23 @@ namespace RoofTops
 
         private void OnJumpHeldUpdate()
         {
-            
+            if (GameManager.GamesState != GameStates.Playing)
+            {
+                return;
+            }
+
+            currentChargedJumpForce = Mathf.Min(currentChargedJumpForce + jumpChargeRate * Time.deltaTime, maxJumpForce);
+            jumpForce += jumpForceGrowthRate * Time.deltaTime;
         }
 
         private void OnJumpHeldStarted()
         {
-            
+            if (GameManager.GamesState != GameStates.Playing)
+            {
+                return;
+            }
+
+            OnJumpHeldUpdate();
         }
 
 

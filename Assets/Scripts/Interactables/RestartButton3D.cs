@@ -7,42 +7,39 @@ public class RestartButton3D : MonoBehaviour
 {
     #region Properties
     [SerializeField]
-    private InputAction restartInputAction;
-
+    private InputActionReference restartInputActionReference;
+    private InputAction restartInputAction => restartInputActionReference?.action;
     #endregion // Properties
 
-    void Start()
+    #region Unity Methods
+
+    private void Start()
     {
         restartInputAction.Enable();
         restartInputAction.performed += ctx => RestartGame();
-    }
-
-    void Update()
-    {
-        // Only handle direct touch input if InputManager doesn't exist
-        if (!InputActionManager.Exists())
+        GameManager.OnGameStateChanged += HandleGameStateChanged;
+        if(GameManager.GamesState == GameStates.GameOver)
         {
-            HandleTouchInput();
+            InputActionManager.Instance.OnJumpPressed.AddListener(CheckInteraction);
         }
     }
 
-    private void HandleTouchInput()
+    private void OnDestroy()
     {
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
-            {
-                CheckTouch(touch.position);
-            }
-        }
+        GameManager.OnGameStateChanged -= HandleGameStateChanged;
+        restartInputAction.Disable();
+        restartInputAction.performed -= ctx => RestartGame();
     }
 
-    private void CheckTouch(Vector2 touchPosition)
+    #endregion // Unity Methods
+
+    #region Functions
+
+    private void CheckInteraction()
     {
-        Ray ray = Camera.main.ScreenPointToRay(touchPosition);
+        Ray ray = InputActionManager.Instance.GetRayFromPointer();
         RaycastHit hit;
-        
+
         if (Physics.Raycast(ray, out hit))
         {
             if (hit.collider.gameObject == gameObject)
@@ -52,14 +49,23 @@ public class RestartButton3D : MonoBehaviour
         }
     }
 
-    void OnMouseDown()
+    private void HandleGameStateChanged(GameStates oldState, GameStates newState)
     {
-        RestartGame();
+        if (newState == GameStates.GameOver)
+        {
+           InputActionManager.Instance.OnJumpPressed.AddListener(CheckInteraction);
+        }
+        else
+        {
+            InputActionManager.Instance.OnJumpPressed.RemoveListener(CheckInteraction);
+        }
     }
 
-    private void RestartGame()
+    public void RestartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        GameManager.Instance.ResetGame();
     }
-} 
+    #endregion // Functions
+}
