@@ -44,14 +44,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee2d4bbe2623d40aa4fefa9e294b8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionPrefabs:
-  - {fileID: 0}
+  droneTiers:
+  - tierName: Boring
+    maxDistance: 300
+    dronePrefabs:
+    - {fileID: 6413331328190067435, guid: 91d5d66824c964b44853f214e740a24e, type: 3}
+    - {fileID: 6413331328190067435, guid: 2dea1a553b1545d418eb926cb6dc7836, type: 3}
+    - {fileID: 6413331328190067435, guid: 119d9d46ad8172d48a8b98116db94fa9, type: 3}
+  - tierName: Easy
+    maxDistance: 800
+    dronePrefabs:
+    - {fileID: 6413331328190067435, guid: 823960b7e540a01448e5138705aee460, type: 3}
+    - {fileID: 6413331328190067435, guid: 18ede2ec87eea2e4fb596c47d5d9d30e, type: 3}
+    - {fileID: 6413331328190067435, guid: 3bfb9bb736f7b7a49a4851a8f6412fe0, type: 3}
+  - tierName: Fine
+    maxDistance: 2500
+    dronePrefabs:
+    - {fileID: 6413331328190067435, guid: 09f9452365d97f54db62591ac7db31a5, type: 3}
+    - {fileID: 6413331328190067435, guid: 50daecd99877b4344925f7689ac838c2, type: 3}
+    - {fileID: 6413331328190067435, guid: 3dbbc7da29fb0bb4e894ee97029ec7fd, type: 3}
+  - tierName: Hard
+    maxDistance: 5000
+    dronePrefabs:
+    - {fileID: 6413331328190067435, guid: f4d780e6ee408f243bb213fcf6ab41a9, type: 3}
+    - {fileID: 6413331328190067435, guid: e848a187d442da54ebbe9e8126b11af0, type: 3}
+    - {fileID: 6413331328190067435, guid: 50daecd99877b4344925f7689ac838c2, type: 3}
+  - tierName: Insane
+    maxDistance: 10000
+    dronePrefabs:
+    - {fileID: 6413331328190067435, guid: f91ef524bf7c2a64e96824e6760f6798, type: 3}
+    - {fileID: 6413331328190067435, guid: 48ac9d411d1f2dd47bc6c27bbd599bce, type: 3}
+    - {fileID: 6413331328190067435, guid: f4d780e6ee408f243bb213fcf6ab41a9, type: 3}
+    - {fileID: 6413331328190067435, guid: e848a187d442da54ebbe9e8126b11af0, type: 3}
+    - {fileID: 6413331328190067435, guid: f91ef524bf7c2a64e96824e6760f6798, type: 3}
+    - {fileID: 6413331328190067435, guid: 48ac9d411d1f2dd47bc6c27bbd599bce, type: 3}
   spawnParent: {fileID: 0}
   spawnPosition: {x: 0, y: 0, z: 0}
-  hookDropper: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
-  destroyDropperAfterTime: 1
-  dropperLifetime: 5
-  numberOfDrops: -1
-  spawnDelayMin: 3
-  spawnDelayMax: 8
-  exitDelayAfterLastDrop: 0.5
+  spawnDelayMin: 10
+  spawnDelayMax: 50
+  droneLayer: Drone
+  player: {fileID: 0}

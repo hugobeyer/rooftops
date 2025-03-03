@@ -126,7 +126,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: maxDrops
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: dropDelay
@@ -138,11 +138,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: groupSpacing
-      value: 2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: spawnInterval
-      value: 0.5
+      value: 1.25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

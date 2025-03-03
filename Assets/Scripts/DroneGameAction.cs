@@ -1,10 +1,18 @@
 using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
+public class DroneTier
+{
+    public string tierName;
+    public float maxDistance; // Maximum distance for this tier
+    public GameObject[] dronePrefabs; // Drone prefabs for this tier
+}
+
 public class DroneGameAction : MonoBehaviour
 {
-    [Tooltip("The prefabs to instantiate as drone actions (the drone prefabs)")]
-    public GameObject[] actionPrefabs;
+    [Header("Drone Tiers")]
+    public DroneTier[] droneTiers;
     
     [Tooltip("Optional parent transform for the instantiated prefab")]
     public Transform spawnParent;
@@ -23,7 +31,7 @@ public class DroneGameAction : MonoBehaviour
     
     [Tooltip("Reference to the player GameObject")]
     public GameObject player;
-
+    
     private GameObject activeDrone;
     private bool isDroneActive => activeDrone != null;
     private bool isWaitingForNextSpawn = false;
@@ -36,7 +44,7 @@ public class DroneGameAction : MonoBehaviour
             activeDrone = existingDrones[0].gameObject;
         }
     }
-
+    
     void Start()
     {
         // Find player if not assigned
@@ -56,8 +64,8 @@ public class DroneGameAction : MonoBehaviour
     {
         while (true)
         {
-            // Only spawn a new drone if there isn't one active and we're not in a waiting period
-            if (!isDroneActive && !isWaitingForNextSpawn && actionPrefabs != null && actionPrefabs.Length > 0)
+            // Only spawn a new drone if there isn't one active and we're not waiting, and droneTiers are available
+            if (!isDroneActive && !isWaitingForNextSpawn && droneTiers != null && droneTiers.Length > 0)
             {
                 // Double-check for any drones in the scene before spawning
                 CheckForExistingDrones();
@@ -69,8 +77,41 @@ public class DroneGameAction : MonoBehaviour
                 
                 Debug.Log("Spawning new drone");
                 
-                // Randomly choose one prefab from the available array.
-                GameObject chosenPrefab = actionPrefabs[Random.Range(0, actionPrefabs.Length)];
+                // Determine which prefab to use based on player's distance
+                GameObject chosenPrefab = null;
+                if (player != null)
+                {
+                    float distance = player.transform.position.z;
+                    DroneTier selectedTier = null;
+                    // Loop through tiers to find first tier that matches distance
+                    foreach (DroneTier tier in droneTiers)
+                    {
+                        if (distance < tier.maxDistance)
+                        {
+                            selectedTier = tier;
+                            break;
+                        }
+                    }
+                    // If no tier matched, use the last one as fallback
+                    if (selectedTier == null)
+                    {
+                        selectedTier = droneTiers[droneTiers.Length - 1];
+                    }
+                    
+                    if (selectedTier.dronePrefabs != null && selectedTier.dronePrefabs.Length > 0)
+                    {
+                        chosenPrefab = selectedTier.dronePrefabs[Random.Range(0, selectedTier.dronePrefabs.Length)];
+                    }
+                }
+                
+                // Fallback in case chosenPrefab is still null
+                if (chosenPrefab == null)
+                {
+                    Debug.LogWarning("No suitable drone prefab found, skipping spawn.");
+                    yield return new WaitForSeconds(1.0f);
+                    continue;
+                }
+                
                 GameObject instance = Instantiate(chosenPrefab, spawnPosition, Quaternion.identity, spawnParent);
                 
                 // Set the drone to the specified layer
@@ -86,7 +127,7 @@ public class DroneGameAction : MonoBehaviour
                     StartCoroutine(WaitForDroneDestruction(instance));
                 }
             }
-
+            
             // Wait a frame to prevent tight loop
             yield return null;
             
@@ -144,12 +185,12 @@ public class DroneGameAction : MonoBehaviour
         
         Debug.Log("Drone was destroyed or exit animation completed, can spawn a new one now");
         activeDrone = null;
-
+        
         // Calculate a random delay before spawning the next drone
         float randomDelay = Random.Range(spawnDelayMin, spawnDelayMax);
         Debug.Log($"Waiting {randomDelay} seconds before spawning next drone");
         yield return new WaitForSeconds(randomDelay);
-
+        
         // Allow the next drone to spawn
         isWaitingForNextSpawn = false;
     }

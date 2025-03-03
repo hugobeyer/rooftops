@@ -33,7 +33,7 @@ Material:
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties: 
+  m_LockedProperties: _ColorEdge
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -107,7 +107,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _Angle: 8.75
+    - _Angle: 8.57
     - _BUILTIN_AlphaClip: 0
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 2
@@ -150,7 +150,7 @@ Material:
     - _JumpLerp: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _POW: 3
+    - _POW: 1.32
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
@@ -191,7 +191,7 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Vector3: {r: 1.65, g: 0.89, b: 0.53, a: 0}
+    - _Vector3: {r: 1.65, g: 2.27, b: 0.53, a: 0}
     - _col: {r: 0, g: 1, b: 1, a: 1}
     - baseColorFactor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

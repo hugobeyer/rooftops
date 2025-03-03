@@ -34,16 +34,24 @@ namespace RoofTops
         public bool showDebugVisuals = true;
 
         [Header("Difficulty Progression")]
-        public float difficultyStartTime = 1f;  // When to start introducing gaps/variations
-        public float maxGapSize = 8f;           // Maximum gap size at peak difficulty
-        public float maxHeightVariation = 3f;   // Maximum height difference between modules
-        public float difficultyRampDuration = 60f; // How long until reaching max difficulty
-        public AnimationCurve gapDifficultyCurve = AnimationCurve.Linear(0, 0, 1, 1);
-        public AnimationCurve heightDifficultyCurve = AnimationCurve.Linear(0, 0, 1, 0.5f);
+        public float constantGapRate = 0.1f;
+        public float constantHeightRate = 0.05f;
+
+        [Header("Randomness Settings")]
+        public float gapRandomPercent = 0.1f;  // ±10% randomness
+        public float heightRandomPercent = 0.1f; // ±10% randomness
 
         [Header("Ground Tags")]
         public string solidGroundTag = "GroundCollider";
         public string triggerGroundTag = "GroundedTrigger";
+
+        [Header("Random Gap Settings")]
+        public float gapRandomMin = 0.85f;
+        public float gapRandomMax = 1.15f;
+
+        [Header("Random Height Offset")]
+        public float minHeightOffset = -0.5f;
+        public float maxHeightOffset = 0.5f;
 
         public List<GameObject> activeModules = new List<GameObject>();
         private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
@@ -55,11 +63,6 @@ namespace RoofTops
         private float TimeSinceStart => 
             !GameManager.Instance.HasGameStarted ? 0 : 
             Time.time - gameStartTime;
-        private float CurrentDifficultyFactor => 
-            !GameManager.Instance.HasGameStarted ? 0 : 
-            Mathf.Clamp01((TimeSinceStart - difficultyStartTime) / difficultyRampDuration);
-        private float CurrentGapMultiplier => gapDifficultyCurve.Evaluate(CurrentDifficultyFactor);
-        private float CurrentHeightMultiplier => heightDifficultyCurve.Evaluate(CurrentDifficultyFactor);
 
         private const float GRID_UNIT = 0.5f;
 
@@ -343,21 +346,46 @@ namespace RoofTops
 
         private float CalculateGap()
         {
-            if (TimeSinceStart <= difficultyStartTime) return 0f;
-            float maxCurrentGap = maxGapSize * CurrentGapMultiplier;
-            int possibleIncrements = Mathf.FloorToInt(maxCurrentGap / GRID_UNIT);
-            return possibleIncrements > 0 ? Random.Range(0, possibleIncrements + 1) * GRID_UNIT : 0f;
+            // If constantGapRate is 0 or very close to 0, don't add any gap
+            if (Mathf.Approximately(constantGapRate, 0f))
+            {
+                return 0f;
+            }
+            
+            float baseGap = constantGapRate;
+            
+            // Only apply randomness if we have a non-zero gap and gapRandomPercent is greater than 0
+            if (gapRandomPercent > 0)
+            {
+                // Use the min and max random values from the inspector
+                float randomFactor = Random.Range(gapRandomMin, gapRandomMax);
+                return baseGap * randomFactor;
+            }
+            
+            return baseGap;
         }
 
         private float CalculateHeightVariation(float currentHeight)
         {
-            if (TimeSinceStart <= difficultyStartTime) return 0f;
-            float maxCurrentHeight = maxHeightVariation * CurrentHeightMultiplier;
-            int possibleIncrements = Mathf.FloorToInt(maxCurrentHeight / GRID_UNIT);
-            if (possibleIncrements <= 0) return 0f;
-            int randomIncrements = Random.Range(-possibleIncrements, possibleIncrements + 1);
-            float variation = randomIncrements * GRID_UNIT;
-            return currentHeight + variation < 0 ? Mathf.Max(-currentHeight, 0) : variation;
+            // If constantHeightRate is 0 or very close to 0, don't add any height variation
+            if (Mathf.Approximately(constantHeightRate, 0f))
+            {
+                return 0f;
+            }
+            
+            // Only apply randomness if heightRandomPercent is greater than 0
+            if (heightRandomPercent > 0)
+            {
+                // Use the min and max height offset values from the inspector
+                // Multiply by constantHeightRate to scale the offsets based on difficulty
+                float minOffset = minHeightOffset * constantHeightRate;
+                float maxOffset = maxHeightOffset * constantHeightRate;
+                
+                return Random.Range(minOffset, maxOffset);
+            }
+            
+            // If no randomness, just return 0 (no height change)
+            return 0f;
         }
 
         void SpawnModule()
@@ -438,12 +466,9 @@ namespace RoofTops
 
         public string GetDifficultyInfo()
         {
-            if (TimeSinceStart <= difficultyStartTime)
-                return "Difficulty not started";
-            
-            return $"Difficulty: {CurrentDifficultyFactor:P0}\n" +
-                   $"Max Gap: {maxGapSize * CurrentDifficultyFactor:F1}m\n" +
-                   $"Max Height: ±{maxHeightVariation * CurrentDifficultyFactor:F1}m";
+            // Updated difficulty info to reflect constant rates
+            return $"Constant Gap Rate: {constantGapRate:F2} m/s\n" +
+                   $"Constant Height Rate: {constantHeightRate:F2} m/s";
         }
 
         public void SetMovement(bool moving)

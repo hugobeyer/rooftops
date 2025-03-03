@@ -196,6 +196,9 @@ namespace RoofTops
         // Add this at the class level, near the other private variables
         private int groundLayerMask;
 
+        // Add this near the top of the class
+        public UnityEngine.Events.UnityEvent<int> onChunkChanged = new UnityEngine.Events.UnityEvent<int>();
+
         private void Start()
         {
             // Calculate max jumpable height using physics
@@ -680,6 +683,9 @@ namespace RoofTops
         public void IncrementChunk()
         {
             currentChunk = Mathf.Min(currentChunk + 1, totalChunks);
+            
+            // Fire the event with the new chunk index
+            onChunkChanged.Invoke(currentChunk);
             
             // Update all item frequencies based on new chunk
             foreach (var item in spawnableItems)

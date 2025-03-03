@@ -134,11 +134,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: groupSize
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: groupSpacing
-      value: 1
+      value: 0.66
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: numberOfDrops
@@ -146,7 +146,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: spawnInterval
-      value: 0.7
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9221919887188774632, guid: 8f4863bcb4d14c34bb0f303845d29988, type: 3}
       propertyPath: destroyDropper

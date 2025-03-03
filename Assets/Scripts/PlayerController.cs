@@ -250,8 +250,6 @@ namespace RoofTops
                 return;
             }
 
-            jumpForce += jumpForceGrowthRate * Time.deltaTime;
-
             if (modulePool != null)
             {
                 runSpeedMultiplier = modulePool.gameSpeed / GameManager.Instance.normalGameSpeed;
@@ -290,6 +288,9 @@ namespace RoofTops
                 dashTimer -= Time.deltaTime;
                 if (dashTimer <= 0) EndDash();
             }
+
+            // If you still want local incremental logic, keep this line:
+            jumpForce += jumpForceGrowthRate * Time.deltaTime;
         }
 
         private void HandleJumpMetrics()

@@ -25,7 +25,7 @@ GraphicsSettings:
   m_LensFlare:
     m_Mode: 1
     m_Shader: {fileID: 102, guid: 0000000000000000f000000000000000, type: 0}
-  m_VideoShadersIncludeMode: 2
+  m_VideoShadersIncludeMode: 0
   m_AlwaysIncludedShaders:
   - {fileID: 7, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 15104, guid: 0000000000000000f000000000000000, type: 0}
@@ -44,7 +44,7 @@ GraphicsSettings:
   m_DefaultMobileRenderingPath: 1
   m_TierSettings: []
   m_LightmapStripping: 1
-  m_FogStripping: 1
+  m_FogStripping: 0
   m_InstancingStripping: 0
   m_BrgStripping: 0
   m_LightmapKeepPlain: 0
@@ -54,7 +54,7 @@ GraphicsSettings:
   m_LightmapKeepShadowMask: 0
   m_LightmapKeepSubtractive: 0
   m_FogKeepLinear: 0
-  m_FogKeepExp: 0
+  m_FogKeepExp: 1
   m_FogKeepExp2: 0
   m_AlbedoSwatchInfos: []
   m_RenderPipelineGlobalSettingsMap:
@@ -63,5 +63,5 @@ GraphicsSettings:
   m_LightsUseColorTemperature: 1
   m_LogWhenShaderIsCompiled: 0
   m_LightProbeOutsideHullStrategy: 0
-  m_CameraRelativeLightCulling: 0
-  m_CameraRelativeShadowCulling: 0
+  m_CameraRelativeLightCulling: 1
+  m_CameraRelativeShadowCulling: 1

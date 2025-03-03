@@ -240,6 +240,11 @@ namespace RoofTops
         private int tridotsGoalIndex = 0;
         private int memcardGoalIndex = 0;
 
+        // Property to track the player's distance traveled
+        public float PlayerDistance { get; set; }
+
+        public float customGravity = 9.81f;
+
         void Awake()
         {
             Instance = this;
