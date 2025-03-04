@@ -1141,7 +1141,7 @@ GameObject:
   - component: {fileID: 2840841009651467054}
   - component: {fileID: 5167348107222983573}
   m_Layer: 20
-  m_Name: 3DUI
+  m_Name: IngameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
