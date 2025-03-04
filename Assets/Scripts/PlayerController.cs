@@ -225,10 +225,6 @@ namespace RoofTops
             }
             wasInAir = !isGroundedNow;
 
-            //// Now proceed with normal handling
-            //HandleJumpInput();
-            //HandleDashInput();
-
             if ((transform.position.y < -7f || isDead) && modulePool.gameSpeed > 0)
             {
                 DeathMessageDisplay.Instance?.ShowMessage();
@@ -310,74 +306,7 @@ namespace RoofTops
                 Debug.Log($"Jump metrics - Distance: {jumpDistance:F2}m");
         }
 
-        void HandleJumpInput()
-        {
-            //if (isOnJumpPad || !InputManager.Exists()) return;
-
-            //bool jumpTapped = InputManager.Instance.isJumpPressed;
-            //bool jumpHeld = InputManager.Instance.isJumpHeld;
-            //bool jumpReleased = InputManager.Instance.isJumpReleased;
-
-            //if (cc.isGrounded)
-            //{
-            //    // Reset gravity when grounded
-            //    GameManager.Instance.ResetGravity();
-
-            //    // Handle tap jump - only if not holding from previous jump
-            //    if (jumpTapped && !holdingJump)
-            //    {
-            //        _velocity.y = jumpForce;
-            //        holdingJump = true;
-            //        colorEffects?.StartSlowdownEffect();
-            //        GameManager.Instance.IncreaseGravity();
-            //        // Ensure we complete the jump animation
-            //        var animator = GetComponent<PlayerAnimatorController>();
-            //        if (animator != null)
-            //        {
-            //            animator.TriggerJumpAnimation(jumpForce);
-            //        }
-            //    }
-            //    // Handle charge jump start
-            //    else if (jumpTapped && !isChargingJump)
-            //    {
-            //        isChargingJump = true;
-            //        holdingJump = true;
-            //        currentChargedJumpForce = jumpForce;
-            //        colorEffects?.StartSlowdownEffect();
-            //    }
-            //    // Handle charging
-            //    else if (jumpHeld && isChargingJump)
-            //    {
-            //        currentChargedJumpForce = Mathf.Min(currentChargedJumpForce + jumpChargeRate * Time.deltaTime, maxJumpForce);
-            //    }
-            //}
-            //TODO: 
-            // Handle jump release 
-            //if (jumpReleased)
-            //{
-                //// If we were charging and started the charge grounded, apply the jump
-                //if (isChargingJump && cc.isGrounded)
-                //{
-                //    _velocity.y = currentChargedJumpForce;
-                //    GameManager.Instance.IncreaseGravity();
-                //    // Ensure we complete the charged jump animation
-                //    var animator = GetComponent<PlayerAnimatorController>();
-                //    if (animator != null)
-                //    {
-                //        animator.TriggerJumpAnimation(currentChargedJumpForce);
-                //    }
-                //}
-                //// Apply jump cut if in air and moving upward
-                //if (!cc.isGrounded && _velocity.y > 0)
-                //{
-                //    _velocity.y *= jumpCutFactor;
-                //}
-
-                //isChargingJump = false;
-                //holdingJump = false;
-            //}
-        }
-
+       
         void HandleDashInput()
         {
             if (!cc.isGrounded)
@@ -539,7 +468,6 @@ namespace RoofTops
         void HandleLanding()
         {
             isChargingJump = false;
-           // holdingJump = false;
             canDash = true;
             if (dashMaterial != null)
             {
@@ -663,7 +591,6 @@ namespace RoofTops
             isOnJumpPad = true;
             jumpPadTimer = JUMP_PAD_DURATION;
             isChargingJump = false;
-            //holdingJump = false;
 
             // Tell the animator to trigger a jump but with different parameters
             var animator = GetComponent<PlayerAnimatorController>();
@@ -834,12 +761,14 @@ namespace RoofTops
             }
 
             isChargingJump = true;
-            //holdingJump = true;
             currentChargedJumpForce = jumpForce;
             colorEffects?.StartSlowdownEffect();
             jumpForce += jumpForceGrowthRate * Time.deltaTime;
         }
 
+        /// <summary>
+        /// Handle the dash input action can only be activated after a normal jump
+        /// </summary>
         private void OnDashActivated()
         {
             if (GameManager.GamesState != GameStates.Playing)
@@ -847,10 +776,6 @@ namespace RoofTops
                 return;
             }
 
-            //if (!cc.isGrounded)
-            //{
-            //    return;
-            //}
             HandleDashInput();
         }
 
