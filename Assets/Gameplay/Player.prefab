@@ -4990,11 +4990,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8992654176803667965, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.44
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8992654176803667965, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.398
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8845057119692191563, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_Layer
@@ -5010,7 +5010,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.01
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5082,7 +5082,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -4646607718344321396, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_Layer
-      value: 21
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: -2651086309383080545, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_Layer
@@ -5127,6 +5127,14 @@ PrefabInstance:
     - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_LightProbeUsage
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_UpdateWhenOffscreen
@@ -5232,6 +5240,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5604537859979555465}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7089864540144678785}
   m_SourcePrefab: {fileID: 100100000, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
 --- !u!4 &74193373195830827 stripped
 Transform:
@@ -5266,13 +5277,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
+  m_Height: 1.85
   m_Radius: 0.39
   m_SlopeLimit: 45
   m_StepOffset: 0.2
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0.06}
+  m_Center: {x: 0, y: 0.89, z: 0.1}
 --- !u!95 &-5278735090215158589
 Animator:
   serializedVersion: 7
@@ -5353,16 +5364,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   armAnimationDelay: 0.5
-  jumpActivationThreshold: -3.41
+  jumpActivationThreshold: 0
   jumpHeightForMaxSpineWeight: 5
   spineBlendTime: 0.5
-  spineResetDelay: 0.2
+  spineResetDelay: 0.1
   spineResetDuration: 0.5
   quickJumpThreshold: 0.1
   turnDuration: 8
   turnStartDelay: 2.2
   watchStartDelay: 4.8
-  watchDuration: 8
+  watchDuration: 5
   watchFadeInTime: 0.5
   watchFadeOutTime: 1
   watchParticleEffect: {fileID: 5568182176569987806}
@@ -5378,7 +5389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c650049494a663245a256cc5950b508f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetMaterial: {fileID: 2100000, guid: d5ce4f85e91a7da4c98fd93129753703, type: 2}
+  targetMaterial: {fileID: 2100000, guid: dfbeee91e2a6c7747957f7ccb3a3f5c2, type: 2}
   lerpInTime: 0.12
   holdDuration: 0.4
   lerpOutTime: 0.6
@@ -5396,3 +5407,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leftFootstepAudio: {fileID: 0}
   rightFootstepAudio: {fileID: 0}
+--- !u!114 &7089864540144678785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088488356021552172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b79443ab2258c0349b930665153e4512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

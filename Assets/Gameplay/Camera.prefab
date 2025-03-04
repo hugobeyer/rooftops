@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4283650962030238608}
   - component: {fileID: 2431337873245921151}
   - component: {fileID: 6392112107864852101}
+  - component: {fileID: 2055806017881986305}
   - component: {fileID: 3348391982262906706}
   m_Layer: 0
   m_Name: Camera
@@ -54,7 +55,7 @@ Camera:
   m_ShutterSpeed: 0.3
   m_Aperture: 23
   m_FocusDistance: 28.1
-  m_FocalLength: 8.431295
+  m_FocalLength: 24.624546
   m_BladeCount: 3
   m_Curvature: {x: 10.871249, y: 19.871248}
   m_BarrelClipping: 0.3
@@ -72,10 +73,10 @@ Camera:
   field of view: 36
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: -2.1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 6822967
+    m_Bits: 7339063
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -107,9 +108,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderShadows: 0
-  m_RequiresDepthTextureOption: 2
-  m_RequiresOpaqueTextureOption: 2
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 1
+  m_RequiresOpaqueTextureOption: 1
   m_CameraType: 0
   m_Cameras:
   - {fileID: 1540617054861106129}
@@ -119,13 +120,13 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
   m_ClearDepth: 1
-  m_AllowXRRendering: 1
+  m_AllowXRRendering: 0
   m_AllowHDROutput: 1
   m_UseScreenCoordOverride: 0
   m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
@@ -140,6 +141,31 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!114 &2055806017881986305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6749727056060000091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5143279d4d1d8964caf1513f02da1891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTransform: {fileID: 0}
+  cameraTransform: {fileID: 6668147963063031311}
+  cameraOffset: {x: 15, y: 4, z: -2.93}
+  lookAtOffset: {x: 0, y: -4, z: 4.23}
+  fovOffset: -8
+  useLookAtDuringJump: 1
+  transitionToJumpPadTime: 0.5
+  holdJumpPadTime: 0.5
+  transitionBackTime: 1.5
+  objectsToHide:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &3348391982262906706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,10 +189,10 @@ MonoBehaviour:
   secondFrequency: 0.1
   secondIntensity: 0.7
   firstNoiseOffset2: {x: 19.569279, y: 181.43558, z: 757.95795}
-  minYOffset: -0.3
+  minYOffset: -0.5
   maxYOffset: 1.01
-  minXOffset: -0.03
-  maxXOffset: 1
+  minXOffset: -0.14
+  maxXOffset: 0.62
   minZOffset: -1.12
   maxZOffset: 0.5
   fitType: 0
@@ -183,19 +209,19 @@ MonoBehaviour:
   minSpeedMultiplier: 0.24
   maxSpeedMultiplier: 3.33
   useInitialBlend: 1
-  initialBlendPosition: {x: 108.4, y: 21.3, z: -20.6}
-  blendDuration: 1
+  initialBlendPosition: {x: 108.4, y: 22.5, z: -20.6}
+  blendDuration: 3
   blendFOV: 1
   initialFOV: 16
   midFOV: 12
-  finalFOV: 32
-  midFOVDelay: 0
-  finalFOVDelay: 0
-  midBlendDuration: 0
-  finalBlendDuration: 0
+  finalFOV: 36
+  midFOVDelay: 1.5
+  finalFOVDelay: 4
+  midBlendDuration: 0.5
+  finalBlendDuration: 2
   useInitialLookAtOffset: 1
   midLookAtOffset: {x: 0.5, y: -0.5, z: -4}
-  initialLookAtOffset: {x: 4.81, y: 2.61, z: 10.1}
+  initialLookAtOffset: {x: 4.81, y: 9.48, z: 10.1}
   initialNoiseMultiplier: 0.1
   deathCameraTarget: {fileID: 0}
   deathBlendDuration: 2
@@ -301,14 +327,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_RenderShadows: 0
-  m_RequiresDepthTextureOption: 2
+  m_RequiresDepthTextureOption: 1
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 1
   m_Cameras: []
   m_RendererIndex: 0
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
@@ -316,7 +342,7 @@ MonoBehaviour:
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
-  m_ClearDepth: 1
+  m_ClearDepth: 0
   m_AllowXRRendering: 1
   m_AllowHDROutput: 1
   m_UseScreenCoordOverride: 0

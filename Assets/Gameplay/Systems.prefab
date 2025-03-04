@@ -419,7 +419,7 @@ MonoBehaviour:
   spawnableItems:
   - name: TRIDOTS
     prefab: {fileID: 5404275788931603570, guid: 6777a316520a61743a32c128d692d869, type: 3}
-    spawnFrequency: 0.00125
+    spawnFrequency: 0.005
     yOffset: 0.325
     enabled: 1
     preventConsecutiveDuplicates: 0
@@ -660,6 +660,30 @@ PrefabInstance:
     - target: {fileID: 3466384440532672193, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
+      propertyPath: gapRandomMax
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
+      propertyPath: gapRandomMin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
+      propertyPath: constantGapRate
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
+      propertyPath: gapRandomPercent
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
+      propertyPath: constantHeightRate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
+      propertyPath: heightRandomPercent
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 8417933768683845535, guid: 63a521e3d34b17d4f953462ec5e583c2, type: 3}
       propertyPath: numberOfModulesOnScreen

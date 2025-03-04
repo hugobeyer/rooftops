@@ -201,7 +201,7 @@ Transform:
   m_GameObject: {fileID: 684380487716547189}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.44, z: -1.1}
+  m_LocalPosition: {x: 0, y: 0.3929999, z: -1.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -341,7 +341,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5720
+  m_VersionIndex: 5729
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -470,7 +470,7 @@ Transform:
   m_GameObject: {fileID: 1390280789460642251}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.00999999, z: -0.281}
+  m_LocalPosition: {x: 0, y: 1.8429999, z: -0.281}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -962,7 +962,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5720
+  m_VersionIndex: 5729
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1198,7 +1198,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5720
+  m_VersionIndex: 5729
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1327,7 +1327,7 @@ Transform:
   m_GameObject: {fileID: 3421347671584870885}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.96, z: -0.84}
+  m_LocalPosition: {x: 0, y: 0.8729999, z: -0.84}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1536,7 +1536,7 @@ Transform:
   m_GameObject: {fileID: 7102537895894073615}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.486, z: -0.563}
+  m_LocalPosition: {x: 0, y: 1.3469999, z: -0.563}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1676,7 +1676,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5720
+  m_VersionIndex: 5729
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1912,7 +1912,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5720
+  m_VersionIndex: 5729
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -2269,6 +2269,14 @@ MonoBehaviour:
   defaultTextColor: {r: 1, g: 0, b: 0.89228725, a: 1}
   warningTextColor: {r: 1, g: 0.5, b: 0, a: 1}
   errorTextColor: {r: 1, g: 0, b: 0, a: 1}
+  dotweenTextFadeInTime: 0.5
+  dotweenTextDisplayDuration: 2
+  dotweenTextFadeOutTime: 0.5
+  dotweenTextTargetColor: {r: 1, g: 1, b: 1, a: 1}
+  dotweenBarFadeInTime: 0.5
+  dotweenBarDisplayDuration: 2
+  dotweenBarFadeOutTime: 0.5
+  dotweenBarTargetColor: {r: 1, g: 1, b: 1, a: 1}
   messageStyles:
   - styleName: START
     messageColor: {r: 0.91823894, g: 0.91823894, b: 0.91823894, a: 1}
@@ -2277,6 +2285,12 @@ MonoBehaviour:
     barAnimationStyle: 5
     barColor: {r: 0.106918216, g: 0.0077330694, b: 0.09237108, a: 0.7254902}
     barDuration: 4.52
+    popOutDistance: 0
+    popOutTime: 0
+    popOutAxis: 0
+    exitMoveDistance: 0
+    exitMoveColor: {r: 1, g: 1, b: 1, a: 1}
+    exitMoveAxis: 0
   - styleName: WARNING
     messageColor: {r: 1, g: 0.6382922, b: 0, a: 1}
     displayDuration: 1
@@ -2284,6 +2298,12 @@ MonoBehaviour:
     barAnimationStyle: 3
     barColor: {r: 0.30980393, g: 0.10843138, b: 0.07745098, a: 0.49411765}
     barDuration: 0.87
+    popOutDistance: 0
+    popOutTime: 0
+    popOutAxis: 0
+    exitMoveDistance: 0
+    exitMoveColor: {r: 1, g: 1, b: 1, a: 1}
+    exitMoveAxis: 0
   - styleName: INFO
     messageColor: {r: 0, g: 0, b: 0, a: 1}
     displayDuration: 2
@@ -2291,6 +2311,12 @@ MonoBehaviour:
     barAnimationStyle: 4
     barColor: {r: 0, g: 0.46996632, b: 0.4716981, a: 0.7254902}
     barDuration: 2
+    popOutDistance: 0
+    popOutTime: 0
+    popOutAxis: 0
+    exitMoveDistance: 0
+    exitMoveColor: {r: 1, g: 1, b: 1, a: 1}
+    exitMoveAxis: 0
   - styleName: DEFAULT
     messageColor: {r: 0, g: 0, b: 0, a: 1}
     displayDuration: 5
@@ -2298,6 +2324,12 @@ MonoBehaviour:
     barAnimationStyle: 1
     barColor: {r: 1, g: 0, b: 0.45973682, a: 0.93333334}
     barDuration: 5
+    popOutDistance: 0
+    popOutTime: 0
+    popOutAxis: 0
+    exitMoveDistance: 0
+    exitMoveColor: {r: 1, g: 1, b: 1, a: 1}
+    exitMoveAxis: 0
   - styleName: OWN
     messageColor: {r: 1, g: 1, b: 1, a: 1}
     displayDuration: 4
@@ -2305,6 +2337,12 @@ MonoBehaviour:
     barAnimationStyle: 4
     barColor: {r: 0, g: 0.19496846, b: 0.1719784, a: 0.6901961}
     barDuration: 4
+    popOutDistance: 0
+    popOutTime: 0
+    popOutAxis: 0
+    exitMoveDistance: 0
+    exitMoveColor: {r: 1, g: 1, b: 1, a: 1}
+    exitMoveAxis: 0
   - styleName: TITLE
     messageColor: {r: 0, g: 0, b: 0, a: 1}
     displayDuration: 2
@@ -2312,6 +2350,12 @@ MonoBehaviour:
     barAnimationStyle: 5
     barColor: {r: 0, g: 0.38364854, b: 0.44705883, a: 0.93333334}
     barDuration: 2
+    popOutDistance: 0
+    popOutTime: 0
+    popOutAxis: 0
+    exitMoveDistance: 0
+    exitMoveColor: {r: 1, g: 1, b: 1, a: 1}
+    exitMoveAxis: 0
   messageLibrary:
   - messageID: DEFAULT
     messageText: Error, FIX
@@ -2343,23 +2387,93 @@ MonoBehaviour:
   - messageID: OWN_TRIDOTS
     messageText: Catcher! {0} Tridots
     styleID: OWN
-  notEnoughTridotsMessage: Default Message
-  tridotCollectedMessage: Default
   newTierRevealedMessage:
     messageID: 
     messageText: Message text here
     styleID: 
   enableKeyboardTesting: 0
   testMessage: Test Message
-  testFadeInOutKey: 116
-  testPulseKey: 121
-  testBlinkKey: 117
-  testWarningKey: 105
-  testZeroTridotsKey: 111
-  testPopTransitionKey: 112
-  testPopFadeKey: 91
-  testLongerTextKey: 93
-  testLongerBarKey: 92
+  FadeOutInputAction:
+    m_Name: Fade Out Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 3577d584-83c9-4cde-8bbd-a045afbd1fa9
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  PulseInputAction:
+    m_Name: Pulse Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: e9c4ef61-a713-41aa-9be5-e27b955a936b
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  BlinkInputAction:
+    m_Name: Blink Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: f0e0f9dc-893c-410b-a5f2-c44db34149af
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  WarningInputAction:
+    m_Name: Warning Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 60a1e6b2-e87b-46f8-b072-5f234bff4d0f
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  ZeroWarningInputAction:
+    m_Name: Zero Warning Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 6f28b1b7-c4c8-4cc8-b971-c4a454e9cc2a
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  PopTransitionInputAction:
+    m_Name: Pop Transition Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: db11b68d-b88e-4244-8dcc-59a06eccff51
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  PopFadeInputAction:
+    m_Name: Pop Fade Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: f3c1418a-ea7f-425d-bb96-35358dfcbdce
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  LongerTextInputAction:
+    m_Name: Longer Text Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 7e68e9df-bcc6-43b1-a9ba-f4024778c731
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  LongerBarInputAction:
+    m_Name: Longer Bar Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: af4cbd55-14fe-4794-9a09-16bdacb752e4
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
 --- !u!1 &9078658029536222598
 GameObject:
   m_ObjectHideFlags: 0
@@ -2385,7 +2499,7 @@ Transform:
   m_GameObject: {fileID: 9078658029536222598}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.497, z: 0}
+  m_LocalPosition: {x: 0, y: 2.33, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
