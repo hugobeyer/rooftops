@@ -8,7 +8,6 @@ public class MainMenuController : MonoBehaviour
     public GameObject mainMenuPanel;
     public TMP_Text bestScoreText;
     public TMP_Text lastRunText;
-    public TMP_Text tridotText;
     public TMP_Text memcardText;
     // Add other main menu elements
     
@@ -23,7 +22,6 @@ public class MainMenuController : MonoBehaviour
         {
             bestScoreText.text = $"{GameManager.Instance.gameData.bestDistance:F1} m";
             lastRunText.text = $"{GameManager.Instance.gameData.lastRunDistance:F1} m";
-            tridotText.text = GameManager.Instance.gameData.totalTridotCollected.ToString();
             memcardText.text = GameManager.Instance.gameData.totalMemcardsCollected.ToString();
         }
     }

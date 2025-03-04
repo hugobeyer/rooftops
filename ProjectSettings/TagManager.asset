@@ -33,7 +33,7 @@ TagManager:
   - Item
   - Prop
   - Drone
-  - Building
+  - 
   - DeathDetector
   - Messages
   - Player
@@ -51,18 +51,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: envo
-    uniqueID: 3138801931
-    locked: 0
-  - name: text
-    uniqueID: 142401065
-    locked: 0
   m_RenderingLayers:
   - Default
   - 3DText
-  - ShadowReceivers
-  - Light Layer 3
-  - Light Layer 4
+  - FrontBuildings
+  - Vista
+  - Front
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
