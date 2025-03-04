@@ -1,62 +1,77 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using RoofTops;
+using UnityEngine.InputSystem;
 
 public class RestartButton3D : MonoBehaviour
 {
-    void Awake()
-    {
-        // Register a restart action with InputManager if it exists
-        if (InputManager.Exists())
-        {
-            InputManager.Instance.RegisterAction("RestartGame", KeyCode.R);
-            InputManager.Instance.SubscribeToPressed("RestartGame", RestartGame);
-        }
-    }
+    #region Properties
+    [SerializeField]
+    private InputActionReference restartInputActionReference;
+    private InputAction restartInputAction => restartInputActionReference?.action;
+    #endregion // Properties
 
-    void Update()
-    {
-        // Only handle direct touch input if InputManager doesn't exist
-        if (!InputManager.Exists())
-        {
-            HandleTouchInput();
-        }
-    }
+    #region Unity Methods
 
-    private void HandleTouchInput()
+    private void Start()
     {
-        if (Input.touchCount > 0)
+        if(restartInputActionReference != null)
         {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
-            {
-                CheckTouch(touch.position);
-            }
+            restartInputAction.Enable();
+            restartInputAction.performed += ctx => RestartGame();
         }
-    }
-
-    private void CheckTouch(Vector2 touchPosition)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(touchPosition);
-        RaycastHit hit;
         
-        if (Physics.Raycast(ray, out hit))
+        GameManager.OnGameStateChanged += HandleGameStateChanged;
+        if(GameManager.GamesState == GameStates.GameOver)
         {
-            if (hit.collider.gameObject == gameObject)
+            InputActionManager.Instance.OnJumpPressed.AddListener(CheckInteraction);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.OnGameStateChanged -= HandleGameStateChanged;
+        restartInputAction.Disable();
+        restartInputAction.performed -= ctx => RestartGame();
+    }
+
+    #endregion // Unity Methods
+
+    #region Functions
+
+    
+    private void CheckInteraction()
+    {
+        Ray ray = InputActionManager.Instance.GetRayFromPointer();
+        RaycastHit[] interactionHits = Physics.RaycastAll(ray);
+
+        for(int index = interactionHits.Length - 1; index >= 0; index--)
+        {
+            if (interactionHits[index].collider.gameObject == gameObject)
             {
                 RestartGame();
+                return;
             }
         }
     }
 
-    void OnMouseDown()
+    private void HandleGameStateChanged(GameStates oldState, GameStates newState)
     {
-        RestartGame();
+        if (newState == GameStates.GameOver)
+        {
+           InputActionManager.Instance.OnJumpPressed.AddListener(CheckInteraction);
+        }
+        else
+        {
+            InputActionManager.Instance.OnJumpPressed.RemoveListener(CheckInteraction);
+        }
     }
 
-    private void RestartGame()
+    public void RestartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        GameManager.Instance.ResetGame();
     }
-} 
+    #endregion // Functions
+}

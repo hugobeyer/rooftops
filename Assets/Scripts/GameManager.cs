@@ -1,12 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using TMPro;
-using RoofTops;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
 
 namespace RoofTops
 {
@@ -176,7 +172,7 @@ namespace RoofTops
         private float currentGravity;
 
         [Header("Required Components")]
-        public InputManager inputManager;  // Change to public so you can assign in inspector
+        public InputActionManager inputManager;  // Change to public so you can assign in inspector
         public FootstepController footstepController;  // Add this line to reference footsteps
 
         [Header("Death UI")]
@@ -205,7 +201,7 @@ namespace RoofTops
         [Header("UI Panel Settings")]
         public float initialPanelHideTime = 3f; // how long to hide panel at start
 
-        private PanelController panelController; // reference to the panel script
+        //private PanelController panelController; // reference to the panel script
         [Header("Popup After Panel Shows")]
         public GameObject popupMessage;      // The GameObject to show briefly
         public float popupDisplayTime = 2f;  // How many seconds it stays visible
@@ -256,7 +252,7 @@ namespace RoofTops
             // Find InputManager if not assigned
             if (inputManager == null)
             {
-                inputManager = FindFirstObjectByType<InputManager>();
+                inputManager = FindFirstObjectByType<InputActionManager>();
             }
 
             currentGravity = defaultGravity;
@@ -325,10 +321,13 @@ namespace RoofTops
             {
                 targetMaterial.SetFloat("_UsePath", 0f);
             }
+            OnGameStateChanged += HandleGameStateChanged;
         }
 
-        void Start()
+        private void Start()
         {
+            GamesState = GameStates.MainMenu;
+            
             if (pauseIndicator != null)
             {
                 pauseIndicator.SetActive(false);
@@ -339,11 +338,11 @@ namespace RoofTops
                 gameplayUITransform = gameplayUI.transform;
             }
 
-            // Keep or find the panel controller if needed
-            if (panelController == null)
-            {
-                panelController = FindObjectOfType<PanelController>();
-            }
+            //// Keep or find the panel controller if needed
+            //if (panelController == null)
+            //{
+            //    panelController = FindObjectOfType<PanelController>();
+            //}
 
             if (VistaPool.Instance != null)
             {
@@ -357,14 +356,10 @@ namespace RoofTops
             }
         }
 
-        public void Update()
+        private void Update()
         {
-            if (!HasGameStarted)
+            if (GamesState != GameStates.Playing)
             {
-                if (InputManager.Instance != null && InputManager.Instance.isJumpPressed)
-                {
-                    StartGame();
-                }
                 return;
             }
 
@@ -425,6 +420,12 @@ namespace RoofTops
             }
         }
 
+        private void OnDestroy()
+        {
+
+            OnGameStateChanged -= HandleGameStateChanged;
+        }
+
         public void TogglePause()
         {
             if (!isPaused)
@@ -442,6 +443,7 @@ namespace RoofTops
                 }
             }
 
+            GamesState = IsPaused ? previousState : GameStates.Paused;
             IsPaused = !IsPaused;
 
             if (IsPaused)
@@ -587,6 +589,7 @@ namespace RoofTops
 
         public void StartGame()
         {
+            GamesState = GameStates.Playing;
             if (!HasGameStarted)
             {
                 HasGameStarted = true;
@@ -616,11 +619,11 @@ namespace RoofTops
                 }
 
                 // Hide the panel once the game actually starts
-                if (panelController != null && panelController.gameObject != null)
-                {
-                    panelController.gameObject.SetActive(false);
-                    StartCoroutine(ReEnablePanelAfterDelay());
-                }
+                //if (panelController != null && panelController.gameObject != null)
+                //{
+                //    panelController.gameObject.SetActive(false);
+                //    StartCoroutine(ReEnablePanelAfterDelay());
+                //}
 
                 Time.timeScale = timeSpeed;
 
@@ -716,6 +719,8 @@ namespace RoofTops
         // New method to handle the overall game over (player death) logic.
         public void HandlePlayerDeath(float finalDistance, GameObject collidingHook = null)
         {
+            GamesState = GameStates.GameOver;
+
             // Save stats
             RecordFinalDistance(finalDistance);
 
@@ -791,6 +796,8 @@ namespace RoofTops
 
         private IEnumerator ShowDeathUI()
         {
+            GamesState = GameStates.GameOver;
+
             // Wait for camera movement and ragdoll to settle
             yield return new WaitForSeconds(deathUIPanelDelay);
 
@@ -938,7 +945,7 @@ namespace RoofTops
         private IEnumerator ReEnablePanelAfterDelay()
         {
             yield return new WaitForSeconds(initialPanelHideTime);
-            panelController.gameObject.SetActive(true);
+           // panelController.gameObject.SetActive(true);
 
             // Right after re-enabling the panel, show the extra popup
             if (popupMessage != null)
@@ -1060,6 +1067,7 @@ namespace RoofTops
 
         private void OnApplicationPause(bool pauseStatus)
         {
+            GamesState = pauseStatus ? GameStates.Paused : previousState;
             // Save data when the application is paused (e.g., when switching to another app on mobile)
             if (pauseStatus)
             {
@@ -1068,5 +1076,65 @@ namespace RoofTops
         }
 
         // Add this method to GameManager
+
+        private void HandleGameStateChanged(GameStates oldState, GameStates newState)
+        {
+            if(newState == GameStates.MainMenu)
+            {
+                InputActionManager.Instance.OnJumpPressed.AddListener(StartGame);
+            }
+            else
+            {
+                InputActionManager.Instance.OnJumpPressed.RemoveListener(StartGame);
+            }
+        }
+
+
+        #region Game State
+
+        public delegate void GameStateChanged(GameStates oldState, GameStates newState);
+
+        public static GameStateChanged OnGameStateChanged;
+        private static GameStates previousState = GameStates.StartingUp;
+        private static GameStates currentState = GameStates.StartingUp;
+
+        public static GameStates GamesState
+        {
+            get
+            {
+                return currentState;
+            }
+            private set
+            {
+                if (currentState != value)
+                {
+                    previousState = currentState;
+                    currentState = value;
+                    OnGameStateChanged?.Invoke(previousState, currentState);
+                }
+            }
+        }
+
+
+        public static bool RequestGameStateChange(GameStates state)
+        {
+            if (currentState == state)
+            {
+                return false;
+            }
+            GamesState = state;
+            return true;
+        }
+        #endregion // Game State
+    }
+
+    public enum GameStates
+    {
+        StartingUp,
+        MainMenu,
+        Playing,
+        Paused,
+        GameOver,
+        ShuttingDown
     }
 }

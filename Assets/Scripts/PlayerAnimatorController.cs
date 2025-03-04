@@ -16,7 +16,7 @@ namespace RoofTops
         private bool jumpButtonWasReleased = false;
 #pragma warning restore 0414
         private bool wasJumpButtonPressed = false;  // Track previous frame's button state
-        private bool holdingJump = false;  // Track if jump button has been held since last jump
+        
 
         // Animation parameter hashes
         private static readonly int jumpTriggerHash = Animator.StringToHash("jumpTrigger");
@@ -451,12 +451,12 @@ namespace RoofTops
 
         void HandleJumpTrigger()
         {
-            if (!InputManager.Exists()) return;
+            if (!InputActionManager.Exists()) return;
 
-            bool isJumpPressed = InputManager.Instance.isJumpPressed;
+            bool isJumpPressed = InputActionManager.Instance.IsJumping;
 
             // Change Input.GetButtonDown check to use InputManager
-            if (InputManager.Instance.isJumpPressed && playerController.IsGroundedOnCollider && !holdingJump && canJumpTrigger)
+            if (InputActionManager.Instance.IsJumping && playerController.IsGroundedOnCollider && !InputActionManager.Instance.IsHoldingJump && canJumpTrigger)
             {
                 jumpStartTime = Time.time;
                 animator.SetBool(smallJumpBoolHash, false); // Reset at start of jump
@@ -476,7 +476,6 @@ namespace RoofTops
                 animator.SetFloat(jumpSpeedMultiplierHash, jumpSpeedRatio);
                 animator.SetTrigger(jumpTriggerHash);
 
-                holdingJump = true;
             }
 
             // Add explicit ground state synchronization
@@ -494,8 +493,6 @@ namespace RoofTops
                 {
                     animator.SetBool(smallJumpBoolHash, true);
                 }
-
-                holdingJump = false;
             }
 
             wasJumpButtonPressed = isJumpPressed;
@@ -690,7 +687,6 @@ namespace RoofTops
 
             // Reset variables
             canJumpTrigger = true;
-            holdingJump = false;
             isResettingSpine = false;
             maxJumpHeight = 0f;
             jumpStartHeight = 0f;
@@ -750,7 +746,10 @@ namespace RoofTops
                 animator.SetLayerWeight(TurnLayerIndex, 0f);
                 animator.ResetTrigger(TurnTrigger);
                 // Start the delayed turn which will handle the weight properly
-                StartCoroutine(DelayedTurn());
+                if (isActiveAndEnabled)
+                {
+                    StartCoroutine(DelayedTurn());
+                }
             }
         }
 
