@@ -56,7 +56,6 @@ namespace RoofTops
             object goalValue = goalValues.GetValue(currentProgressIndex);
 
             // Debug log to help diagnose issues
-            Debug.Log($"[{displayName}] Checking goal: Current={currentValue}, Goal={goalValue}, ProgressIndex={currentProgressIndex}, GoalIndex={goalIndex}");
 
             // Make sure we're comparing the correct types
             if (currentValue is float currentFloat && goalValue is float goalFloat)
@@ -150,8 +149,6 @@ namespace RoofTops
                 Debug.Log($"Category {categoryName} has null currentGoalValue");
                 return;
             }
-
-            Debug.Log($"Showing message for {categoryName} with ID {startMessageID} and value {currentGoalValue}");
             GameMessageDisplay.Instance.ShowMessageByID(startMessageID, currentGoalValue);
         }
 
@@ -271,12 +268,10 @@ namespace RoofTops
             }
 
             // Debug log to help diagnose issues
-            Debug.Log($"[CheckGoal] {category.displayName}: Current={currentValue}, Goal={goalValue}, ProgressIndex={category.currentProgressIndex}, GoalIndex={category.goalIndex}");
 
             // Only check if the goal is reached if we have valid values
             if (category.IsGoalReached())
             {
-                Debug.Log($"[GOAL REACHED] {category.displayName}: Current={currentValue}, Goal={goalValue}");
 
                 // Store the current progress index before advancing
                 int previousProgressIndex = category.currentProgressIndex;
@@ -379,19 +374,15 @@ namespace RoofTops
             if (GameMessageDisplay.Instance != null)
             {
                 // Show default message first
-                Debug.Log("Showing START_DEFAULT message");
                 GameMessageDisplay.Instance.ShowMessageByID("START_DEFAULT");
 
                 // Wait before showing category messages
                 yield return new WaitForSeconds(betweenStartMessagesDelay);
 
-                Debug.Log($"Number of enabled categories: {enabledCategories.Count}");
                 foreach (var categoryName in enabledCategories)
                 {
-                    Debug.Log($"Processing category: {categoryName}");
                     if (goalCategories.TryGetValue(categoryName, out GoalCategory category) && category.isEnabled)
                     {
-                        Debug.Log($"Showing start message for category: {categoryName}");
                         category.ShowStartMessage();
 
                         // Add delay between each category message

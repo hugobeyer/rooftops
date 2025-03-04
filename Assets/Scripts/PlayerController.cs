@@ -605,8 +605,24 @@ namespace RoofTops
             if (!isDead)
             {
                 isDead = true;
+                // Immediately trigger camera transition
+                FindFirstObjectByType<NoiseMovement>()?.TransitionToDeathView();
+                // Disable input
+                this.enabled = false;
                 GetComponent<PlayerAnimatorController>().ResetAnimationStates();
-                // ... rest of death handling
+
+                // Only zero out horizontal velocity, keep vertical for falling
+                _velocity.x = 0;
+                _velocity.z = 0;
+
+                // Retrieve the final distance directly from GameManager.
+                float finalDistance = GameManager.Instance.CurrentDistance;
+
+                // Show ad through GameAdsManager
+                GameAdsManager.Instance?.OnPlayerDeath(() =>
+                {
+                    GameManager.Instance.HandlePlayerDeath(finalDistance);
+                });
             }
         }
 

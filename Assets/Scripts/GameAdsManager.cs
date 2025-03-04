@@ -8,7 +8,6 @@ namespace RoofTops
         public static GameAdsManager Instance { get { return _instance; } }
 
         [Header("Ad Settings")]
-        [SerializeField] private int showAdEveryXDeaths = 2;
         [SerializeField] private float minTimeBetweenAds = 30f;  // Minimum seconds between ads
 
         [Header("Skip Settings")]
@@ -20,7 +19,6 @@ namespace RoofTops
 
         private MonoBehaviour adsManager;
         private float lastAdTime;
-        private int deathCount = 0;
 
         private void Awake()
         {
@@ -44,12 +42,11 @@ namespace RoofTops
 
         public void OnPlayerDeath(System.Action onAdClosed)
         {
-            deathCount++;
+            // Show ad on every death, but still respect the minimum time between ads
             bool canShowAd = Time.time - lastAdTime >= minTimeBetweenAds;
 
-            if (deathCount >= showAdEveryXDeaths && canShowAd)
+            if (canShowAd)
             {
-                deathCount = 0;
                 var showMethod = adsManager?.GetType().GetMethod("ShowInterstitial");
                 showMethod?.Invoke(adsManager, null);
                 lastAdTime = Time.time;

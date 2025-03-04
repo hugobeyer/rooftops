@@ -64,3 +64,6 @@ MonoBehaviour:
   - objectName: Systems
     color: {r: 0.26415092, g: 0.13539809, b: 0.20855314, a: 1}
     useContains: 1
+  - objectName: Ads
+    color: {r: 0.46540874, g: 0.23671855, b: 0.057078373, a: 1}
+    useContains: 1
