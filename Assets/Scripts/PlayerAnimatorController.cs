@@ -16,7 +16,7 @@ namespace RoofTops
         private bool jumpButtonWasReleased = false;
 #pragma warning restore 0414
         private bool wasJumpButtonPressed = false;  // Track previous frame's button state
-        private bool holdingJump = false;  // Track if jump button has been held since last jump
+        
 
         // Animation parameter hashes
         private static readonly int jumpTriggerHash = Animator.StringToHash("jumpTrigger");
@@ -456,7 +456,7 @@ namespace RoofTops
             bool isJumpPressed = InputActionManager.Instance.IsJumping;
 
             // Change Input.GetButtonDown check to use InputManager
-            if (InputActionManager.Instance.IsJumping && playerController.IsGroundedOnCollider && !holdingJump && canJumpTrigger)
+            if (InputActionManager.Instance.IsJumping && playerController.IsGroundedOnCollider && !InputActionManager.Instance.IsHoldingJump && canJumpTrigger)
             {
                 jumpStartTime = Time.time;
                 animator.SetBool(smallJumpBoolHash, false); // Reset at start of jump
@@ -476,7 +476,6 @@ namespace RoofTops
                 animator.SetFloat(jumpSpeedMultiplierHash, jumpSpeedRatio);
                 animator.SetTrigger(jumpTriggerHash);
 
-                holdingJump = true;
             }
 
             // Add explicit ground state synchronization
@@ -494,8 +493,6 @@ namespace RoofTops
                 {
                     animator.SetBool(smallJumpBoolHash, true);
                 }
-
-                holdingJump = false;
             }
 
             wasJumpButtonPressed = isJumpPressed;
@@ -690,7 +687,6 @@ namespace RoofTops
 
             // Reset variables
             canJumpTrigger = true;
-            holdingJump = false;
             isResettingSpine = false;
             maxJumpHeight = 0f;
             jumpStartHeight = 0f;

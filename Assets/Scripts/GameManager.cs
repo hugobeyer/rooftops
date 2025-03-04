@@ -201,7 +201,7 @@ namespace RoofTops
         [Header("UI Panel Settings")]
         public float initialPanelHideTime = 3f; // how long to hide panel at start
 
-        private PanelController panelController; // reference to the panel script
+        //private PanelController panelController; // reference to the panel script
         [Header("Popup After Panel Shows")]
         public GameObject popupMessage;      // The GameObject to show briefly
         public float popupDisplayTime = 2f;  // How many seconds it stays visible
@@ -338,11 +338,11 @@ namespace RoofTops
                 gameplayUITransform = gameplayUI.transform;
             }
 
-            // Keep or find the panel controller if needed
-            if (panelController == null)
-            {
-                panelController = FindObjectOfType<PanelController>();
-            }
+            //// Keep or find the panel controller if needed
+            //if (panelController == null)
+            //{
+            //    panelController = FindObjectOfType<PanelController>();
+            //}
 
             if (VistaPool.Instance != null)
             {
@@ -619,11 +619,11 @@ namespace RoofTops
                 }
 
                 // Hide the panel once the game actually starts
-                if (panelController != null && panelController.gameObject != null)
-                {
-                    panelController.gameObject.SetActive(false);
-                    StartCoroutine(ReEnablePanelAfterDelay());
-                }
+                //if (panelController != null && panelController.gameObject != null)
+                //{
+                //    panelController.gameObject.SetActive(false);
+                //    StartCoroutine(ReEnablePanelAfterDelay());
+                //}
 
                 Time.timeScale = timeSpeed;
 
@@ -945,7 +945,7 @@ namespace RoofTops
         private IEnumerator ReEnablePanelAfterDelay()
         {
             yield return new WaitForSeconds(initialPanelHideTime);
-            panelController.gameObject.SetActive(true);
+           // panelController.gameObject.SetActive(true);
 
             // Right after re-enabling the panel, show the extra popup
             if (popupMessage != null)

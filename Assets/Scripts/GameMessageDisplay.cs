@@ -228,11 +228,6 @@ namespace RoofTops
 
         #endregion // Input Action references
 
-
-        //// Add key configuration for testing
-        [Header("Test Key Bindings")]
-        [Description("Key bindings for testing different message styles are now found in InputSystem_Actions file")]
-
         private void Awake()
         {
             // Singleton pattern
