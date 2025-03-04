@@ -39,16 +39,18 @@ public class RestartButton3D : MonoBehaviour
 
     #region Functions
 
+    
     private void CheckInteraction()
     {
         Ray ray = InputActionManager.Instance.GetRayFromPointer();
-        RaycastHit hit;
+        RaycastHit[] interactionHits = Physics.RaycastAll(ray);
 
-        if (Physics.Raycast(ray, out hit))
+        for(int index = interactionHits.Length - 1; index >= 0; index--)
         {
-            if (hit.collider.gameObject == gameObject)
+            if (interactionHits[index].collider.gameObject == gameObject)
             {
                 RestartGame();
+                return;
             }
         }
     }
