@@ -15,8 +15,12 @@ public class RestartButton3D : MonoBehaviour
 
     private void Start()
     {
-        restartInputAction.Enable();
-        restartInputAction.performed += ctx => RestartGame();
+        if(restartInputActionReference != null)
+        {
+            restartInputAction.Enable();
+            restartInputAction.performed += ctx => RestartGame();
+        }
+        
         GameManager.OnGameStateChanged += HandleGameStateChanged;
         if(GameManager.GamesState == GameStates.GameOver)
         {

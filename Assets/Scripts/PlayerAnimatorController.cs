@@ -750,7 +750,10 @@ namespace RoofTops
                 animator.SetLayerWeight(TurnLayerIndex, 0f);
                 animator.ResetTrigger(TurnTrigger);
                 // Start the delayed turn which will handle the weight properly
-                StartCoroutine(DelayedTurn());
+                if (isActiveAndEnabled)
+                {
+                    StartCoroutine(DelayedTurn());
+                }
             }
         }
 
