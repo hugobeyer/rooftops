@@ -31,7 +31,6 @@ namespace RoofTops
         [Header("Charge Jump State")]
         public bool isChargingJump { get; private set; }
         public float currentChargedJumpForce { get; private set; }
-        //private bool holdingJump = false;  // Track if jump button has been held since last jump
 
         private float jumpStartTime;
         private float predictedFlightTime;
