@@ -1,14 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using TMPro;
-using RoofTops;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
-using UnityEngine.Events;
-using static UnityEditorInternal.VersionControl.ListControl;
 
 namespace RoofTops
 {
@@ -364,12 +358,8 @@ namespace RoofTops
 
         private void Update()
         {
-            if (!HasGameStarted)
+            if (GamesState != GameStates.Playing)
             {
-            //    if (InputActionManager.Instance != null && InputActionManager.Instance.isJumpPressed)
-            //    {
-            //        StartGame();
-            //    }
                 return;
             }
 
