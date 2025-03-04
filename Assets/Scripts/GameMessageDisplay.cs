@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 using UnityEngine.InputSystem;
+using System.ComponentModel;
 
 /////////////////////////////////// DO NOT DARE TO CREATE ANY HARD CODED MESSAGES, DONT YOU DARE!!!!
 namespace RoofTops
@@ -227,17 +228,10 @@ namespace RoofTops
 
         #endregion // Input Action references
 
+
         //// Add key configuration for testing
-        //[Header("Test Key Bindings")]
-        //[SerializeField] private KeyCode testFadeInOutKey = KeyCode.T;
-        //[SerializeField] private KeyCode testPulseKey = KeyCode.Y;
-        //[SerializeField] private KeyCode testBlinkKey = KeyCode.U;
-        //[SerializeField] private KeyCode testWarningKey = KeyCode.I;
-        //[SerializeField] private KeyCode testZeroTridotsKey = KeyCode.O;
-        //[SerializeField] private KeyCode testPopTransitionKey = KeyCode.P;
-        //[SerializeField] private KeyCode testPopFadeKey = KeyCode.LeftBracket;
-        //[SerializeField] private KeyCode testLongerTextKey = KeyCode.RightBracket;
-        //[SerializeField] private KeyCode testLongerBarKey = KeyCode.Backslash;
+        [Header("Test Key Bindings")]
+        [Description("Key bindings for testing different message styles are now found in InputSystem_Actions file")]
 
         private void Awake()
         {
