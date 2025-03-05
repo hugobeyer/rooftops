@@ -45,9 +45,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6025555183408876843}
     m_Modifications:
+    - target: {fileID: 158433104348662284, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4670579
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.y
@@ -84,6 +88,14 @@ PrefabInstance:
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_VersionIndex
+      value: 344
       objectReference: {fileID: 0}
     - target: {fileID: 9045513520154018730, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_Name
@@ -107,9 +119,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6025555183408876843}
     m_Modifications:
+    - target: {fileID: 158433104348662284, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4670579
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.y
@@ -147,6 +163,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_VersionIndex
+      value: 344
+      objectReference: {fileID: 0}
     - target: {fileID: 9045513520154018730, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_Name
       value: MemCard (1)
@@ -169,9 +193,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6025555183408876843}
     m_Modifications:
+    - target: {fileID: 158433104348662284, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4670579
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.y
@@ -209,6 +237,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_VersionIndex
+      value: 344
+      objectReference: {fileID: 0}
     - target: {fileID: 9045513520154018730, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_Name
       value: MemCard (4)
@@ -231,9 +267,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6025555183408876843}
     m_Modifications:
+    - target: {fileID: 158433104348662284, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4670579
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.y
@@ -271,6 +311,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_VersionIndex
+      value: 344
+      objectReference: {fileID: 0}
     - target: {fileID: 9045513520154018730, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_Name
       value: MemCard (5)
@@ -293,9 +341,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6025555183408876843}
     m_Modifications:
+    - target: {fileID: 158433104348662284, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4670579
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.y
@@ -333,6 +385,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_VersionIndex
+      value: 344
+      objectReference: {fileID: 0}
     - target: {fileID: 9045513520154018730, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_Name
       value: MemCard (10)
@@ -355,9 +415,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6025555183408876843}
     m_Modifications:
+    - target: {fileID: 158433104348662284, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4670579
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalPosition.y
@@ -394,6 +458,14 @@ PrefabInstance:
     - target: {fileID: 6193273724328097642, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7322582350796866149, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
+      propertyPath: m_VersionIndex
+      value: 344
       objectReference: {fileID: 0}
     - target: {fileID: 9045513520154018730, guid: 46a668cd24afc5d47a1ea097d20c1072, type: 3}
       propertyPath: m_Name

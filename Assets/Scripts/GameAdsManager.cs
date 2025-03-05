@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace RoofTops
 {
@@ -22,22 +24,60 @@ namespace RoofTops
 
         private void Awake()
         {
+            // Singleton pattern with DontDestroyOnLoad
             if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
+            
             _instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // Get the ads manager
-            adsManager = FindFirstObjectByType<MonoBehaviour>();
-            if (adsManager != null && adsManager.GetType().Name.Contains("UnityAdsManager"))
+            
+            // Find the ads manager component if available
+            adsManager = FindAdsManager();
+            
+            // Initialize with a negative time to allow first ad immediately
+            lastAdTime = -minTimeBetweenAds;
+            
+            // Subscribe to scene loaded events to reinitialize if needed
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+        
+        private void OnDestroy()
+        {
+            // Unsubscribe from scene loaded events
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+        
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // Reinitialize ads manager if needed
+            if (adsManager == null)
             {
-                // Debug.Log("Found Unity Ads Manager");
+                adsManager = FindAdsManager();
             }
-
-            lastAdTime = -minTimeBetweenAds; // Allow first ad immediately
+            
+            Debug.Log($"GameAdsManager: Scene loaded - {scene.name}, Ads manager found: {adsManager != null}");
+        }
+        
+        private MonoBehaviour FindAdsManager()
+        {
+            // Don't use tags since they might not be defined
+            // Instead, try to find by type name (using reflection to avoid direct dependencies)
+            foreach (var obj in FindObjectsOfType<MonoBehaviour>())
+            {
+                string typeName = obj.GetType().Name;
+                if (typeName.Contains("AdsManager") || typeName.Contains("AdManager") || 
+                    typeName.Contains("UnityAdsInitializer") || typeName.Contains("MobileMonetizationPro"))
+                {
+                    Debug.Log($"Found ads manager: {typeName}");
+                    return obj;
+                }
+            }
+            
+            Debug.LogWarning("No ads manager found in the scene. Ad functionality will be limited.");
+            return null;
         }
 
         public void OnPlayerDeath(System.Action onAdClosed)
@@ -45,14 +85,36 @@ namespace RoofTops
             // Show ad on every death, but still respect the minimum time between ads
             bool canShowAd = Time.time - lastAdTime >= minTimeBetweenAds;
 
-            if (canShowAd)
+            if (canShowAd && adsManager != null)
             {
-                var showMethod = adsManager?.GetType().GetMethod("ShowInterstitial");
-                showMethod?.Invoke(adsManager, null);
-                lastAdTime = Time.time;
+                try
+                {
+                    var showMethod = adsManager?.GetType().GetMethod("ShowInterstitial");
+                    if (showMethod != null)
+                    {
+                        showMethod.Invoke(adsManager, null);
+                        lastAdTime = Time.time;
+                        
+                        // Give a small delay before invoking the callback to ensure ad has time to display
+                        StartCoroutine(DelayedCallback(onAdClosed));
+                        return;
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Error showing ad: " + e.Message);
+                }
             }
-
+            
+            // If we can't show an ad or there was an error, invoke the callback immediately
             onAdClosed?.Invoke();
+        }
+        
+        private IEnumerator DelayedCallback(System.Action callback)
+        {
+            // Wait a short time to ensure ad has time to display
+            yield return new WaitForSeconds(0.5f);
+            callback?.Invoke();
         }
     }
 }

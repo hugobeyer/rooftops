@@ -3,41 +3,13 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
+using System;
+using UnityEngine.UI;
 
 namespace RoofTops
 {
-    /// <summary>
-    /// Container for all achievement save data
-    /// </summary>
-    [System.Serializable]
-    public class AchievementSaveData
-    {
-        public string lastSaveTime;
-        public Dictionary<string, float> playerMetrics = new Dictionary<string, float>();
-        public int currentGoalType;
-        public float currentGoalValue;
-        public bool goalAchieved;
-        public bool hasShownDashInfo = false; // Add this field to track tutorial message state
-        public List<CompletedGoal> completedGoals = new List<CompletedGoal>();
-    }
-
-    // Add this class to store completed goal information
-    [System.Serializable]
-    public class CompletedGoal
-    {
-        public int goalType;
-        public float goalValue;
-        public string completionTime;
-
-        public CompletedGoal(GoalType type, float value)
-        {
-            goalType = (int)type;
-            goalValue = value;
-            completionTime = System.DateTime.UtcNow.ToString("o");
-        }
-    }
-
-    // Add the enum for different goal types
+    // Achievement-related classes are now handled by GoalAchievementManager
+    // TODO: Move this enum to GoalAchievementManager in the future
     public enum GoalType
     {
         Distance,    // Reach a specific distance
@@ -45,8 +17,8 @@ namespace RoofTops
         Memcard      // Collect a specific number of memory cards
     }
 
-    // At the top of the file, outside the class
-    public enum LogCategory  // Renamed from LogType
+    // Renamed from LogType to avoid conflict with Unity's LogType
+    public enum LogCategory
     {
         Log,
         Warning,
@@ -72,9 +44,7 @@ namespace RoofTops
         [Header("Data")]
         public GameDataObject gameData;
 
-        [Header("Audio")]
-        public AudioSource musicSource;  // Main game music
-        public AudioSource audioSource;  // General audio source
+        // Audio will be handled by a separate system
         public UnityEngine.Audio.AudioMixer audioMixerForPitch;  // Just assign the mixer with Master exposed
         public string pitchParameter = "Pitch";
         [Range(0.0f, 1.0f)] public float defaultMusicVolume = 0.8f;
@@ -121,15 +91,6 @@ namespace RoofTops
             {
                 isPaused = value;
                 Time.timeScale = isPaused ? 0f : timeSpeed;
-
-                // Pause/unpause music
-                if (musicSource != null)
-                {
-                    if (isPaused)
-                        musicSource.Pause();
-                    else
-                        musicSource.UnPause();
-                }
 
                 // Handle pause indicator
                 if (pauseIndicator != null && HasGameStarted)
@@ -198,52 +159,27 @@ namespace RoofTops
         private float initialTimeScale;
         private Vector3 initialGravity;
 
-        [Header("UI Panel Settings")]
-        public float initialPanelHideTime = 3f; // how long to hide panel at start
-
-        //private PanelController panelController; // reference to the panel script
-        [Header("Popup After Panel Shows")]
-        public GameObject popupMessage;      // The GameObject to show briefly
-        public float popupDisplayTime = 2f;  // How many seconds it stays visible
-
-        // Current goal tracking
-        private GoalType currentGoalType;
-        private float currentGoalValue;
-        private bool goalAchieved = false;
-
-        [Header("Achievement Settings")]
-        [SerializeField] private bool enableAchievementMessages = true;
-        [SerializeField] public bool saveAchievementsToJson = true;
-        [SerializeField] private string achievementSaveFileName = "achievements.json";
-        [SerializeField]
-        private GoalType[] availableGoalTypes = new GoalType[]
-        {
-            GoalType.Distance,
-            GoalType.Tridots,
-            GoalType.Memcard
-        };
-
-        // Player metrics dictionary for tracking various stats
-        private Dictionary<string, float> playerMetrics = new Dictionary<string, float>();
-
-        // Events for achievement system
-        public UnityEngine.Events.UnityEvent<string, float> onAchievementUnlocked = new UnityEngine.Events.UnityEvent<string, float>();
-        public UnityEngine.Events.UnityEvent<string, float, float> onGoalProgress = new UnityEngine.Events.UnityEvent<string, float, float>();
-
-        // Achievement save data
-        private AchievementSaveData saveData = new AchievementSaveData();
-
-        private int tridotsGoalIndex = 0;
-        private int memcardGoalIndex = 0;
-
         // Property to track the player's distance traveled
         public float PlayerDistance { get; set; }
 
-        public float customGravity = 9.81f;
+        // Achievement-related variables (kept for backward compatibility)
+        private int tridotsGoalIndex = 0;
+        private int memcardGoalIndex = 0;
+        private GoalType currentGoalType = GoalType.Distance;
+        private bool goalAchieved = false;
+        private float currentGoalValue = 0f;
 
         void Awake()
         {
+            // Singleton pattern with DontDestroyOnLoad
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             Instance = this;
+            DontDestroyOnLoad(gameObject);
 
             // Store initial states
             initialTimeScale = Time.timeScale;
@@ -259,47 +195,36 @@ namespace RoofTops
             Physics.gravity = new Vector3(0, currentGravity, 0);
 
             // Hide pause indicator immediately
-            pauseIndicator?.SetActive(false);
+            if (pauseIndicator != null)
+            {
+                pauseIndicator.SetActive(false);
+            }
 
-            // Ensure gameData is initialized
+            // Initialize game data if null
             if (gameData == null)
             {
                 gameData = ScriptableObject.CreateInstance<GameDataObject>();
             }
 
-            // Initialize goal indices
-            tridotsGoalIndex = PlayerPrefs.GetInt("TridotsGoalIndex", 0);
-            memcardGoalIndex = PlayerPrefs.GetInt("MemcardGoalIndex", 0);
-
-            // Set initial goal type to Distance (default)
-            currentGoalType = GoalType.Distance;
-
-            // Load game data and achievements
+            // Load game data
             LoadGameData();
-
-            // Setup music - only volume and playback settings
-            if (musicSource == null)
-            {
-                musicSource = GetComponent<AudioSource>();
-            }
-            if (musicSource != null)
-            {
-                musicSource.volume = defaultMusicVolume;
-                musicSource.loop = true;
-                musicSource.playOnAwake = false;
-                musicSource.Stop();
-            }
+            
+            // Achievement data is now handled by GoalAchievementManager
 
             // Set initial mixer pitch
             if (audioMixerForPitch != null)
             {
                 audioMixerForPitch.SetFloat(pitchParameter, normalPitch);
             }
-
-            // Hide the player until the game starts (make sure to assign the player object in the Inspector)
-            if (player != null)
+            
+            // Register for game state changes
+            OnGameStateChanged += HandleGameStateChanged;
+            
+            // Try to find player if not assigned - will be done again in StartGame if needed
+            if (player == null)
             {
-                player.SetActive(false);
+                // Wait a frame to ensure SceneReferenceManager is initialized
+                StartCoroutine(FindPlayerDelayed());
             }
 
             // Hide the UI group until the game starts (assign the parent UI GameObject in the Inspector)
@@ -321,7 +246,6 @@ namespace RoofTops
             {
                 targetMaterial.SetFloat("_UsePath", 0f);
             }
-            OnGameStateChanged += HandleGameStateChanged;
         }
 
         private void Start()
@@ -353,6 +277,20 @@ namespace RoofTops
             if (targetMaterial != null)
             {
                 targetMaterial.SetFloat("_UsePath", 1f);
+            }
+            
+            // Achievement data is now handled by GoalAchievementManager
+
+            // Setup music - only volume and playback settings
+            // if (musicClip != null)
+            // {
+            //     // AudioSource.PlayClipAtPoint(musicClip, Vector3.zero);
+            // }
+            
+            // Explicitly transition from StartingUp to MainMenu state
+            if (currentState == GameStates.StartingUp)
+            {
+                RequestGameStateChange(GameStates.MainMenu);
             }
         }
 
@@ -464,48 +402,35 @@ namespace RoofTops
 
         public void ResetGame()
         {
-            // 4) Destroy the leftover player if it still exists
-            if (player != null)
-            {
-                Destroy(player);
-            }
-
-            // Reset game state
+            // Reset game state variables first
             HasGameStarted = false;
             IsPaused = false;
-            Time.timeScale = timeSpeed;
-
-            // Reset goal tracking
-            goalAchieved = false;
-            currentGoalValue = 0f;
-            accumulatedDistance = 0f;
-
-            // Reset components
-            if (player != null)
-            {
-                PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
-                if (animController != null)
-                {
-                    animController.ResetAnimationStates();
-                    animController.ResetTurnState();
-                    animController.SetBool("Jump", false);
-
-                    // Now get the actual Animator component
-                    Animator anim = animController.GetComponent<Animator>();
-                    if (anim != null)
-                    {
-                        anim.ResetTrigger("JumpTrigger");
-                        anim.Play("Run", 0, 0f);
-                    }
-                }
-            }
-
+            Time.timeScale = 1.0f; // Ensure time scale is reset to normal
+            
+            // Reset any other game state variables
             if (VistaPool.Instance != null)
             {
                 VistaPool.Instance.ResetVistas();
             }
-
-            // Reload the scene
+            
+            // Clear any pending coroutines
+            StopAllCoroutines();
+            
+            // Disable UI elements that might interfere with scene transition
+            if (deathUIPanel != null)
+            {
+                deathUIPanel.SetActive(false);
+            }
+            
+            if (gameplayUI != null)
+            {
+                gameplayUI.gameObject.SetActive(false);
+            }
+            
+            // Log that we're restarting the game
+            Debug.Log("Restarting game...");
+            
+            // Reload the scene - do this LAST
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
@@ -550,6 +475,8 @@ namespace RoofTops
 
         public void ActivateJumpPadAudioEffect(float duration, float targetPitch)
         {
+            // This method only controls audio mixer effects, not direct audio playback
+            // It's retained to control pitch effects that will be used by the separate audio system
             if (audioEffectCoroutine != null)
             {
                 StopCoroutine(audioEffectCoroutine);
@@ -559,6 +486,7 @@ namespace RoofTops
 
         private IEnumerator JumpPadAudioEffect(float duration, float targetPitch)
         {
+            // This coroutine only controls audio mixer effects, not direct audio playback
             if (audioMixerForPitch == null)
             {
                 yield break;
@@ -589,10 +517,18 @@ namespace RoofTops
 
         public void StartGame()
         {
+            // Change game state to Playing
             GamesState = GameStates.Playing;
+            
             if (!HasGameStarted)
             {
                 HasGameStarted = true;
+
+                // Check if GoalAchievementManager is properly initialized
+                CheckGoalAchievementManager();
+
+                // Log all DelayedActivation configurations
+                LogAllDelayedActivationConfigurations();
 
                 // Trigger goal messages to start showing after the game starts
                 if (GoalAchievementManager.Instance != null)
@@ -603,50 +539,36 @@ namespace RoofTops
                 // Reset accumulated distance for the new run
                 accumulatedDistance = 0f;
 
-                // Reset goal achieved flag
-                goalAchieved = false;
-
-                // Reset session-specific metrics for the new run
-
-
-
-                // Reset game data
-                if (gameData != null)
-                {
-                    gameData.lastRunDistance = 0f;
-                    gameData.lastRunTridotCollected = 0;
-                    gameData.lastRunMemcardsCollected = 0;
-                }
-
-                // Hide the panel once the game actually starts
-                //if (panelController != null && panelController.gameObject != null)
-                //{
-                //    panelController.gameObject.SetActive(false);
-                //    StartCoroutine(ReEnablePanelAfterDelay());
-                //}
-
                 Time.timeScale = timeSpeed;
-
-                // Set initial distance metric
 
                 // Fire game started event
                 onGameStarted.Invoke();
 
-                // Start playing the music if it isn't already playing.
-                if (musicSource != null && !musicSource.isPlaying)
-                {
-                    musicSource.Play();
-                }
-
                 // Start blending to normal speed
                 if (ModulePool.Instance != null)
                 {
+                    // ModulePool doesn't have StartMoving method
+                    // It uses isMoving property and listens to onGameStarted event
+                    // The onGameStarted event we're triggering below will handle this
                     moduleSpeedStartTime = Time.time;
                 }
-
-                // 5) Make sure the player is enabled with default animation
-                if (player != null)
+                else
                 {
+                    Debug.LogWarning("ModulePool.Instance is null in StartGame!");
+                }
+
+                // Player should be spawned by CoreSceneSetup when entering Playing state
+                // We'll just make sure it's found
+                if (player == null)
+                {
+                    Debug.Log("GameManager: Player not assigned, trying to find it");
+                    StartCoroutine(FindPlayerDelayed());
+                }
+                else
+                {
+                    Debug.Log("GameManager: Player already assigned");
+                    
+                    // Make sure the player is enabled with default animation
                     player.SetActive(true);
 
                     PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
@@ -655,19 +577,16 @@ namespace RoofTops
                         animController.ResetAnimationStates();
                         animController.ResetTurnState();
 
-                        // 1) Explicitly set the player to grounded
-                        animController.SetBool("IsGrounded", true);
-                        // If you have a custom method like ForceGrounded(), you can call it here:
-                        // animController.ForceGrounded();
-
-                        animController.SetBool("Jump", false);
+                        // Explicitly set the player to grounded
+                        animController.SetBool("groundedBool", true);
+                        //animController.SetBool("Jump", false);
 
                         // Now get the actual Animator component
                         Animator anim = animController.GetComponent<Animator>();
                         if (anim != null)
                         {
-                            anim.ResetTrigger("JumpTrigger");
-                            anim.Play("Run", 0, 0f);
+                            //anim.ResetTrigger("jumpTrigger");
+                            anim.Play("runState", 0, 0f);
                         }
                     }
                 }
@@ -678,19 +597,57 @@ namespace RoofTops
                     initialUIGroup.SetActive(true);
                 }
 
-                if (VistaPool.Instance != null)
-                {
-                    VistaPool.Instance.ResetVistas();
-                }
-
                 // Now enable the UsePath feature
                 if (targetMaterial != null)
                 {
                     targetMaterial.SetFloat("_UsePath", 1f);
                 }
-
-
             }
+            
+            // Achievement tracking is now handled by GoalAchievementManager
+        }
+
+        private void CheckGoalAchievementManager()
+        {
+            if (GoalAchievementManager.Instance == null)
+            {
+                Debug.LogWarning("GoalAchievementManager.Instance is null when starting game!");
+                return;
+            }
+
+            if (GoalAchievementManager.Instance.goalValuesManager == null)
+            {
+                Debug.LogWarning("GoalAchievementManager.Instance.goalValuesManager is null!");
+                
+                // Try to find and assign it
+                GoalValuesManager goalValuesManager = FindObjectOfType<GoalValuesManager>();
+                if (goalValuesManager != null)
+                {
+                    GoalAchievementManager.Instance.goalValuesManager = goalValuesManager;
+                    Debug.Log("Found and assigned GoalValuesManager to GoalAchievementManager");
+                }
+                else
+                {
+                    Debug.LogError("Could not find GoalValuesManager in the scene!");
+                }
+            }
+            else
+            {
+                Debug.Log("GoalAchievementManager is properly initialized with GoalValuesManager");
+            }
+        }
+
+        private void LogAllDelayedActivationConfigurations()
+        {
+            Debug.Log("=== Logging all DelayedActivation configurations ===");
+            DelayedActivation[] delayedActivations = FindObjectsOfType<DelayedActivation>();
+            Debug.Log($"Found {delayedActivations.Length} DelayedActivation components");
+            
+            foreach (var da in delayedActivations)
+            {
+                da.LogConfiguration();
+            }
+            Debug.Log("=== End of DelayedActivation configurations ===");
         }
 
         public void RecordFinalDistance(float finalDistance)
@@ -706,9 +663,6 @@ namespace RoofTops
                     gameData.bestDistance = finalDistance;
                 }
             }
-
-            // Update player metrics
-
 
             // Save game data
             SaveGameData();
@@ -735,21 +689,21 @@ namespace RoofTops
                     animController.ResetTurnState();
 
                     // Reset all booleans to their default state
-                    animController.SetBool("IsGrounded", true);
-                    animController.SetBool("Jump", false);
-                    animController.SetBool("IsRunning", false);
-                    animController.SetBool("isFalling", false);
+                    animController.SetBool("groundedBool", true);
+                    animController.SetBool("jumpTrigger", false);
+                    //animController.SetBool("running", false);
+                    animController.SetBool("airBool", false);
 
                     // Reset any other custom states
                     Animator anim = animController.GetComponent<Animator>();
                     if (anim != null)
                     {
                         // Reset all triggers
-                        anim.ResetTrigger("JumpTrigger");
-                        anim.ResetTrigger("LandTrigger");
+                        anim.ResetTrigger("jumpTrigger");
+                        //anim.ResetTrigger("LandTrigger");
 
                         // Reset to idle state to ensure clean transition to ragdoll
-                        anim.Play("Idle", 0, 0f);
+                        //anim.Play("Idle", 0, 0f);
 
                         // Ensure the animator is in a stable state
                         anim.Update(0f);
@@ -784,12 +738,6 @@ namespace RoofTops
             // Hide gameplay UI
             gameplayUI?.gameObject.SetActive(false);
 
-            // Stop music
-            if (musicSource != null)
-            {
-                musicSource.Stop();
-            }
-
             // Show death UI, then reload after a delay
             StartCoroutine(ShowDeathUI());
         }
@@ -812,8 +760,61 @@ namespace RoofTops
         // Call this from the UI button
         public void RestartGame()
         {
-            // Clean scene reload
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // Reset game state variables first
+            HasGameStarted = false;
+            IsPaused = false;
+            Time.timeScale = 1.0f; // Ensure time scale is reset to normal
+            
+            // Reset any other game state variables
+            if (VistaPool.Instance != null)
+            {
+                VistaPool.Instance.ResetVistas();
+            }
+            
+            // Clear any pending coroutines
+            StopAllCoroutines();
+            
+            // Disable UI elements that might interfere with scene transition
+            if (deathUIPanel != null)
+            {
+                deathUIPanel.SetActive(false);
+            }
+            
+            if (gameplayUI != null)
+            {
+                gameplayUI.gameObject.SetActive(false);
+            }
+            
+            // Reset the camera if available
+            if (NoiseMovement.Instance != null)
+            {
+                // Reset the camera
+                NoiseMovement.Instance.ResetCamera();
+            }
+            
+            // Log that we're restarting the game
+            Debug.Log("Restarting game...");
+            
+            // Reset game state to MainMenu
+            GamesState = GameStates.MainMenu;
+            
+            // Get the current scene
+            Scene currentScene = SceneManager.GetActiveScene();
+            
+            // Unload the current scene (but not the Core scene)
+            if (currentScene.name != "Core")
+            {
+                // Unload the current scene
+                SceneManager.UnloadSceneAsync(currentScene);
+                
+                // Load the main menu scene additively
+                SceneManager.LoadScene("Main", LoadSceneMode.Additive);
+            }
+            else
+            {
+                // If we're somehow in the Core scene, just load the main menu
+                SceneManager.LoadScene("Main", LoadSceneMode.Additive);
+            }
         }
 
         public void SetGravity(float gravityValue)
@@ -932,7 +933,7 @@ namespace RoofTops
 
                     if (applyTorque)
                     {
-                        rb.AddTorque(Random.insideUnitSphere * torqueForce, ForceMode.Impulse);
+                        rb.AddTorque(UnityEngine.Random.insideUnitSphere * torqueForce, ForceMode.Impulse);
                     }
                 }
 
@@ -942,19 +943,7 @@ namespace RoofTops
         }
 
         // Wait for initialPanelHideTime seconds, then show the panel
-        private IEnumerator ReEnablePanelAfterDelay()
-        {
-            yield return new WaitForSeconds(initialPanelHideTime);
-           // panelController.gameObject.SetActive(true);
 
-            // Right after re-enabling the panel, show the extra popup
-            if (popupMessage != null)
-            {
-                popupMessage.SetActive(true);
-                yield return new WaitForSeconds(popupDisplayTime);
-                popupMessage.SetActive(false);
-            }
-        }
 
         public void SaveGameData()
         {
@@ -975,14 +964,10 @@ namespace RoofTops
             // Save tutorial flags
             PlayerPrefs.SetInt("HasShownDashInfo", gameData.hasShownDashInfo ? 1 : 0);
 
-            // Save current goal data
-            PlayerPrefs.SetInt("CurrentGoalType", (int)currentGoalType);
-            PlayerPrefs.SetFloat("CurrentGoalValue", currentGoalValue);
-            PlayerPrefs.SetInt("GoalAchieved", goalAchieved ? 1 : 0);
+            // Achievement data is now handled by GoalAchievementManager
 
             // Ensure data is written to disk
             PlayerPrefs.Save();
-
         }
 
         /// <summary>
@@ -1007,11 +992,7 @@ namespace RoofTops
             // Load tutorial flags
             gameData.hasShownDashInfo = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
 
-            // Load current goal data
-            currentGoalType = (GoalType)PlayerPrefs.GetInt("CurrentGoalType", 0);
-            currentGoalValue = PlayerPrefs.GetFloat("CurrentGoalValue", 0f);
-            goalAchieved = PlayerPrefs.GetInt("GoalAchieved", 0) == 1;
-
+            // Achievement data is now handled by GoalAchievementManager
         }
 
         /// <summary>
@@ -1030,32 +1011,19 @@ namespace RoofTops
             gameData.bestRunMemcardsCollected = 0;
             gameData.hasShownDashInfo = false;
 
-            // Reset goal data
-            currentGoalType = GoalType.Distance;
-            currentGoalValue = 0f;
-            goalAchieved = false;
-
             // Clear all PlayerPrefs data first
             PlayerPrefs.DeleteAll();
 
-            // Reset goal indices
-            tridotsGoalIndex = 0;
-            memcardGoalIndex = 0;
-
-            // Save the reset indices to PlayerPrefs
-            PlayerPrefs.SetInt("DistanceGoalIndex", 0);
-            PlayerPrefs.SetInt("TridotsGoalIndex", tridotsGoalIndex);
-            PlayerPrefs.SetInt("MemcardGoalIndex", memcardGoalIndex);
-            PlayerPrefs.Save();
-
-            // Clear player metrics
-            playerMetrics.Clear();
-
-            // Reset achievement save data
-            saveData = new AchievementSaveData();
+            // Achievement data is now handled by GoalAchievementManager
 
             // Save the cleared data
             SaveGameData();
+            
+            // Notify GoalAchievementManager to reset its data if it exists
+            if (GoalAchievementManager.Instance != null)
+            {
+                GoalAchievementManager.Instance.ResetCurrentGoalIndices();
+            }
         }
 
         // Add this to handle application quit/pause
@@ -1079,16 +1047,104 @@ namespace RoofTops
 
         private void HandleGameStateChanged(GameStates oldState, GameStates newState)
         {
+            // Handle MainMenu state
             if(newState == GameStates.MainMenu)
             {
                 InputActionManager.Instance.OnJumpPressed.AddListener(StartGame);
+                
+                // Make sure UI elements for main menu are visible
+                if (mainMenuUI != null)
+                {
+                    mainMenuUI.gameObject.SetActive(true);
+                }
+                
+                // Ensure game over UI is hidden
+                if (gameOverUI != null)
+                {
+                    gameOverUI.gameObject.SetActive(false);
+                }
             }
             else
             {
                 InputActionManager.Instance.OnJumpPressed.RemoveListener(StartGame);
             }
+            
+            // Handle Playing state
+            if (newState == GameStates.Playing)
+            {
+                // Hide main menu UI
+                if (mainMenuUI != null)
+                {
+                    mainMenuUI.gameObject.SetActive(false);
+                }
+                
+                // Make sure player is found and active
+                if (player == null)
+                {
+                    Debug.Log("GameManager: Player not found when entering Playing state, searching...");
+                    StartCoroutine(FindPlayerDelayed());
+                }
+                else
+                {
+                    // Make sure player is active
+                    player.SetActive(true);
+                    Debug.Log("GameManager: Player found and activated in Playing state");
+                }
+            }
+            
+            // Handle GameOver state
+            if (newState == GameStates.GameOver)
+            {
+                // Show game over UI
+                if (gameOverUI != null)
+                {
+                    gameOverUI.gameObject.SetActive(true);
+                }
+            }
+            
+            // Handle Paused state
+            if (newState == GameStates.Paused)
+            {
+                // Show pause indicator
+                if (pauseIndicator != null)
+                {
+                    pauseIndicator.SetActive(true);
+                }
+            }
+            else if (oldState == GameStates.Paused)
+            {
+                // Hide pause indicator when leaving paused state
+                if (pauseIndicator != null)
+                {
+                    pauseIndicator.SetActive(false);
+                }
+            }
+            
+            Debug.Log($"GameManager: Game state changed from {oldState} to {newState}");
         }
 
+        // Method to register UI elements with SceneReferenceManager
+        public void RegisterUIElement(string id, GameObject uiElement)
+        {
+            if (uiElement != null)
+            {
+                SceneReferenceManager.Instance.RegisterUI(id, uiElement);
+                Debug.Log($"GameManager: Registered UI element '{id}'");
+            }
+        }
+
+        // Method to get UI elements from SceneReferenceManager
+        public GameObject GetUIElement(string id)
+        {
+            return SceneReferenceManager.Instance.GetUI(id);
+        }
+
+        // Method to set the pause indicator
+        public void SetPauseIndicator(GameObject indicator)
+        {
+            pauseIndicator = indicator;
+            RegisterUIElement("PauseIndicator", indicator);
+        }
 
         #region Game State
 
@@ -1110,6 +1166,7 @@ namespace RoofTops
                 {
                     previousState = currentState;
                     currentState = value;
+                    Debug.Log($"Game state changed: {previousState} → {currentState}");
                     OnGameStateChanged?.Invoke(previousState, currentState);
                 }
             }
@@ -1126,6 +1183,84 @@ namespace RoofTops
             return true;
         }
         #endregion // Game State
+
+        // Coroutine to find player after a short delay
+        private IEnumerator FindPlayerDelayed()
+        {
+            // Wait a frame to ensure SceneReferenceManager is initialized
+            yield return null;
+            
+            // First try to get from SceneReferenceManager
+            if (SceneReferenceManager.Instance != null)
+            {
+                player = SceneReferenceManager.Instance.GetGameObject("Player");
+                if (player != null)
+                {
+                    Debug.Log("GameManager: Found player from SceneReferenceManager");
+                    SetupPlayerAfterFind();
+                    yield break;
+                }
+            }
+            
+            // If still null, try to find by tag
+            if (player == null)
+            {
+                player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                {
+                    Debug.Log("GameManager: Found player by tag");
+                    SetupPlayerAfterFind();
+                    yield break;
+                }
+            }
+            
+            // If still null, try to find by type
+            if (player == null)
+            {
+                PlayerController playerController = FindObjectOfType<PlayerController>();
+                if (playerController != null)
+                {
+                    player = playerController.gameObject;
+                    Debug.Log("GameManager: Found player by PlayerController component");
+                    SetupPlayerAfterFind();
+                    yield break;
+                }
+                else
+                {
+                    Debug.LogWarning("GameManager: Could not find player!");
+                }
+            }
+        }
+        
+        private void SetupPlayerAfterFind()
+        {
+            if (player != null)
+            {
+                // Make sure the player is enabled with default animation
+                player.SetActive(true);
+
+                PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
+                if (animController != null)
+                {
+                    animController.ResetAnimationStates();
+                    animController.ResetTurnState();
+
+                    // Explicitly set the player to grounded
+                    animController.SetBool("groundedBool", true);
+                    //animController.SetBool("Jump", false);
+
+                    // Now get the actual Animator component
+                    Animator anim = animController.GetComponent<Animator>();
+                    if (anim != null)
+                    {
+                        ///anim.ResetTrigger("jumpTrigger");
+                        anim.Play("runState", 0, 0f);
+                    }
+                }
+                
+                Debug.Log("GameManager: Player setup complete after finding");
+            }
+        }
     }
 
     public enum GameStates

@@ -163,7 +163,7 @@ public class InputActionManager : MonoBehaviour
         }
     }
    
-    private void InputActionsActivate()
+    public void InputActionsActivate()
     {
         if(!inputActions.enabled)
         {
@@ -192,7 +192,7 @@ public class InputActionManager : MonoBehaviour
 
     }
 
-    private void InputActionsDeactivate()
+    public void InputActionsDeactivate()
     {
         jump_action.Disable();
         jump_action.performed -= HandleJumpAction;

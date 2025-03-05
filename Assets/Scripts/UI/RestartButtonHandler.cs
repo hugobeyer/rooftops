@@ -9,13 +9,17 @@ public class RestartButtonHandler : MonoBehaviour
         // Reset time scale in case game was paused
         Time.timeScale = 1f;
         
-        // Reload current scene
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        
-        // Optional: Add any additional reset logic through GameManager
+        // Let GameManager handle the reset
         if (GameManager.Instance != null)
         {
+            Debug.Log("RestartButtonHandler: Calling GameManager.ResetGame()");
             GameManager.Instance.ResetGame();
+        }
+        else
+        {
+            // Fallback if GameManager is not available
+            Debug.LogWarning("RestartButtonHandler: GameManager not found, reloading scene directly");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 } 

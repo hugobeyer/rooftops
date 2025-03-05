@@ -33,8 +33,23 @@ namespace RoofTops
         void Awake()
         {
             Instance = this;
-            // Get speed from ModulePool if it exists, otherwise use initial speed
-            gameSpeed = ModulePool.Instance != null ? ModulePool.Instance.gameSpeed : GameManager.Instance.initialGameSpeed;
+            
+            // Add null checks to prevent NullReferenceException
+            if (ModulePool.Instance != null && GameManager.Instance != null)
+            {
+                // Get speed from ModulePool if it exists, otherwise use initial speed
+                gameSpeed = ModulePool.Instance.gameSpeed;
+            }
+            else if (GameManager.Instance != null)
+            {
+                gameSpeed = GameManager.Instance.initialGameSpeed;
+                Debug.LogWarning("VistaPool: ModulePool instance not found, using GameManager.initialGameSpeed");
+            }
+            else
+            {
+                gameSpeed = 5f; // Default fallback speed
+                Debug.LogWarning("VistaPool: Neither ModulePool nor GameManager instance found, using default speed");
+            }
         }
 
         void OnValidate()
@@ -47,11 +62,64 @@ namespace RoofTops
         {
             if (!ValidateSetup()) return;
 
+            // Get the volume collider
+            volumeCollider = vistaVolume.GetComponent<BoxCollider>();
+            if (volumeCollider == null)
+            {
+                Debug.LogError("VistaPool: No BoxCollider found on vistaVolume!");
+                return;
+            }
+            
+            // Initialize volume boundaries
             InitializeVolumeBoundaries();
+            
+            // Spawn initial vistas
             SpawnInitialVistas();
             
-            // Add debug log to track initialization
-            Debug.Log("Vista Pool initialized at start");
+            // Subscribe to game start event
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.onGameStarted.AddListener(OnGameStart);
+            }
+        }
+        
+        // Add this method to handle game start
+        private void OnGameStart()
+        {
+            // Start moving when the game starts
+            isMoving = true;
+            
+            // Sync speed with ModulePool
+            if (ModulePool.Instance != null)
+            {
+                gameSpeed = ModulePool.Instance.gameSpeed;
+            }
+        }
+        
+        void Update()
+        {
+            if (GameManager.Instance.IsPaused || !isMoving) return;
+
+            float deltaTime = Time.deltaTime;
+            if (!GameManager.Instance.HasGameStarted)
+            {
+                deltaTime *= 0.1f; // Slow movement before game starts
+            }
+            
+            // Always sync speed with ModulePool if available
+            if (ModulePool.Instance != null && GameManager.Instance.HasGameStarted)
+            {
+                gameSpeed = ModulePool.Instance.gameSpeed;
+            }
+            
+            // Move the vista movement container
+            vistaMovement.Translate(Vector3.back * gameSpeed * deltaTime, Space.World);
+            
+            // Check if we need to recycle vistas
+            RecycleVistasIfNeeded();
+            
+            // Maintain the vista count
+            MaintainVistaCount();
         }
 
         bool ValidateSetup()
@@ -79,6 +147,13 @@ namespace RoofTops
             {
                 Debug.LogError($"{gameObject.name}: No vista movement transform assigned!");
                 return false;
+            }
+            
+            // Check for GameManager
+            if (GameManager.Instance == null)
+            {
+                Debug.LogWarning($"{gameObject.name}: GameManager instance not found! Some functionality may be limited.");
+                // We don't return false here to allow the VistaPool to still function
             }
 
             return true;
@@ -118,27 +193,6 @@ namespace RoofTops
                 activeVistas.Add(vista);
                 nextSpawnPoint += vistaSpanSize;
             }
-        }
-
-        void Update()
-        {
-            if (GameManager.Instance.IsPaused || !isMoving) return;
-
-            float deltaTime = Time.deltaTime;
-            if (!GameManager.Instance.HasGameStarted)
-            {
-                gameSpeed = GameManager.Instance.initialGameSpeed;
-            }
-            else
-            {
-                gameSpeed += GameManager.Instance.speedIncreaseRate * deltaTime;
-            }
-            vistaMovement.Translate(Vector3.back * gameSpeed * deltaTime);
-
-            if (activeVistas.Count == 0) return;
-
-            RecycleVistasIfNeeded();
-            MaintainVistaCount();
         }
 
         void RecycleVistasIfNeeded()
@@ -284,8 +338,33 @@ namespace RoofTops
             }
             activeVistas.Clear();
             
+            // Reset position of vista movement container
+            if (vistaMovement != null)
+            {
+                vistaMovement.position = Vector3.zero;
+            }
+            
             // Respawn vistas
             SpawnInitialVistas();
+            
+            // Sync speed with ModulePool
+            if (ModulePool.Instance != null)
+            {
+                gameSpeed = ModulePool.Instance.gameSpeed;
+            }
+            else if (GameManager.Instance != null)
+            {
+                gameSpeed = GameManager.Instance.initialGameSpeed;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // Unsubscribe from events
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.onGameStarted.RemoveListener(OnGameStart);
+            }
         }
     }
 } 

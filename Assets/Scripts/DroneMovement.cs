@@ -233,15 +233,30 @@ public class DroneMovement : MonoBehaviour
     }
     float GetCurrentModuleHeight()
     {
+        // Try to get height from ModulePool first
         if (ModulePool.Instance != null)
         {
-            return ModulePool.Instance.GetMaxModuleHeight();
+            float moduleHeight = ModulePool.Instance.GetMaxModuleHeight();
+            if (moduleHeight > 0)
+            {
+                return moduleHeight;
+            }
         }
+        
+        // Fallback: Use raycast to find ground height
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 20f))
         {
             return hit.point.y;
         }
+        
+        // Last resort: Use player's height if available
+        if (playerController != null)
+        {
+            return playerController.transform.position.y;
+        }
+        
+        // Absolute fallback
         return 0f;
     }
     public void TriggerExit()

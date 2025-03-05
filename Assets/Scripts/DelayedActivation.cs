@@ -6,366 +6,320 @@ using RoofTops;
 
 /// <summary>
 /// Controls the delayed activation of GameObjects based on different game states.
-/// Attach this to any GameObject that needs delayed activation.
 /// </summary>
 public class DelayedActivation : MonoBehaviour
 {
-   [Header("Target Settings")]
-   [Tooltip("The GameObjects to control. If empty, this script will control its own GameObject.")]
-   public List<GameObject> targetObjects = new List<GameObject>();
+   [System.Serializable]
+   public class GameStateItem
+   {
+      [Tooltip("Target")]
+      public GameObject target;
+      
+      [Tooltip("Start active")]
+      public bool startActive = false;
+      
+      [Tooltip("Activate (delay)")]
+      public GameStates activateState;
+      [Tooltip("Delay")]
+      public float activateDelay = 0f;
+      
+      [Tooltip("Deactivate (delay)")]
+      public GameStates deactivateState;
+      [Tooltip("Delay")]
+      public float deactivateDelay = 0f;
+      
+      [Tooltip("Destroy")]
+      public bool destroy = false;
+   }
 
-   [Header("Activation Settings")]
-   [Tooltip("Should these objects be active at the start of the scene?")]
-   public bool activeOnStart = false;
+   [System.Serializable]
+   public class InputDelaySettings
+   {
+      [Tooltip("Enable input delay for this state")]
+      public bool enableInputDelay = false;
+      
+      [Tooltip("Game state to control input for")]
+      public GameStates gameState;
+      
+      [Tooltip("Delay before enabling input (seconds)")]
+      public float inputEnableDelay = 0f;
+      
+      [Tooltip("Delay before disabling input (seconds)")]
+      public float disableInputDelay = 0f;
+      
+      [Tooltip("Should input be enabled or disabled for this state")]
+      public bool enableInput = true;
+   }
 
-   [Header("Title Screen Settings")]
-   [Tooltip("Should these objects activate during the title screen?")]
-   public bool activateOnTitleScreen = false;
-   [Tooltip("Delay in seconds before activating on title screen")]
-   public float titleScreenDelay = 1.0f;
+   [Tooltip("Items")]
+   public GameStateItem[] items = new GameStateItem[0];
+   
+   [Header("Input Delay Settings")]
+   [Tooltip("Control input activation/deactivation per game state")]
+   public InputDelaySettings[] inputDelaySettings = new InputDelaySettings[0];
 
-   [Header("Game Start Settings")]
-   [Tooltip("Should these objects activate when the game starts?")]
-   public bool activateOnGameStart = false;
-   [Tooltip("Delay in seconds after game start before activating")]
-   public float gameStartDelay = 0.5f;
-
-   [Header("Death Settings")]
-   [Tooltip("Should these objects activate when the player dies?")]
-   public bool activateOnDeath = false;
-   [Tooltip("Delay in seconds after death before activating")]
-   public float deathDelay = 0.3f;
-   [Tooltip("Should these objects deactivate when the player dies?")]
-   public bool deactivateOnDeath = false;
-   [Tooltip("Delay in seconds after death before deactivating")]
-   public float deathDeactivationDelay = 0.1f;
-
-   [Header("Deactivation Settings")]
-   [Tooltip("Should these objects automatically deactivate after being shown?")]
-   public bool autoDeactivate = false;
-   [Tooltip("How long the objects stay active before deactivating (in seconds)")]
-   public float activeTime = 3.0f;
-
-   [Header("Destroy Settings")]
-   [Tooltip("Should these objects be destroyed instead of just deactivated?")]
-   public bool destroyInsteadOfDeactivate = false;
-   [Tooltip("Should these objects be automatically destroyed after a delay?")]
-   public bool autoDestroy = false;
-   [Tooltip("How long to wait before destroying the objects (in seconds)")]
-   public float destroyDelay = 5.0f;
-
-   [Header("Timeline Signal Settings")]
-   [Tooltip("Should these objects respond to Timeline signals?")]
-   public bool useTimelineSignals = false;
-   [Tooltip("Signal name that will activate these objects")]
-   public string activateSignalName = "Activate";
-   [Tooltip("Signal name that will deactivate these objects")]
-   public string deactivateSignalName = "Deactivate";
-
-   [Header("Events")]
-   [Tooltip("Event triggered when objects are activated")]
-   public UnityEvent onActivated;
-   [Tooltip("Event triggered when objects are deactivated")]
-   public UnityEvent onDeactivated;
-
-   private bool hasActivatedOnTitleScreen = false;
-   private bool hasActivatedOnGameStart = false;
-   private bool hasActivatedOnDeath = false;
-   private bool hasDeactivatedOnDeath = false;
-   private Coroutine deathDeactivationCoroutine = null;
+   // State tracking
+   private Dictionary<GameStateItem, bool> activeStatus = new Dictionary<GameStateItem, bool>();
+   private Dictionary<GameStateItem, Coroutine> activateRoutines = new Dictionary<GameStateItem, Coroutine>();
+   private Dictionary<GameStateItem, Coroutine> deactivateRoutines = new Dictionary<GameStateItem, Coroutine>();
+   
+   // Input delay tracking
+   private Dictionary<InputDelaySettings, Coroutine> inputRoutines = new Dictionary<InputDelaySettings, Coroutine>();
 
    private void Awake()
    {
-      // If no targets are specified, use this GameObject
-      if (targetObjects.Count == 0)
+      // Set initial states
+      foreach (var item in items)
       {
-         targetObjects.Add(gameObject);
+         if (item.target != null)
+         {
+            item.target.SetActive(item.startActive);
+         }
       }
-
-      // Remove any null entries
-      targetObjects.RemoveAll(item => item == null);
-
-      // Set initial state
-      SetTargetsActive(activeOnStart);
    }
 
    private void Start()
    {
-      // Subscribe to game events
-      if (GameManager.Instance != null)
+      // Init tracking
+      foreach (var item in items)
       {
-         // Listen for game start
-         if (activateOnGameStart)
+         if (item.target != null)
          {
-            GameManager.Instance.onGameStarted.AddListener(OnGameStarted);
+            activeStatus[item] = item.startActive;
          }
-
-         // Start title screen activation if needed
-         if (activateOnTitleScreen && !hasActivatedOnTitleScreen && !GameManager.Instance.HasGameStarted)
-         {
-            StartCoroutine(ActivateAfterDelay(titleScreenDelay));
-            hasActivatedOnTitleScreen = true;
-         }
-      }
-      else
-      {
-         Debug.LogWarning("DelayedActivation: GameManager.Instance is null. Event-based activation won't work.");
-      }
-
-      // Find and subscribe to player death events if needed
-      if (activateOnDeath || deactivateOnDeath)
-      {
-         PlayerController player = FindFirstObjectByType<PlayerController>();
-         if (player != null)
-         {
-            // Use a custom approach to detect death since PlayerController doesn't have a direct death event
-            StartCoroutine(CheckForPlayerDeath(player));
-         }
-      }
-   }
-
-   private void OnGameStarted()
-   {
-      if (!hasActivatedOnGameStart)
-      {
-         StartCoroutine(ActivateAfterDelay(gameStartDelay));
-         hasActivatedOnGameStart = true;
-      }
-   }
-
-   private IEnumerator CheckForPlayerDeath(PlayerController player)
-   {
-      bool wasAlive = !player.IsDead;
-
-      while (true)
-      {
-         // Check if player just died (was alive but now is dead)
-         if (wasAlive && player.IsDead)
-         {
-            // Handle activation on death
-            if (activateOnDeath && !hasActivatedOnDeath)
-            {
-               StartCoroutine(ActivateAfterDelay(deathDelay));
-               hasActivatedOnDeath = true;
-            }
-
-            // Handle deactivation on death
-            if (deactivateOnDeath && !hasDeactivatedOnDeath)
-            {
-               // Cancel any existing deactivation coroutine
-               if (deathDeactivationCoroutine != null)
-               {
-                  StopCoroutine(deathDeactivationCoroutine);
-               }
-
-               // Start new deactivation coroutine
-               deathDeactivationCoroutine = StartCoroutine(DeactivateAfterDelay(deathDeactivationDelay));
-               hasDeactivatedOnDeath = true;
-            }
-         }
-
-         // Update previous state
-         wasAlive = !player.IsDead;
-
-         // Wait before checking again
-         yield return new WaitForSeconds(0.1f);
-      }
-   }
-
-   private IEnumerator ActivateAfterDelay(float delay)
-   {
-      // Wait for the specified delay
-      yield return new WaitForSeconds(delay);
-
-      // Activate the GameObjects
-      SetTargetsActive(true);
-
-      // Handle auto-deactivation if needed
-      if (autoDeactivate)
-      {
-         yield return new WaitForSeconds(activeTime);
-         SetTargetsActive(false);
-      }
-   }
-
-   private void SetTargetsActive(bool active)
-   {
-      if (targetObjects.Count > 0)
-      {
-         foreach (GameObject target in targetObjects)
-         {
-            if (target != null)
-            {
-               target.SetActive(active);
-            }
-         }
-      }
-      else
-      {
-         // If no targets specified, control this GameObject
-         gameObject.SetActive(active);
-      }
-
-      // Invoke appropriate event
-      if (active)
-      {
-         onActivated.Invoke();
-         
-         // If auto-deactivate is enabled, schedule deactivation
-         if (autoDeactivate)
-         {
-            StartCoroutine(DeactivateAfterDelay(activeTime));
-         }
-         
-         // If auto-destroy is enabled, schedule destruction
-         if (autoDestroy)
-         {
-            StartCoroutine(DestroyAfterDelay(destroyDelay));
-         }
-      }
-      else
-      {
-         onDeactivated.Invoke();
-      }
-   }
-
-   private IEnumerator DeactivateAfterDelay(float delay)
-   {
-      yield return new WaitForSeconds(delay);
-      
-      if (destroyInsteadOfDeactivate)
-      {
-         DestroyTargets();
-      }
-      else
-      {
-         SetTargetsActive(false);
       }
       
-      // Clear the coroutine reference if this was called from death deactivation
-      if (deathDeactivationCoroutine != null)
+      // Subscribe to state changes
+      GameManager.OnGameStateChanged += OnGameStateChanged;
+      
+      // Log current configuration
+      Debug.Log($"DelayedActivation on {gameObject.name} initialized with current game state: {GameManager.GamesState}");
+      
+      // Check current state
+      CheckCurrentState();
+   }
+   
+   private void CheckCurrentState()
+   {
+      GameStates state = GameManager.GamesState;
+      
+      foreach (var item in items)
       {
-         deathDeactivationCoroutine = null;
+         if (item.target != null)
+         {
+            // Check activation
+            if (item.activateState == state)
+            {
+               ActivateItem(item);
+            }
+            
+            // Check deactivation
+            if (item.deactivateState == state)
+            {
+               DeactivateItem(item);
+            }
+         }
+      }
+      
+      // Check input delay settings for current state
+      CheckInputDelayForState(state);
+   }
+   
+   private void OnGameStateChanged(GameStates oldState, GameStates newState)
+   {
+      Debug.Log($"DelayedActivation: Game state changed from {oldState} to {newState}");
+      
+      foreach (var item in items)
+      {
+         if (item.target != null)
+         {
+            // Check activation
+            if (item.activateState == newState)
+            {
+               Debug.Log($"DelayedActivation: Activating {item.target.name} for state {newState} with delay {item.activateDelay}s");
+               ActivateItem(item);
+            }
+            
+            // Check deactivation
+            if (item.deactivateState == newState)
+            {
+               Debug.Log($"DelayedActivation: Deactivating {item.target.name} for state {newState} with delay {item.deactivateDelay}s");
+               DeactivateItem(item);
+            }
+         }
+      }
+      
+      // Handle input delay for the new state
+      CheckInputDelayForState(newState);
+   }
+   
+   private void CheckInputDelayForState(GameStates state)
+   {
+      foreach (var setting in inputDelaySettings)
+      {
+         if (setting.enableInputDelay && setting.gameState == state)
+         {
+            // Cancel any existing routines for this setting
+            if (inputRoutines.ContainsKey(setting) && inputRoutines[setting] != null)
+            {
+               StopCoroutine(inputRoutines[setting]);
+            }
+            
+            // Start new routine
+            if (setting.enableInput)
+            {
+               inputRoutines[setting] = StartCoroutine(EnableInputAfterDelay(setting));
+            }
+            else
+            {
+               inputRoutines[setting] = StartCoroutine(DisableInputAfterDelay(setting));
+            }
+         }
+      }
+   }
+   
+   private IEnumerator EnableInputAfterDelay(InputDelaySettings setting)
+   {
+      // Disable input immediately if we're going to delay enabling it
+      if (setting.inputEnableDelay > 0 && InputActionManager.Exists())
+      {
+         InputActionManager.Instance.InputActionsDeactivate();
+      }
+      
+      yield return new WaitForSeconds(setting.inputEnableDelay);
+      
+      // Enable input after delay
+      if (InputActionManager.Exists())
+      {
+         InputActionManager.Instance.InputActionsActivate();
+      }
+   }
+   
+   private IEnumerator DisableInputAfterDelay(InputDelaySettings setting)
+   {
+      yield return new WaitForSeconds(setting.disableInputDelay);
+      
+      // Disable input after delay
+      if (InputActionManager.Exists())
+      {
+         InputActionManager.Instance.InputActionsDeactivate();
+      }
+   }
+   
+   private void ActivateItem(GameStateItem item)
+   {
+      // Cancel existing routine
+      if (activateRoutines.ContainsKey(item) && activateRoutines[item] != null)
+      {
+         StopCoroutine(activateRoutines[item]);
+      }
+      
+      // Start new routine
+      activateRoutines[item] = StartCoroutine(DoActivate(item));
+   }
+   
+   private void DeactivateItem(GameStateItem item)
+   {
+      // Cancel existing routine
+      if (deactivateRoutines.ContainsKey(item) && deactivateRoutines[item] != null)
+      {
+         StopCoroutine(deactivateRoutines[item]);
+      }
+      
+      // Start new routine
+      deactivateRoutines[item] = StartCoroutine(DoDeactivate(item));
+   }
+   
+   private IEnumerator DoActivate(GameStateItem item)
+   {
+      yield return new WaitForSeconds(item.activateDelay);
+      
+      if (item.target != null)
+      {
+         item.target.SetActive(true);
+         activeStatus[item] = true;
+      }
+   }
+   
+   private IEnumerator DoDeactivate(GameStateItem item)
+   {
+      yield return new WaitForSeconds(item.deactivateDelay);
+      
+      if (item.target != null)
+      {
+         if (item.destroy)
+         {
+            Destroy(item.target);
+         }
+         else
+         {
+            item.target.SetActive(false);
+         }
+         
+         activeStatus[item] = false;
       }
    }
 
    private void OnDestroy()
    {
-      // Unsubscribe from events to prevent memory leaks
-      if (GameManager.Instance != null && activateOnGameStart)
+      // Stop all routines
+      StopAllCoroutines();
+      
+      // Unsubscribe
+      GameManager.OnGameStateChanged -= OnGameStateChanged;
+   }
+   
+   public void Reset()
+   {
+      // Stop all routines
+      StopAllCoroutines();
+      
+      // Clear tracking
+      activeStatus.Clear();
+      activateRoutines.Clear();
+      deactivateRoutines.Clear();
+      inputRoutines.Clear();
+      
+      // Reset to initial states
+      foreach (var item in items)
       {
-         GameManager.Instance.onGameStarted.RemoveListener(OnGameStarted);
-      }
-   }
-
-   // Helper method to manually trigger activation with the configured delay
-   public void TriggerActivation()
-   {
-      StartCoroutine(ActivateAfterDelay(gameStartDelay));
-   }
-
-   // Public method to manually trigger activation with a custom delay
-   public void TriggerActivation(float customDelay)
-   {
-      StartCoroutine(ActivateAfterDelay(customDelay));
-   }
-
-   // Public method to manually deactivate
-   public void Deactivate()
-   {
-      SetTargetsActive(false);
-   }
-
-   // Public method to manually deactivate with delay
-   public void Deactivate(float delay)
-   {
-      StartCoroutine(DeactivateAfterDelay(delay));
-   }
-
-   // Public method to destroy target objects
-   public void DestroyTargets()
-   {
-      if (targetObjects.Count > 0)
-      {
-         foreach (GameObject obj in targetObjects)
+         if (item.target != null)
          {
-            if (obj != null)
-            {
-               Destroy(obj);
-            }
+            item.target.SetActive(item.startActive);
+            activeStatus[item] = item.startActive;
          }
       }
-      else
+   }
+
+   // Add a public method to check the current configuration
+   public void LogConfiguration()
+   {
+      Debug.Log($"DelayedActivation Configuration on {gameObject.name}:");
+      
+      foreach (var item in items)
       {
-         // If no targets specified, destroy this GameObject
-         Destroy(gameObject);
+         if (item.target != null)
+         {
+            Debug.Log($"  Item: {item.target.name}");
+            Debug.Log($"    Start Active: {item.startActive}");
+            Debug.Log($"    Activate on State: {item.activateState} with delay {item.activateDelay}s");
+            Debug.Log($"    Deactivate on State: {item.deactivateState} with delay {item.deactivateDelay}s");
+            Debug.Log($"    Destroy on Deactivate: {item.destroy}");
+            Debug.Log($"    Current Status: {(activeStatus.ContainsKey(item) ? activeStatus[item] : "Unknown")}");
+         }
+         else
+         {
+            Debug.Log("  Item: NULL TARGET");
+         }
       }
-
-      // Trigger the deactivation event since the objects are effectively "deactivated"
-      onDeactivated.Invoke();
-   }
-
-   // Public method to destroy target objects after a delay
-   public void DestroyTargets(float delay)
-   {
-      StartCoroutine(DestroyAfterDelay(delay));
-   }
-
-   // Reset activation flags (useful for game restart)
-   public void ResetActivationState()
-   {
-      hasActivatedOnTitleScreen = false;
-      hasActivatedOnGameStart = false;
-      hasActivatedOnDeath = false;
-      hasDeactivatedOnDeath = false;
-
-      // Cancel any pending deactivation
-      if (deathDeactivationCoroutine != null)
+      
+      foreach (var setting in inputDelaySettings)
       {
-         StopCoroutine(deathDeactivationCoroutine);
-         deathDeactivationCoroutine = null;
-      }
-
-      // Reset to initial state
-      SetTargetsActive(activeOnStart);
-   }
-
-   // Coroutine to destroy objects after a delay
-   private IEnumerator DestroyAfterDelay(float delay)
-   {
-      yield return new WaitForSeconds(delay);
-      DestroyTargets();
-   }
-
-   // Timeline signal receivers
-   public void OnSignalReceived(string signalName)
-   {
-      if (!useTimelineSignals) return;
-
-      if (signalName == activateSignalName)
-      {
-         SetTargetsActive(true);
-      }
-      else if (signalName == deactivateSignalName)
-      {
-         SetTargetsActive(false);
-      }
-   }
-
-   // Direct Timeline signal receivers (for direct binding in Timeline)
-   public void ActivateFromSignal()
-   {
-      if (useTimelineSignals)
-      {
-         SetTargetsActive(true);
-      }
-   }
-
-   public void DeactivateFromSignal()
-   {
-      if (useTimelineSignals)
-      {
-         SetTargetsActive(false);
+         Debug.Log($"  Input Setting for State: {setting.gameState}");
+         Debug.Log($"    Enable Input Delay: {setting.enableInputDelay}");
+         Debug.Log($"    Enable Input: {setting.enableInput}");
+         Debug.Log($"    Enable Delay: {setting.inputEnableDelay}s");
+         Debug.Log($"    Disable Delay: {setting.disableInputDelay}s");
       }
    }
 }

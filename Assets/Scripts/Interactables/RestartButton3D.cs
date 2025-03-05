@@ -69,9 +69,21 @@ public class RestartButton3D : MonoBehaviour
 
     public void RestartGame()
     {
+        // Ensure time scale is reset
         Time.timeScale = 1f;
-        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        GameManager.Instance.ResetGame();
+        
+        // Let GameManager handle the reset
+        if (GameManager.Instance != null)
+        {
+            Debug.Log("RestartButton3D: Calling GameManager.ResetGame()");
+            GameManager.Instance.ResetGame();
+        }
+        else
+        {
+            // Fallback if GameManager is not available
+            Debug.LogWarning("RestartButton3D: GameManager not found, reloading scene directly");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
     }
     #endregion // Functions
 }

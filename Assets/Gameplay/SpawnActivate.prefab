@@ -1,0 +1,268 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4255647772963846021
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3364583187484412594}
+  - component: {fileID: 7549863704299740811}
+  m_Layer: 0
+  m_Name: SpawnActivate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3364583187484412594
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4255647772963846021}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 251287822460224723}
+  - {fileID: 7123178273410795202}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7549863704299740811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4255647772963846021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 803aa8e9921e61f438405d6e8a888aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  items:
+  - target: {fileID: 6973487009246403788}
+    startActive: 0
+    activateState: 2
+    activateDelay: 32
+    deactivateState: 4
+    deactivateDelay: 0
+    destroy: 0
+  - target: {fileID: 7555800187175481576}
+    startActive: 0
+    activateState: 2
+    activateDelay: 1
+    deactivateState: 4
+    deactivateDelay: 0
+    destroy: 0
+  inputDelaySettings: []
+--- !u!1 &6973487009246403788
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 251287822460224723}
+  - component: {fileID: 2622232707312495165}
+  m_Layer: 0
+  m_Name: SpawnController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &251287822460224723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6973487009246403788}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3364583187484412594}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2622232707312495165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6973487009246403788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64d235c2b876594398ce6aa002677e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnableItems:
+  - name: TRIDOTS
+    prefabs:
+    - {fileID: 5404275788931603570, guid: 6777a316520a61743a32c128d692d869, type: 3}
+    spawnFrequency: 0.005
+    yOffset: 0.325
+    enabled: 1
+    preventConsecutiveDuplicates: 0
+    startAfterChunk: 0
+    hasEndChunk: 0
+    endAfterChunk: 0
+    useHeightMultiplier: 0
+    minHeightDifference: 0
+    maxHeightDifference: 0
+    heightMultiplier: 0
+    heightPreference: 0
+    useProgressionAdjustment: 0
+    progressionPercentagePerChunk: 0
+    currentAdjustedFrequency: 0
+  - name: JUMP_PAD
+    prefabs:
+    - {fileID: 5404275788931603570, guid: 29e48008517ce2f41bf70e13f82ac571, type: 3}
+    spawnFrequency: 0.001
+    yOffset: 0.125
+    enabled: 1
+    preventConsecutiveDuplicates: 1
+    startAfterChunk: 3
+    hasEndChunk: 0
+    endAfterChunk: 0
+    useHeightMultiplier: 1
+    minHeightDifference: 4
+    maxHeightDifference: 12
+    heightMultiplier: 1000000
+    heightPreference: 0
+    useProgressionAdjustment: 0
+    progressionPercentagePerChunk: 0
+    currentAdjustedFrequency: 0
+  - name: AIR_COND
+    prefabs:
+    - {fileID: 2028336245617965709, guid: 56cf93141c4c8cf44a6828e27950958e, type: 3}
+    spawnFrequency: 0.005
+    yOffset: 0
+    enabled: 1
+    preventConsecutiveDuplicates: 0
+    startAfterChunk: 5
+    hasEndChunk: 0
+    endAfterChunk: 0
+    useHeightMultiplier: 0
+    minHeightDifference: 0
+    maxHeightDifference: 0
+    heightMultiplier: 0
+    heightPreference: 0
+    useProgressionAdjustment: 1
+    progressionPercentagePerChunk: 3
+    currentAdjustedFrequency: 0
+  startSpawnZ: 20
+  endSpawnZ: -10
+  spawnDistance: 4
+  fixedXPosition: 0
+  enableSpawning: 1
+  spawnDelay: 3
+  autoIncrementChunks: 1
+  distancePerChunk: 200
+  totalChunks: 256
+  currentChunk: 0
+  showChunkDebug: 0
+  chunkDebugLineHeight: 1
+  chunkDebugLineWidth: 10
+  globalFrequencyMultiplier: 1
+  nothingChance: 0.0001
+  onChunkChanged:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!1 &7555800187175481576
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7123178273410795202}
+  - component: {fileID: 8556888544367880459}
+  m_Layer: 0
+  m_Name: MemcardsSpawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7123178273410795202
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555800187175481576}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3364583187484412594}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8556888544367880459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555800187175481576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64d235c2b876594398ce6aa002677e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnableItems:
+  - name: MEMCARDS
+    prefabs:
+    - {fileID: 1770773067677526922, guid: 8964ca6678fe8314e9e1a82dbfaac6db, type: 3}
+    - {fileID: 8522672904980195219, guid: 41415024972b4e54283194d9dd097f57, type: 3}
+    - {fileID: 6825669293359551826, guid: 3d13f146619db01438247493056375b0, type: 3}
+    - {fileID: 7106209017747968080, guid: bef08e819e71519469021bca6dec2943, type: 3}
+    - {fileID: 9153999671733845016, guid: 4664f45fa757a7241bf4e34953630875, type: 3}
+    - {fileID: 986747005867545247, guid: 6b268db9acede184d96a30f3f78c81ee, type: 3}
+    - {fileID: 1770773067677526922, guid: 453087669e0861b4e84a438b527371d3, type: 3}
+    spawnFrequency: 0.01
+    yOffset: 0.1
+    enabled: 1
+    preventConsecutiveDuplicates: 0
+    startAfterChunk: 0
+    hasEndChunk: 0
+    endAfterChunk: 0
+    useHeightMultiplier: 0
+    minHeightDifference: 0
+    maxHeightDifference: 0
+    heightMultiplier: 0
+    heightPreference: 0
+    useProgressionAdjustment: 0
+    progressionPercentagePerChunk: 0
+    currentAdjustedFrequency: 0
+  startSpawnZ: 20
+  endSpawnZ: -10
+  spawnDistance: 5
+  fixedXPosition: 0
+  enableSpawning: 1
+  spawnDelay: 1
+  autoIncrementChunks: 1
+  distancePerChunk: 200
+  totalChunks: 256
+  currentChunk: 0
+  showChunkDebug: 0
+  chunkDebugLineHeight: 1
+  chunkDebugLineWidth: 10
+  globalFrequencyMultiplier: 1
+  nothingChance: 0.001
+  onChunkChanged:
+    m_PersistentCalls:
+      m_Calls: []

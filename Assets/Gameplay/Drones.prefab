@@ -1,36 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1459303480015351681
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1051746632445749571}
-  m_Layer: 0
-  m_Name: SpawningDrones
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1051746632445749571
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1459303480015351681}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2635409140855218655}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7060808067258854864
 GameObject:
   m_ObjectHideFlags: 0
@@ -40,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3916020722091634644}
-  - component: {fileID: 4620649540770410040}
+  - component: {fileID: 8640831018683634940}
   m_Layer: 0
   m_Name: Activator
   m_TagString: Untagged
@@ -63,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2635409140855218655}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4620649540770410040
+--- !u!114 &8640831018683634940
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -75,32 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 803aa8e9921e61f438405d6e8a888aed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetObjects:
-  - {fileID: 661003326585980078}
-  - {fileID: 1459303480015351681}
-  activeOnStart: 0
-  activateOnTitleScreen: 0
-  titleScreenDelay: 1
-  activateOnGameStart: 1
-  gameStartDelay: 25
-  activateOnDeath: 0
-  deathDelay: 0.3
-  deactivateOnDeath: 1
-  deathDeactivationDelay: 0.1
-  autoDeactivate: 0
-  activeTime: 3
-  destroyInsteadOfDeactivate: 1
-  autoDestroy: 0
-  destroyDelay: 1
-  useTimelineSignals: 0
-  activateSignalName: Activate
-  deactivateSignalName: Deactivate
-  onActivated:
-    m_PersistentCalls:
-      m_Calls: []
-  onDeactivated:
-    m_PersistentCalls:
-      m_Calls: []
+  items:
+  - target: {fileID: 661003326585980078}
+    startActive: 1
+    activateState: 0
+    activateDelay: 0
+    deactivateState: 2
+    deactivateDelay: 2
+    destroy: 0
 --- !u!1 &9129425142930885627
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,7 +83,6 @@ Transform:
   m_Children:
   - {fileID: 3916020722091634644}
   - {fileID: 6724549316144838431}
-  - {fileID: 1051746632445749571}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &8292814816966157479
@@ -143,10 +93,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2635409140855218655}
     m_Modifications:
-    - target: {fileID: 2938879928972732651, guid: d5aaad316ea61e84ea3164f96cba4359, type: 3}
-      propertyPath: spawnParent
-      value: 
-      objectReference: {fileID: 1051746632445749571}
     - target: {fileID: 3334804310288864184, guid: d5aaad316ea61e84ea3164f96cba4359, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

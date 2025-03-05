@@ -10,12 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6668147963063031311}
   - component: {fileID: 4283650962030238608}
-  - component: {fileID: 2431337873245921151}
   - component: {fileID: 6392112107864852101}
   - component: {fileID: 2055806017881986305}
   - component: {fileID: 3348391982262906706}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: CameraManager
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,14 +28,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6749727056060000091}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.20823854, y: -0.48520103, z: 0.120182976, w: 0.84069777}
-  m_LocalPosition: {x: 11.99, y: 5.1, z: 3.04}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 9.47, y: 2, z: 2.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6626550076306912872}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 27.824, y: -59.982, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!20 &4283650962030238608
 Camera:
   m_ObjectHideFlags: 0
@@ -70,7 +69,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1200
-  field of view: 36
+  field of view: 32
   orthographic: 0
   orthographic size: 5
   m_Depth: -2.1
@@ -88,14 +87,6 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &2431337873245921151
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6749727056060000091}
-  m_Enabled: 1
 --- !u!114 &6392112107864852101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,7 +111,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 1
+  m_RenderPostProcessing: 0
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -178,19 +169,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da1ec0013e2ec7498f2bf1f2bb976f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  baseLookSpeed: 1
+  initialCameraPosition: {x: 108.4, y: 15.1, z: -20.6}
+  initialLookAtPosition: {x: 0, y: 10.52, z: 20.6}
+  initialFOV: 16
+  midCameraPosition: {x: 15, y: 3, z: 5}
+  midLookAtPosition: {x: 0, y: 0.5, z: 0}
+  midFOV: 12
+  finalCameraPosition: {x: 12, y: 4, z: 2}
+  finalLookAtPosition: {x: 0, y: 2, z: 4}
+  finalFOV: 32
   yawLookSpeed: 5
   pitchLookSpeed: 3
   rollLookSpeed: 12
-  firstFrequency: 0.05
+  firstFrequency: 0.075
   firstIntensity: 7
   firstNoiseOffset: {x: 865.7304, y: 44.936897, z: 574.7674}
   secondFrequency: 0.1
   secondIntensity: 0.7
   firstNoiseOffset2: {x: 19.569279, y: 181.43558, z: 757.95795}
-  minYOffset: -0.5
-  maxYOffset: 1.01
+  minYOffset: -0.325
+  maxYOffset: 1.2
   minXOffset: -0.14
   maxXOffset: 0.62
   minZOffset: -1.12
@@ -209,26 +207,20 @@ MonoBehaviour:
   minSpeedMultiplier: 0.24
   maxSpeedMultiplier: 3.33
   useInitialBlend: 1
-  initialBlendPosition: {x: 108.4, y: 22.5, z: -20.6}
   blendDuration: 3
-  blendFOV: 1
-  initialFOV: 16
-  midFOV: 12
-  finalFOV: 36
   midFOVDelay: 1.5
   finalFOVDelay: 4
   midBlendDuration: 0.5
   finalBlendDuration: 2
   useInitialLookAtOffset: 1
-  midLookAtOffset: {x: 0.5, y: -0.5, z: -4}
-  initialLookAtOffset: {x: 4.81, y: 9.48, z: 10.1}
-  initialNoiseMultiplier: 0.1
-  deathCameraTarget: {fileID: 0}
+  baseLookSpeed: 1
   deathBlendDuration: 2
   deathFOV: 20
   deathNoiseIntensity: 0.1
-  deathOffset: {x: 24, y: 2.79, z: -3.5}
+  deathCameraPosition: {x: 14, y: 1, z: -2}
+  deathLookAtPosition: {x: 0, y: 3, z: 1}
   deathVisualObject: {fileID: 0}
+  initialNoiseMultiplier: 0.1
 --- !u!1 &8998823456681487413
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,7 +249,7 @@ Transform:
   m_GameObject: {fileID: 8998823456681487413}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.273, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

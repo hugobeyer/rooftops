@@ -135,7 +135,7 @@ MonoBehaviour:
   - {fileID: 7363801039868334720, guid: 3a8e73ef4c9362842a9af9b8d8193810, type: 3}
   numberOfVistasOnScreen: 5
   vistaSpanSize: 64
-  vistaOffset: {x: 0, y: 0, z: 0}
+  vistaOffset: {x: 0, y: -4.6, z: 0}
   vistaMovement: {fileID: 8430365442923875268}
   vistaVolume: {fileID: 1587417783918606335}
   showDebugVisuals: 0

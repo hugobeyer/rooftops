@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6193273724328097642}
   - component: {fileID: 5887472273601554146}
   - component: {fileID: 7073644242460975210}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: MemCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8192
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -148,6 +148,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 0e32f896be3952149bd00d4d7b1f4db8, type: 3}
       propertyPath: m_Name
       value: memcard
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0e32f896be3952149bd00d4d7b1f4db8, type: 3}
+      propertyPath: m_Layer
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0e32f896be3952149bd00d4d7b1f4db8, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -969,7 +973,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 332
+  m_VersionIndex: 347
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

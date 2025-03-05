@@ -23,7 +23,7 @@ Material:
   m_Name: mat_quad_ui_gamemessage
   m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
   m_Parent: {fileID: 2100000, guid: ca7188a261b7e2844b540a448a57a06d, type: 2}
-  m_ModifiedSerializedProperties: 16
+  m_ModifiedSerializedProperties: 24
   m_ValidKeywords:
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
@@ -31,7 +31,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2950
+  m_CustomRenderQueue: 2999
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
@@ -45,13 +45,16 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _Blend: 0
+    - _ColorMode: 0
+    - _Cull: 2
     - _DstBlend: 10
     - _DstBlendAlpha: 10
-    - _QueueOffset: -50
+    - _QueueOffset: -1
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     m_Colors:
     - _BaseColor: {r: 0, g: 0, b: 0, a: 0.7921569}
+    - _BaseColorAddSubDiff: {r: 1, g: 0, b: 0, a: 0}
     - _Color: {r: 0, g: 0, b: 0, a: 0.7921569}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

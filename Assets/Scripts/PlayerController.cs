@@ -55,7 +55,12 @@ namespace RoofTops
         public float groundCheckRadius = 0.5f;
         public float groundCheckDistance = 0.2f;
         public LayerMask groundLayer;  // Set this in inspector to include ground layers
-
+        
+        // Coyote time (grace period for jumping after leaving a platform)
+        public float coyoteTime = 0.2f;
+        private float coyoteTimeCounter = 0f;
+        private float timeSinceLastGrounded = 0f;
+        
         [Header("Dash Settings")]
         public float dashSpeedMultiplier = 1.5f;
         public float dashDuration = 0.3f;      // Total dash duration
@@ -66,9 +71,15 @@ namespace RoofTops
         private float lastJumpPressTime;
         private bool canDash = true;
         private bool isDashing;
+        private bool isJumping = false;
+        private float dashCooldownTimer = 0f;
         private float originalGravity;
         private float dashTimer;
         private float originalGameSpeed;
+
+        // Add cooldown for "not enough Tridots" message
+        private float noTridotsMessageCooldown = 1.0f;  // 1 second cooldown
+        private float lastNoTridotsMessageTime = -1.0f;  // Last time the message was shown
 
         [Header("Dash Visuals")]
         public Material dashMaterial;
@@ -101,19 +112,23 @@ namespace RoofTops
         public float dashVolume = 0.7f;
         private AudioSource audioSource;
 
-        public bool IsGroundedOnCollider
+        public bool IsGrounded
         {
             get
             {
-                if (cc.isGrounded) return true;
+                // First check the CharacterController's built-in ground detection
+                if (cc != null && cc.isGrounded) return true;
 
-                // Additional sphere cast check
+                // Additional sphere cast check for more reliable ground detection
                 Vector3 origin = transform.position + Vector3.up * 0.1f; // Slight offset up
                 return Physics.SphereCast(origin, groundCheckRadius, Vector3.down,
                     out RaycastHit hit, groundCheckDistance, groundLayer);
             }
         }
-        public bool IsGroundedOnTrigger { get { return cc != null && cc.isGrounded; } }
+
+        // Keeping these for backward compatibility, but they now use the unified IsGrounded property
+        public bool IsGroundedOnCollider => IsGrounded;
+        public bool IsGroundedOnTrigger => IsGrounded;
 
         // Add public property to expose jump pad state
         public bool IsOnJumpPad => isOnJumpPad;
@@ -151,6 +166,9 @@ namespace RoofTops
 
         void Start()
         {
+            // Register this player with the SceneReferenceManager
+            SceneReferenceManager.Instance.RegisterPlayer(gameObject);
+            
             dashLerpID = Shader.PropertyToID("_DashLerp");
             additionalShaderParamID = Shader.PropertyToID(additionalShaderParam);
             if (dashMaterial != null)
@@ -183,14 +201,16 @@ namespace RoofTops
                 default: return;
             }
 
-            // Track air state for landing detection
-            bool isGroundedNow = cc.isGrounded;
+            if (isDead) return;
+
+            // Check if we just landed or just started falling
+            bool isGroundedNow = IsGrounded;
             if (!isGroundedNow && isGroundedNow != wasInAir)
             {
                 // Just took off
-               // jumpStartPosition = transform.position;
+                jumpStartPosition = transform.position;
                 // Fire jump event
-               // onJump.Invoke();
+                onJump.Invoke();
 
                 // Check if we've shown the dash hint before using PlayerPrefs
                 bool hasShownDashHint = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
@@ -221,6 +241,7 @@ namespace RoofTops
             {
                 // Just landed
                 HandleJumpMetrics();
+                HandleLanding();
             }
             wasInAir = !isGroundedNow;
 
@@ -238,7 +259,7 @@ namespace RoofTops
                     StartCoroutine(DelayedReset());
                 }
 
-                if (!cc.isGrounded)
+                if (!IsGrounded)
                 {
                     _velocity.y += Physics.gravity.y * Time.deltaTime;
                 }
@@ -252,9 +273,8 @@ namespace RoofTops
                 runSpeedMultiplier = modulePool.gameSpeed / GameManager.Instance.normalGameSpeed;
             }
 
-            if (cc.isGrounded) HandleLanding();
-
-            if (!cc.isGrounded)
+            // Apply gravity
+            if (!IsGrounded)
             {
                 _velocity.y += Physics.gravity.y * Time.deltaTime;
             }
@@ -308,7 +328,7 @@ namespace RoofTops
        
         void HandleDashInput()
         {
-            if (!cc.isGrounded)
+            if (!IsGrounded)
             {
                 // First check if we can dash
                 if (CanDash())
@@ -330,9 +350,11 @@ namespace RoofTops
 
                     // ONLY show the message if we truly don't have enough TRIDOTS
                     // AND the player explicitly tried to dash by pressing jump in air
-                    if (currentTridots < dashTridotCost)
+                    // AND we're not in the message cooldown period
+                    if (currentTridots < dashTridotCost && Time.time - lastNoTridotsMessageTime >= noTridotsMessageCooldown)
                     {
                         ShowNotEnoughTridotsEffect();
+                        lastNoTridotsMessageTime = Time.time;  // Update the last message time
                     }
                 }
             }
@@ -446,7 +468,7 @@ namespace RoofTops
 
         bool CanDash()
         {
-            bool isInAir = !cc.isGrounded;
+            bool isInAir = !IsGrounded;
             bool dashReady = canDash;
             bool notOnJumpPad = !isOnJumpPad;
             bool noDashInProgress = dashTimer <= 0;
@@ -466,17 +488,27 @@ namespace RoofTops
 
         void HandleLanding()
         {
+            // Reset air time tracking
+            timeSinceLastGrounded = 0;
+            
+            // Reset jump state
+            isJumping = false;
+            
+            // Reset dash state if we landed
+            if (dashCooldownTimer <= 0)
+            {
+                canDash = true;
+            }
+            
+            // Reset jump pad state
+            isOnJumpPad = false;
+            
+            // Reset jump charging
             isChargingJump = false;
-            canDash = true;
-            if (dashMaterial != null)
-            {
-                dashMaterial.SetFloat(dashLerpID, 0f);
-            }
-            if (activeDashEffect != null)
-            {
-                Destroy(activeDashEffect);
-                activeDashEffect = null;
-            }
+            currentChargedJumpForce = jumpForce;
+            
+            // Reset coyote time
+            coyoteTimeCounter = coyoteTime;
         }
 
         // void ComputePredictedFlightTime()
@@ -539,7 +571,27 @@ namespace RoofTops
             float totalAirTime = timeToApex * 2;  // Total time in air (up + down)
 
             // Distance covered = speed * time
-            float predictedDistance = modulePool.gameSpeed * totalAirTime;
+            float speed = 0f;
+            
+            // Add null check for modulePool
+            if (modulePool != null)
+            {
+                speed = modulePool.gameSpeed;
+            }
+            else if (GameManager.Instance != null)
+            {
+                // Fallback to GameManager's initial speed if modulePool is null
+                speed = GameManager.Instance.initialGameSpeed;
+                Debug.LogWarning("PlayerController: ModulePool instance not found, using GameManager.initialGameSpeed");
+            }
+            else
+            {
+                // Default fallback if both are null
+                speed = 5f;
+                Debug.LogWarning("PlayerController: Both ModulePool and GameManager instances not found, using default speed");
+            }
+            
+            float predictedDistance = speed * totalAirTime;
 
             return (predictedDistance, totalAirTime);
         }
@@ -748,7 +800,7 @@ namespace RoofTops
             {
                 return;
             }
-            if (isOnJumpPad || !cc.isGrounded)
+            if (isOnJumpPad || !IsGrounded)
             {
                 return;
             }
@@ -797,7 +849,7 @@ namespace RoofTops
         private void OnJumpReleased()
         {  
             // If we were charging and started the charge grounded, apply the jump
-            if (isChargingJump && cc.isGrounded)
+            if (isChargingJump && IsGrounded)
             {
                 _velocity.y = currentChargedJumpForce;
                 GameManager.Instance.IncreaseGravity();
@@ -809,7 +861,7 @@ namespace RoofTops
                 }
             }
             // Apply jump cut if in air and moving upward
-            if (!cc.isGrounded && _velocity.y > 0)
+            if (!IsGrounded && _velocity.y > 0)
             {
                 _velocity.y *= jumpCutFactor;
             }

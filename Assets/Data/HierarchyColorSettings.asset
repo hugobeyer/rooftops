@@ -67,3 +67,9 @@ MonoBehaviour:
   - objectName: Ads
     color: {r: 0.46540874, g: 0.23671855, b: 0.057078373, a: 1}
     useContains: 1
+  - objectName: Pool
+    color: {r: 0.56824446, g: 0.57254905, b: 0.08627449, a: 1}
+    useContains: 1
+  - objectName: Story
+    color: {r: 0.32271263, g: 0.4963641, b: 0.6981132, a: 1}
+    useContains: 1

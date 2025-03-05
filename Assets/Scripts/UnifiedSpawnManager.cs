@@ -17,7 +17,8 @@ namespace RoofTops
         public class SpawnableItem
         {
             public string name = "Item";
-            public GameObject prefab;
+            [Tooltip("Array of prefabs to randomly select from when spawning this item")]
+            public GameObject[] prefabs;
             [Range(0f, 1f)]
             [Tooltip("Base probability of spawning this item (0 to 1)")]
             public float spawnFrequency = 0.2f;
@@ -121,6 +122,18 @@ namespace RoofTops
                 }
                 
                 return hasStarted && !hasEnded;
+            }
+
+            // Add a method to get a random prefab from the array
+            public GameObject GetRandomPrefab()
+            {
+                if (prefabs == null || prefabs.Length == 0)
+                {
+                    Debug.LogWarning($"No prefabs assigned for item {name}");
+                    return null;
+                }
+                
+                return prefabs[Random.Range(0, prefabs.Length)];
             }
         }
 
@@ -318,7 +331,7 @@ namespace RoofTops
             
             for (int i = 0; i < spawnableItems.Length; i++)
             {
-                if (!spawnableItems[i].enabled || spawnableItems[i].prefab == null)
+                if (!spawnableItems[i].enabled || spawnableItems[i].prefabs == null || spawnableItems[i].prefabs.Length == 0)
                 {
                     continue;
                 }
@@ -395,6 +408,14 @@ namespace RoofTops
         {
             yield return new WaitForSeconds(spawnDelay);
 
+            // Get a random prefab from the item's prefab array
+            GameObject prefabToSpawn = itemToSpawn.GetRandomPrefab();
+            if (prefabToSpawn == null)
+            {
+                Debug.LogWarning($"No valid prefab found for {itemToSpawn.name}. Skipping spawn.");
+                yield break;
+            }
+
             // Get the spawn position base (without Y offset yet)
             Vector3 basePosition = new Vector3(fixedXPosition, 0f, startSpawnZ);
             
@@ -446,7 +467,7 @@ namespace RoofTops
             );
             
             // Spawn the selected item
-            GameObject spawnedItem = Instantiate(itemToSpawn.prefab, spawnPosition, Quaternion.identity);
+            GameObject spawnedItem = Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity);
             activeItems.Add(spawnedItem);
             
             string progressionInfo = itemToSpawn.useProgressionAdjustment ? 
@@ -724,7 +745,8 @@ namespace RoofTops
             for (int i = 0; i < spawnableItems.Length; i++)
             {
                 if (spawnableItems[i].enabled && 
-                    spawnableItems[i].prefab != null && 
+                    spawnableItems[i].prefabs != null && 
+                    spawnableItems[i].prefabs.Length > 0 && 
                     spawnableItems[i].IsAvailableInChunk(currentChunk))
                 {
                     availableItems.Add(spawnableItems[i]);
@@ -779,7 +801,8 @@ namespace RoofTops
                 for (int i = 0; i < spawnableItems.Length; i++)
                 {
                     if (spawnableItems[i].enabled && 
-                        spawnableItems[i].prefab != null && 
+                        spawnableItems[i].prefabs != null && 
+                        spawnableItems[i].prefabs.Length > 0 && 
                         spawnableItems[i].IsAvailableInChunk(currentChunk))
                     {
                         availableItems.Add(spawnableItems[i]);

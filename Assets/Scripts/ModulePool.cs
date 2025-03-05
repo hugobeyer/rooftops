@@ -146,10 +146,37 @@ namespace RoofTops
             // Check GameManager reference
             if (GameManager.Instance == null)
             {
-                Debug.LogError($"{gameObject.name}: GameManager instance not found!");
+                Debug.LogError($"{gameObject.name}: GameManager instance not found! Will retry initialization after delay.");
+                // Start a coroutine to retry initialization after a delay
+                StartCoroutine(RetryInitialization());
                 return false;
             }
             return true;
+        }
+
+        // Add a coroutine to retry initialization after a delay
+        private IEnumerator RetryInitialization()
+        {
+            // Wait for a short time to allow other objects to initialize
+            yield return new WaitForSeconds(0.5f);
+            
+            if (GameManager.Instance != null)
+            {
+                Debug.Log("GameManager found after delay, initializing ModulePool");
+                // Re-initialize the pool
+                InitializePool();
+                gameStartTime = Time.time;
+                gameSpeed = GameManager.Instance.initialGameSpeed;
+                InitializeVolumeBoundaries();
+                SpawnInitialModules();
+                
+                // Subscribe to game start event
+                GameManager.Instance.onGameStarted.AddListener(OnGameStart);
+            }
+            else
+            {
+                Debug.LogError("GameManager still not found after delay. ModulePool initialization failed.");
+            }
         }
 
         void InitializePool()
@@ -552,7 +579,7 @@ namespace RoofTops
         {
             if (activeModules.Count == 0) return 0f;
             
-            float uiZ = GameManager.Instance.gameplayUI.transform.position.z;
+            // Simplified approach: just return the height of the highest active module
             float maxHeight = 0f;
             
             foreach (GameObject module in activeModules)
@@ -562,15 +589,13 @@ namespace RoofTops
                     BoxCollider bc = module.GetComponent<BoxCollider>();
                     if (bc != null)
                     {
-                        float moduleStart = module.transform.position.z - (bc.center.z - bc.size.z / 2) * module.transform.localScale.z;
-                        float moduleEnd = module.transform.position.z + (bc.center.z + bc.size.z / 2) * module.transform.localScale.z;
+                        float moduleHeight = module.transform.position.y + 
+                                           (bc.center.y + bc.size.y / 2) * module.transform.localScale.y;
                         
-                        if (uiZ >= moduleStart && uiZ <= moduleEnd)
+                        // Keep track of the highest module
+                        if (moduleHeight > maxHeight)
                         {
-                            float moduleHeight = module.transform.position.y + 
-                                                (bc.center.y + bc.size.y / 2) * module.transform.localScale.y;
                             maxHeight = moduleHeight;
-                            break;
                         }
                     }
                 }

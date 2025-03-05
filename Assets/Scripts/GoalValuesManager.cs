@@ -72,11 +72,27 @@ namespace RoofTops
         // Apply to GoalAchievementManager
         public void ApplyToGoalAchievementManager()
         {
-            GoalAchievementManager goalManager = FindFirstObjectByType<GoalAchievementManager>();
-            if (goalManager != null)
+            Debug.Log("GoalValuesManager: Applying values to GoalAchievementManager");
+            
+            // Find the GoalAchievementManager if it exists
+            GoalAchievementManager goalManager = GoalAchievementManager.Instance;
+            if (goalManager == null)
             {
-                goalManager.InitializeGoals();
+                goalManager = FindObjectOfType<GoalAchievementManager>();
+                if (goalManager == null)
+                {
+                    Debug.LogWarning("GoalValuesManager: Could not find GoalAchievementManager to apply values");
+                    return;
+                }
             }
+            
+            // Set the reference
+            goalManager.goalValuesManager = this;
+            Debug.Log("GoalValuesManager: Successfully set reference on GoalAchievementManager");
+            
+            // Apply the enabled categories
+            goalManager.enabledCategories = GetEnabledCategories();
+            Debug.Log($"GoalValuesManager: Applied {goalManager.enabledCategories.Count} enabled categories");
         }
     }
 

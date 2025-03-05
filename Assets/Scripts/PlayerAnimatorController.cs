@@ -70,7 +70,7 @@ namespace RoofTops
 
         private CharacterController cc;
         private static readonly int IsGrounded = Animator.StringToHash("groundedBool");
-        private static readonly int IsFalling = Animator.StringToHash("isFalling");  // Keep as bool
+        private static readonly int isFalling = Animator.StringToHash("isFalling");  // Keep as bool
 
         // Add these with your existing hash definitions
         private static readonly int TurnLayerIndex = 4;  // Adjust this to match your Turn layer index
@@ -107,6 +107,32 @@ namespace RoofTops
             animator = GetComponent<Animator>();
             playerController = GetComponent<PlayerController>();
             cc = GetComponent<CharacterController>();
+
+            // Check if components are missing
+            if (animator == null)
+            {
+                Debug.LogError("PlayerAnimatorController: Animator component is missing on " + gameObject.name);
+                return;
+            }
+
+            // Log all animator parameters for debugging
+            Debug.Log("PlayerAnimatorController: Listing all animator parameters:");
+            foreach (AnimatorControllerParameter param in animator.parameters)
+            {
+                Debug.Log($"Parameter: {param.name}, Type: {param.type}, Hash: {param.nameHash}");
+            }
+
+            if (playerController == null)
+            {
+                Debug.LogError("PlayerAnimatorController: PlayerController component is missing on " + gameObject.name);
+                return;
+            }
+
+            if (cc == null)
+            {
+                Debug.LogError("PlayerAnimatorController: CharacterController component is missing on " + gameObject.name);
+                return;
+            }
 
             // Initialize the Spine layer with 0 weight
             animator.SetLayerWeight(spineLayerIndex, 0);
@@ -338,18 +364,18 @@ namespace RoofTops
 
             // Additional safety check - ensure we go to air state after jump animation
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            if (!isGroundedNow && !isNearGround && stateInfo.IsName("JumpStart") && stateInfo.normalizedTime >= 0.8f)
+            if (!isGroundedNow && !isNearGround && stateInfo.normalizedTime >= 0.8f)
             {
                 animator.SetBool(airBoolHash, true);
             }
 
-            bool isFalling = !isGroundedNow && cc.velocity.y < 0;
+            bool isCurrentlyFalling = !isGroundedNow && cc.velocity.y < 0;
 
             // Update falling state before handling jump
-            animator.SetBool(IsFalling, isFalling);
+            animator.SetBool(isFalling, isCurrentlyFalling);
 
             // Don't allow jump animations while falling
-            if (isFalling)
+            if (isCurrentlyFalling)
             {
                 animator.ResetTrigger(jumpTriggerHash);  // Clear any pending jump triggers
                 canJumpTrigger = false;  // Prevent new jumps while falling
@@ -360,7 +386,7 @@ namespace RoofTops
             {
                 if (!isGroundedNow) // Just left ground
                 {
-                    if (!isFalling && canJumpTrigger) // It's a jump (not a fall)
+                    if (!isCurrentlyFalling && canJumpTrigger) // It's a jump (not a fall)
                     {
                         animator.SetTrigger(jumpTriggerHash);
                         canJumpTrigger = false;
@@ -375,14 +401,14 @@ namespace RoofTops
                     {
                         // Explicitly set falling state when going off an edge
                         animator.SetBool(airBoolHash, true);
-                        animator.SetBool(IsFalling, true);
+                        animator.SetBool(isFalling, true);
                     }
                 }
                 else // Just landed
                 {
                     canJumpTrigger = true;
                     animator.SetBool(airBoolHash, false);
-                    animator.SetBool(IsFalling, false);
+                    animator.SetBool(isFalling, false);
                 }
             }
 
@@ -437,15 +463,30 @@ namespace RoofTops
             wasGrounded = isGroundedNow;  // Store for next frame
 
             // Update grounded and falling states
+            // MODIFIED: Add a check to prevent falling state during active jump
             bool isFallingNow = !isGroundedNow && cc.velocity.y < 0;  // Falling when not grounded and moving down
-
+            
+            // Don't set falling state if we're in the middle of a jump animation
+            // Instead of checking for specific state names, check if we're in a jump-related state
+            // by using the airBool parameter which should be true during jumps
+            bool isInJumpAnimation = animator.GetBool(airBoolHash) && !isFallingNow;
+            
+            // Only set falling if we're truly falling and not in a jump animation
+            if (isFallingNow && !isInJumpAnimation)
+            {
+                animator.SetBool(isFalling, true);
+            }
+            else if (isGroundedNow)
+            {
+                animator.SetBool(isFalling, false);
+            }
+            
             animator.SetBool(IsGrounded, isGroundedNow);
-            animator.SetBool(IsFalling, isFallingNow);
-
+            
             // Reset falling state when grounded
             if (isGroundedNow)
             {
-                animator.SetBool(IsFalling, false);
+                animator.SetBool(isFalling, false);
             }
         }
 
@@ -454,28 +495,65 @@ namespace RoofTops
             if (!InputActionManager.Exists()) return;
 
             bool isJumpPressed = InputActionManager.Instance.IsJumping;
+            bool isHoldingJump = InputActionManager.Instance.IsHoldingJump;
 
-            // Change Input.GetButtonDown check to use InputManager
-            if (InputActionManager.Instance.IsJumping && playerController.IsGroundedOnCollider && !InputActionManager.Instance.IsHoldingJump && canJumpTrigger)
+            // MODIFIED: Allow jump trigger even when holding jump button if we're grounded
+            // This prevents issues when the player holds down the jump button
+            if (InputActionManager.Instance.IsJumping && playerController.IsGroundedOnCollider && canJumpTrigger)
             {
                 jumpStartTime = Time.time;
-                animator.SetBool(smallJumpBoolHash, false); // Reset at start of jump
+                
+                // Check if parameters exist before setting them
+                if (HasParameter(smallJumpBoolHash))
+                {
+                    animator.SetBool(smallJumpBoolHash, false); // Reset at start of jump
+                }
+                else
+                {
+                    Debug.LogWarning("Parameter 'smallJumpBool' does not exist in the Animator Controller");
+                }
 
                 // Randomize mirror state for this jump
-                animator.SetBool(jumpMirrorBoolHash, Random.value > 0.5f);
+                if (HasParameter(jumpMirrorBoolHash))
+                {
+                    animator.SetBool(jumpMirrorBoolHash, Random.value > 0.5f);
+                }
+                else
+                {
+                    Debug.LogWarning("Parameter 'jumpMirrorBool' does not exist in the Animator Controller");
+                }
 
                 // Record jump start height
                 jumpStartHeight = transform.position.y;
                 maxJumpHeight = jumpStartHeight;
 
-                var (distance, airTime) = playerController.PredictJumpTrajectory();
                 float animationLength = 1f;
+                float airTime = 1f; // Default value
+                float distance = 5f; // Default value
+
+                // Add null check for playerController
+                if (playerController != null)
+                {
+                    try
+                    {
+                        (distance, airTime) = playerController.PredictJumpTrajectory();
+                    }
+                    catch (System.NullReferenceException e)
+                    {
+                        Debug.LogWarning($"PlayerAnimatorController: Error in PredictJumpTrajectory: {e.Message}");
+                        // Keep using default values if prediction fails
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("PlayerAnimatorController: playerController is null, using default jump values");
+                }
+
                 float jumpSpeedRatio = animationLength / airTime;
 
                 // Set the main jump animation speed (base layer)
                 animator.SetFloat(jumpSpeedMultiplierHash, jumpSpeedRatio);
                 animator.SetTrigger(jumpTriggerHash);
-
             }
 
             // Add explicit ground state synchronization
@@ -500,13 +578,26 @@ namespace RoofTops
 
         private IEnumerator DelayAirState()
         {
+            // Wait a short time before transitioning to air state
             yield return new WaitForSeconds(0.3f);
 
-            // If we're not grounded after the delay, ALWAYS go to air state
-            if (!playerController.IsGroundedOnCollider || !animator.GetBool(groundedBoolHash))
+            // MODIFIED: Add a check to prevent immediate falling state after jump
+            // If we're not grounded after the delay, go to air state
+            if (!playerController.IsGroundedOnCollider)
             {
                 animator.SetBool(airBoolHash, true);
+                
+                // Add a small additional delay before allowing falling state
+                // This prevents the character from immediately transitioning to falling
+                yield return new WaitForSeconds(0.2f);
+                
+                // Now check if we're actually falling (negative Y velocity)
+                if (!playerController.IsGroundedOnCollider && cc.velocity.y < 0)
+                {
+                    animator.SetBool(isFalling, true);
+                }
             }
+            
             airStateCoroutine = null;  // Clear the reference when done
         }
 
@@ -588,11 +679,37 @@ namespace RoofTops
         // Public method to set animation triggers from other scripts
         public void SetTrigger(string triggerName)
         {
+            // Check if animator is null and try to get it if needed
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+                
+                // If still null, log an error and return
+                if (animator == null)
+                {
+                    Debug.LogError("PlayerAnimatorController: Animator component is missing on " + gameObject.name);
+                    return;
+                }
+            }
+            
             animator.SetTrigger(triggerName);
         }
 
         public void SetBool(string boolName, bool value)
         {
+            // Check if animator is null and try to get it if needed
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+                
+                // If still null, log an error and return
+                if (animator == null)
+                {
+                    Debug.LogError("PlayerAnimatorController: Animator component is missing on " + gameObject.name);
+                    return;
+                }
+            }
+            
             animator.SetBool(boolName, value);
         }
 
@@ -634,7 +751,7 @@ namespace RoofTops
         public void TriggerJumpAnimation(float jumpForce)
         {
             // Only trigger jump if grounded and not falling
-            if (playerController.IsGroundedOnCollider && !animator.GetBool(IsFalling))
+            if (playerController.IsGroundedOnCollider && !animator.GetBool(isFalling))
             {
                 // Record jump start height
                 jumpStartHeight = transform.position.y;
@@ -675,7 +792,7 @@ namespace RoofTops
             // Reset all animation states
             animator.SetBool(airBoolHash, false);
             animator.SetBool(groundedBoolHash, true);
-            animator.SetBool(IsFalling, false);
+            animator.SetBool(isFalling, false);
             animator.SetBool(smallJumpBoolHash, false);
             animator.ResetTrigger(jumpTriggerHash);
             animator.ResetTrigger(spineKnockTriggerHash);
@@ -772,6 +889,31 @@ namespace RoofTops
 
             // Start the watch animation
             activeWatchCoroutine = StartCoroutine(DelayedWatch());
+        }
+
+        private bool HasParameter(int hash)
+        {
+            // Make sure animator is not null
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+                if (animator == null)
+                {
+                    Debug.LogError("Animator component is missing on " + gameObject.name);
+                    return false;
+                }
+            }
+
+            // Check if the parameter exists
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            foreach (AnimatorControllerParameter parameter in parameters)
+            {
+                if (parameter.nameHash == hash)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
