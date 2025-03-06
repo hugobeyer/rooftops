@@ -87,26 +87,18 @@ public class MobileMonetizationPro_UnityAdsInitializer : MonoBehaviour, IUnityAd
         BannerAdUnitID = BannerIOSAdUnitId;
 #elif UNITY_ANDROID
         BannerAdUnitID = BannerAndroidAdUnitId;
-#elif UNITY_EDITOR
-        BannerAdUnitID = BannerAndroidAdUnitId; //Use Android ID for testing in the Editor
 #endif
 
         // Get the Ad Unit ID for the current platform:
-#if UNITY_IOS
-        InterstitalAdUnitID = InterstitalIOSAdUnitId;
-#elif UNITY_ANDROID
-        InterstitalAdUnitID = InterstitalAndroidAdUnitId;
-#elif UNITY_EDITOR
-        InterstitalAdUnitID = InterstitalAndroidAdUnitId; //Use Android ID for testing in the Editor
-#endif
+        InterstitalAdUnitID = (Application.platform == RuntimePlatform.IPhonePlayer)
+            ? InterstitalIOSAdUnitId
+            : InterstitalAndroidAdUnitId;
 
         // Get the Ad Unit ID for the current platform:
 #if UNITY_IOS
         RewardedAdUnitID = RewardedIOSAdUnitId;
 #elif UNITY_ANDROID
         RewardedAdUnitID = RewardedAndroidAdUnitId;
-#elif UNITY_EDITOR
-        RewardedAdUnitID = RewardedAndroidAdUnitId; //Use Android ID for testing in the Editor
 #endif
 
 
@@ -191,7 +183,14 @@ public class MobileMonetizationPro_UnityAdsInitializer : MonoBehaviour, IUnityAd
     }
     public void LoadRewarded()
     {
-        Advertisement.Load(RewardedAdUnitID,this);
+        // Check for a valid RewardedAdUnitID before attempting to load
+        if (string.IsNullOrEmpty(RewardedAdUnitID))
+        {
+            Debug.LogWarning("[MobileMonetizationPro_UnityAdsInitializer] RewardedAdUnitID is nil or empty. Skipping rewarded ad load.");
+            return;
+        }
+
+        Advertisement.Load(RewardedAdUnitID, this);
     }
     public void ShowBannerAd()
     {

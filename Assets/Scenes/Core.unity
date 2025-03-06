@@ -127,6 +127,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1234567890123456789, guid: 51dc5e0c485cec94db589fb11299d178, type: 3}
+      propertyPath: jump_action.m_Id
+      value: 9ac8ab1e-9c2f-464d-9c2f-52dd4316860e
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234567890123456789, guid: 51dc5e0c485cec94db589fb11299d178, type: 3}
+      propertyPath: pointer_position_action.m_Id
+      value: 6e108bee-bd4a-48ea-87be-d4e02f06c134
+      objectReference: {fileID: 0}
+    - target: {fileID: 1453079404541627329, guid: 51dc5e0c485cec94db589fb11299d178, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2108042182418723770, guid: 51dc5e0c485cec94db589fb11299d178, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

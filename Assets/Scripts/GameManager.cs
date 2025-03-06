@@ -8,15 +8,6 @@ using UnityEngine.UI;
 
 namespace RoofTops
 {
-    // Achievement-related classes are now handled by GoalAchievementManager
-    // TODO: Move this enum to GoalAchievementManager in the future
-    public enum GoalType
-    {
-        Distance,    // Reach a specific distance
-        Tridots,     // Collect a specific number of tridots
-        Memcard      // Collect a specific number of memory cards
-    }
-
     // Renamed from LogType to avoid conflict with Unity's LogType
     public enum LogCategory
     {
@@ -28,9 +19,6 @@ namespace RoofTops
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
-
-        [Header("Pause Indicator")]
-        public GameObject pauseIndicator;
 
         [Header("Time Control")]
         [Range(0.1f, 32f)] public float timeSpeed = 1f;
@@ -44,21 +32,8 @@ namespace RoofTops
         [Header("Data")]
         public GameDataObject gameData;
 
-        // Audio will be handled by a separate system
-        public UnityEngine.Audio.AudioMixer audioMixerForPitch;  // Just assign the mixer with Master exposed
-        public string pitchParameter = "Pitch";
-        [Range(0.0f, 1.0f)] public float defaultMusicVolume = 0.8f;
-        public float normalPitch = 1f;              // Normal music pitch
-        public float lowPitch = 0.5f;              // Low pitch value
-
         [Header("Player Settings")]
         public GameObject player;
-
-        [Header("Initial UI Group")]
-        public GameObject initialUIGroup;
-
-        [Header("UI Displays")]
-        // (No UI Text fields needed)
 
         [Header("Helpers")]
         // We'll accumulate distance directly from ModulePool's currentMoveSpeed.
@@ -91,12 +66,6 @@ namespace RoofTops
             {
                 isPaused = value;
                 Time.timeScale = isPaused ? 0f : timeSpeed;
-
-                // Handle pause indicator
-                if (pauseIndicator != null && HasGameStarted)
-                {
-                    pauseIndicator.SetActive(isPaused);
-                }
             }
         }
 
@@ -111,19 +80,7 @@ namespace RoofTops
             }
         }
 
-        [Header("UI Controllers")]
-        public GameplayUIController gameplayUI;
-        public MainMenuController mainMenuUI;
-        public GameOverUIController gameOverUI;
-
-        private float currentUIHeight = 0f;  // Add this field to track current height
-        public float uiHeightSmoothSpeed = 5f;  // Add this to control smoothing speed
-
-        [Header("Shader Properties")]
-        public Material targetMaterial;  // Material that uses the shader
-
-        // Cache transform and use a timer for UI updates
-        private Transform gameplayUITransform;
+        // Timer for updates
         private float uiUpdateTimer;
         private const float UI_UPDATE_INTERVAL = 0.05f; // 20fps is enough for smooth UI
 
@@ -135,10 +92,13 @@ namespace RoofTops
         [Header("Required Components")]
         public InputActionManager inputManager;  // Change to public so you can assign in inspector
         public FootstepController footstepController;  // Add this line to reference footsteps
+        public Material targetMaterial;  // Material for path effects
 
-        [Header("Death UI")]
-        public GameObject deathUIPanel;          // Assign in inspector
-        public float deathUIPanelDelay = 0.5f;   // Delay before showing UI
+        [Header("Audio Settings")]
+        public UnityEngine.Audio.AudioMixer audioMixerForPitch;
+        public string pitchParameter = "Pitch";
+        public float normalPitch = 1f;
+        public float lowPitch = 0.8f;
 
         [Header("Player References")]
         public GameObject playerRagdoll;  // Assign the ragdoll prefab in inspector
@@ -161,13 +121,6 @@ namespace RoofTops
 
         // Property to track the player's distance traveled
         public float PlayerDistance { get; set; }
-
-        // Achievement-related variables (kept for backward compatibility)
-        private int tridotsGoalIndex = 0;
-        private int memcardGoalIndex = 0;
-        private GoalType currentGoalType = GoalType.Distance;
-        private bool goalAchieved = false;
-        private float currentGoalValue = 0f;
 
         void Awake()
         {
@@ -194,12 +147,6 @@ namespace RoofTops
             currentGravity = defaultGravity;
             Physics.gravity = new Vector3(0, currentGravity, 0);
 
-            // Hide pause indicator immediately
-            if (pauseIndicator != null)
-            {
-                pauseIndicator.SetActive(false);
-            }
-
             // Initialize game data if null
             if (gameData == null)
             {
@@ -211,26 +158,11 @@ namespace RoofTops
             
             // Achievement data is now handled by GoalAchievementManager
 
-            // Set initial mixer pitch
-            if (audioMixerForPitch != null)
-            {
-                audioMixerForPitch.SetFloat(pitchParameter, normalPitch);
-            }
-            
-            // Register for game state changes
-            OnGameStateChanged += HandleGameStateChanged;
-            
             // Try to find player if not assigned - will be done again in StartGame if needed
             if (player == null)
             {
                 // Wait a frame to ensure SceneReferenceManager is initialized
                 StartCoroutine(FindPlayerDelayed());
-            }
-
-            // Hide the UI group until the game starts (assign the parent UI GameObject in the Inspector)
-            if (initialUIGroup != null)
-            {
-                initialUIGroup.SetActive(false);
             }
 
             // Get the ads manager
@@ -248,25 +180,25 @@ namespace RoofTops
             }
         }
 
+        private void OnEnable()
+        {
+            // Subscribe to the game state changed event
+            OnGameStateChanged += HandleGameStateChanged;
+            Debug.Log("GameManager: Subscribed to OnGameStateChanged event");
+        }
+
         private void Start()
         {
             GamesState = GameStates.MainMenu;
             
-            if (pauseIndicator != null)
+            // Ensure input is enabled in MainMenu state
+            if (InputActionManager.Exists())
             {
-                pauseIndicator.SetActive(false);
+                InputActionManager.Instance.InputActionsActivate();
+                // Add jump listener to start game
+                InputActionManager.Instance.OnJumpPressed.AddListener(StartGame);
+                Debug.Log("GameManager: Enabled input and added jump listener for MainMenu state");
             }
-
-            if (gameplayUI != null)
-            {
-                gameplayUITransform = gameplayUI.transform;
-            }
-
-            //// Keep or find the panel controller if needed
-            //if (panelController == null)
-            //{
-            //    panelController = FindObjectOfType<PanelController>();
-            //}
 
             if (VistaPool.Instance != null)
             {
@@ -281,12 +213,6 @@ namespace RoofTops
             
             // Achievement data is now handled by GoalAchievementManager
 
-            // Setup music - only volume and playback settings
-            // if (musicClip != null)
-            // {
-            //     // AudioSource.PlayClipAtPoint(musicClip, Vector3.zero);
-            // }
-            
             // Explicitly transition from StartingUp to MainMenu state
             if (currentState == GameStates.StartingUp)
             {
@@ -294,73 +220,29 @@ namespace RoofTops
             }
         }
 
-        private void Update()
+        // Update is called once per frame
+        void Update()
         {
-            if (GamesState != GameStates.Playing)
+            // Only update when not paused
+            if (!IsPaused)
             {
-                return;
-            }
-
-            if (isPaused) return;
-
-            // Accumulate distance using ModulePool's currentMoveSpeed.
-            if (ModulePool.Instance != null)
-            {
-                accumulatedDistance += ModulePool.Instance.currentMoveSpeed * Time.deltaTime;
-
-                // Update EconomyManager with current distance
-                if (EconomyManager.Instance != null)
+                // Update accumulated distance
+                if (ModulePool.Instance != null && HasGameStarted)
                 {
-                    EconomyManager.Instance.UpdateDistance(accumulatedDistance);
+                    accumulatedDistance += ModulePool.Instance.currentMoveSpeed * Time.deltaTime;
                 }
-            }
 
-            if (!isPaused)
-            {
-                Time.timeScale = timeSpeed;
-            }
-
-            // Gradually increase module speed to normal using smooth blending
-            if (ModulePool.Instance != null && Time.time < moduleSpeedStartTime + speedRampDuration)
-            {
-                float rawProgress = (Time.time - moduleSpeedStartTime) / speedRampDuration;
-                float speedProgress = Mathf.SmoothStep(0f, 1f, rawProgress);
-                float currentSpeed = Mathf.Lerp(2f, 6f, speedProgress);  // From slow to normal
-                ModulePool.Instance.currentMoveSpeed = currentSpeed;
-            }
-
-            // Update UI position less frequently
-            uiUpdateTimer += Time.deltaTime;
-            if (uiUpdateTimer >= UI_UPDATE_INTERVAL && gameplayUITransform != null && ModulePool.Instance != null)
-            {
-                uiUpdateTimer = 0;
-                float targetHeight = ModulePool.Instance.GetMaxModuleHeight();
-                currentUIHeight = Mathf.Lerp(currentUIHeight, targetHeight, UI_UPDATE_INTERVAL * uiHeightSmoothSpeed);
-
-                Vector3 uiPos = gameplayUITransform.position;
-                uiPos.y = currentUIHeight + 0.5f; // Simplified UI height calculation
-                gameplayUITransform.position = uiPos;
-            }
-
-            // Update shader with player position
-            if (player != null && targetMaterial != null)
-            {
-                Vector4 playerPos = player.transform.position;
-                targetMaterial.SetVector("_PlayerPosition", playerPos);
-            }
-
-            // Auto-save game data periodically
-            if (enableAutoSave && Time.time - lastAutoSaveTime > autoSaveInterval)
-            {
-                SaveGameData();
-
-                lastAutoSaveTime = Time.time;
+                // Auto-save if enabled
+                if (enableAutoSave && Time.time - lastAutoSaveTime > autoSaveInterval)
+                {
+                    lastAutoSaveTime = Time.time;
+                    SaveGameData();
+                }
             }
         }
 
         private void OnDestroy()
         {
-
             OnGameStateChanged -= HandleGameStateChanged;
         }
 
@@ -402,10 +284,34 @@ namespace RoofTops
 
         public void ResetGame()
         {
-            // Reset game state variables first
+            // Reset game state
+            GamesState = GameStates.MainMenu;
             HasGameStarted = false;
-            IsPaused = false;
-            Time.timeScale = 1.0f; // Ensure time scale is reset to normal
+            accumulatedDistance = 0f;
+            
+            // Reset ModulePool speed
+            if (ModulePool.Instance != null)
+            {
+                ModulePool.Instance.ResetSpeed();
+                Debug.Log("GameManager: Reset ModulePool speed");
+            }
+            
+            // Reset player state if it exists and is active
+            if (player != null && player.activeInHierarchy)
+            {
+                // Reset player position
+                player.transform.position = Vector3.zero;
+                
+                // Reset player velocity if it has a CharacterController
+                PlayerController playerController = player.GetComponent<PlayerController>();
+                if (playerController != null)
+                {
+                    // We can't call ResetPlayer directly, so we'll just reset what we can
+                    playerController.enabled = true;
+                }
+            }
+            
+            // Disable UI elements that might interfere with scene transition
             
             // Reset any other game state variables
             if (VistaPool.Instance != null)
@@ -416,22 +322,8 @@ namespace RoofTops
             // Clear any pending coroutines
             StopAllCoroutines();
             
-            // Disable UI elements that might interfere with scene transition
-            if (deathUIPanel != null)
-            {
-                deathUIPanel.SetActive(false);
-            }
-            
-            if (gameplayUI != null)
-            {
-                gameplayUI.gameObject.SetActive(false);
-            }
-            
             // Log that we're restarting the game
             Debug.Log("Restarting game...");
-            
-            // Reload the scene - do this LAST
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         public void SlowTimeForJump(float targetScale = 0.25f, float duration = 0.75f)
@@ -489,6 +381,7 @@ namespace RoofTops
             // This coroutine only controls audio mixer effects, not direct audio playback
             if (audioMixerForPitch == null)
             {
+                Debug.LogWarning("GameManager: audioMixerForPitch is null, cannot apply audio effects");
                 yield break;
             }
 
@@ -517,12 +410,18 @@ namespace RoofTops
 
         public void StartGame()
         {
+            Debug.Log("GameManager: StartGame method called");
+            
             // Change game state to Playing
             GamesState = GameStates.Playing;
             
             if (!HasGameStarted)
             {
+                Debug.Log("GameManager: First time starting game, initializing...");
                 HasGameStarted = true;
+                
+                // Start speed ramping
+                StartCoroutine(RampSpeed());
 
                 // Check if GoalAchievementManager is properly initialized
                 CheckGoalAchievementManager();
@@ -542,6 +441,7 @@ namespace RoofTops
                 Time.timeScale = timeSpeed;
 
                 // Fire game started event
+                Debug.Log("GameManager: Invoking onGameStarted event");
                 onGameStarted.Invoke();
 
                 // Start blending to normal speed
@@ -589,12 +489,6 @@ namespace RoofTops
                             anim.Play("runState", 0, 0f);
                         }
                     }
-                }
-
-                // Reveal the UI group now that the game has started.
-                if (initialUIGroup != null)
-                {
-                    initialUIGroup.SetActive(true);
                 }
 
                 // Now enable the UsePath feature
@@ -673,6 +567,7 @@ namespace RoofTops
         // New method to handle the overall game over (player death) logic.
         public void HandlePlayerDeath(float finalDistance, GameObject collidingHook = null)
         {
+            // Change game state to GameOver
             GamesState = GameStates.GameOver;
 
             // Save stats
@@ -693,7 +588,7 @@ namespace RoofTops
                     animController.SetBool("jumpTrigger", false);
                     //animController.SetBool("running", false);
                     animController.SetBool("airBool", false);
-
+                
                     // Reset any other custom states
                     Animator anim = animController.GetComponent<Animator>();
                     if (anim != null)
@@ -732,113 +627,18 @@ namespace RoofTops
                 patternSpawning.StopMovement();
             }
 
-            // Switch to ragdoll
-            SwitchToRagdoll();
+            // Switch to ragdoll but don't disable the player yet
+            SwitchToRagdollWithoutDisablingPlayer();
 
-            // Hide gameplay UI
-            gameplayUI?.gameObject.SetActive(false);
-
-            // Show death UI, then reload after a delay
-            StartCoroutine(ShowDeathUI());
+            // Slow down time for dramatic effect
+            Time.timeScale = 0.5f;
+            
+            // Wait a moment before transitioning to game over state
+            StartCoroutine(TransitionToGameOver());
         }
 
-        private IEnumerator ShowDeathUI()
-        {
-            GamesState = GameStates.GameOver;
-
-            // Wait for camera movement and ragdoll to settle
-            yield return new WaitForSeconds(deathUIPanelDelay);
-
-            // Fade in the death UI
-            if (deathUIPanel != null)
-            {
-                // Optional: Add fade-in effect here
-                deathUIPanel.SetActive(true);
-            }
-        }
-
-        // Call this from the UI button
-        public void RestartGame()
-        {
-            // Reset game state variables first
-            HasGameStarted = false;
-            IsPaused = false;
-            Time.timeScale = 1.0f; // Ensure time scale is reset to normal
-            
-            // Reset any other game state variables
-            if (VistaPool.Instance != null)
-            {
-                VistaPool.Instance.ResetVistas();
-            }
-            
-            // Clear any pending coroutines
-            StopAllCoroutines();
-            
-            // Disable UI elements that might interfere with scene transition
-            if (deathUIPanel != null)
-            {
-                deathUIPanel.SetActive(false);
-            }
-            
-            if (gameplayUI != null)
-            {
-                gameplayUI.gameObject.SetActive(false);
-            }
-            
-            // Reset the camera if available
-            if (NoiseMovement.Instance != null)
-            {
-                // Reset the camera
-                NoiseMovement.Instance.ResetCamera();
-            }
-            
-            // Log that we're restarting the game
-            Debug.Log("Restarting game...");
-            
-            // Reset game state to MainMenu
-            GamesState = GameStates.MainMenu;
-            
-            // Get the current scene
-            Scene currentScene = SceneManager.GetActiveScene();
-            
-            // Unload the current scene (but not the Core scene)
-            if (currentScene.name != "Core")
-            {
-                // Unload the current scene
-                SceneManager.UnloadSceneAsync(currentScene);
-                
-                // Load the main menu scene additively
-                SceneManager.LoadScene("Main", LoadSceneMode.Additive);
-            }
-            else
-            {
-                // If we're somehow in the Core scene, just load the main menu
-                SceneManager.LoadScene("Main", LoadSceneMode.Additive);
-            }
-        }
-
-        public void SetGravity(float gravityValue)
-        {
-            currentGravity = gravityValue;
-            Physics.gravity = new Vector3(0, currentGravity, 0);
-        }
-
-        public void IncreaseGravity()
-        {
-            SetGravity(increasedGravity);
-        }
-
-        public void ResetGravity()
-        {
-            SetGravity(defaultGravity);
-        }
-
-        void OnDisable()
-        {
-            // Remove disabling of gameActions:
-        }
-
-        private void SwitchToRagdoll()
+        // Modified version that doesn't disable the player
+        private void SwitchToRagdollWithoutDisablingPlayer()
         {
             if (playerRagdoll != null && player != null)
             {
@@ -937,147 +737,97 @@ namespace RoofTops
                     }
                 }
 
-                // Disable original player
-                player.SetActive(false);
+                // Make the player invisible instead of disabling it
+                // This keeps the GameObject active for Unity Ads but visually hidden
+                Renderer[] renderers = player.GetComponentsInChildren<Renderer>();
+                foreach (Renderer renderer in renderers)
+                {
+                    renderer.enabled = false;
+                }
+                
+                // Disable colliders on the player to prevent further interactions
+                Collider[] playerColliders = player.GetComponentsInChildren<Collider>();
+                foreach (Collider collider in playerColliders)
+                {
+                    collider.enabled = false;
+                }
             }
         }
 
-        // Wait for initialPanelHideTime seconds, then show the panel
-
-
-        public void SaveGameData()
+        private IEnumerator TransitionToGameOver()
         {
-            // Save distance records
-            PlayerPrefs.SetFloat("BestDistance", gameData.bestDistance);
-            PlayerPrefs.SetFloat("LastRunDistance", gameData.lastRunDistance);
-
-            // Save tridots collection
-            PlayerPrefs.SetInt("TotalTridotCollected", gameData.totalTridotCollected);
-            PlayerPrefs.SetInt("LastRunTridotCollected", gameData.lastRunTridotCollected);
-            PlayerPrefs.SetInt("BestRunTridotCollected", gameData.bestRunTridotCollected);
-
-            // Save memcard collection
-            PlayerPrefs.SetInt("TotalMemcardsCollected", gameData.totalMemcardsCollected);
-            PlayerPrefs.SetInt("LastRunMemcardsCollected", gameData.lastRunMemcardsCollected);
-            PlayerPrefs.SetInt("BestRunMemcardsCollected", gameData.bestRunMemcardsCollected);
-
-            // Save tutorial flags
-            PlayerPrefs.SetInt("HasShownDashInfo", gameData.hasShownDashInfo ? 1 : 0);
-
-            // Achievement data is now handled by GoalAchievementManager
-
-            // Ensure data is written to disk
-            PlayerPrefs.Save();
-        }
-
-        /// <summary>
-        /// Loads all game data from PlayerPrefs
-        /// </summary>
-        public void LoadGameData()
-        {
-            // Load distance records
-            gameData.bestDistance = PlayerPrefs.GetFloat("BestDistance", 0f);
-            gameData.lastRunDistance = PlayerPrefs.GetFloat("LastRunDistance", 0f);
-
-            // Load tridots collection
-            gameData.totalTridotCollected = PlayerPrefs.GetInt("TotalTridotCollected", 0);
-            gameData.lastRunTridotCollected = PlayerPrefs.GetInt("LastRunTridotCollected", 0);
-            gameData.bestRunTridotCollected = PlayerPrefs.GetInt("BestRunTridotCollected", 0);
-
-            // Load memcard collection
-            gameData.totalMemcardsCollected = PlayerPrefs.GetInt("TotalMemcardsCollected", 0);
-            gameData.lastRunMemcardsCollected = PlayerPrefs.GetInt("LastRunMemcardsCollected", 0);
-            gameData.bestRunMemcardsCollected = PlayerPrefs.GetInt("BestRunMemcardsCollected", 0);
-
-            // Load tutorial flags
-            gameData.hasShownDashInfo = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
-
-            // Achievement data is now handled by GoalAchievementManager
-        }
-
-        /// <summary>
-        /// Clears all saved game data (for testing or reset functionality)
-        /// </summary>
-        public void ClearGameData()
-        {
-            // Reset all game data
-            gameData.bestDistance = 0f;
-            gameData.lastRunDistance = 0f;
-            gameData.totalTridotCollected = 0;
-            gameData.lastRunTridotCollected = 0;
-            gameData.bestRunTridotCollected = 0;
-            gameData.totalMemcardsCollected = 0;
-            gameData.lastRunMemcardsCollected = 0;
-            gameData.bestRunMemcardsCollected = 0;
-            gameData.hasShownDashInfo = false;
-
-            // Clear all PlayerPrefs data first
-            PlayerPrefs.DeleteAll();
-
-            // Achievement data is now handled by GoalAchievementManager
-
-            // Save the cleared data
-            SaveGameData();
+            // Wait a moment for dramatic effect
+            yield return new WaitForSeconds(0.5f);
             
-            // Notify GoalAchievementManager to reset its data if it exists
-            if (GoalAchievementManager.Instance != null)
-            {
-                GoalAchievementManager.Instance.ResetCurrentGoalIndices();
-            }
+            // Reset time scale
+            Time.timeScale = 1.0f;
+            
+            // Don't disable the player here, it might cause issues with Unity Ads
+            // The player is already visually hidden by SwitchToRagdollWithoutDisablingPlayer
         }
 
-        // Add this to handle application quit/pause
-        private void OnApplicationQuit()
+        // Call this from the UI button
+        public void RestartGame()
         {
-            // Save data when the application is closed
-            SaveGameData();
+            Debug.Log("GameManager: RestartGame called - DIRECT RESTART");
+            
+            // Ensure time scale is reset
+            Time.timeScale = 1f;
+            
+            // Reset game state
+            ResetGame();
+            
+            // Reload the current scene immediately
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
-        private void OnApplicationPause(bool pauseStatus)
+        public void SetGravity(float gravityValue)
         {
-            GamesState = pauseStatus ? GameStates.Paused : previousState;
-            // Save data when the application is paused (e.g., when switching to another app on mobile)
-            if (pauseStatus)
-            {
-                SaveGameData();
-            }
+            currentGravity = gravityValue;
+            Physics.gravity = new Vector3(0, currentGravity, 0);
         }
 
-        // Add this method to GameManager
+        public void IncreaseGravity()
+        {
+            SetGravity(increasedGravity);
+        }
+
+        public void ResetGravity()
+        {
+            SetGravity(defaultGravity);
+        }
+
+        void OnDisable()
+        {
+            // Remove disabling of gameActions:
+        }
 
         private void HandleGameStateChanged(GameStates oldState, GameStates newState)
         {
             // Handle MainMenu state
-            if(newState == GameStates.MainMenu)
+            if (newState == GameStates.MainMenu)
             {
-                InputActionManager.Instance.OnJumpPressed.AddListener(StartGame);
-                
-                // Make sure UI elements for main menu are visible
-                if (mainMenuUI != null)
+                // Ensure input is enabled and jump listener is added
+                if (InputActionManager.Exists())
                 {
-                    mainMenuUI.gameObject.SetActive(true);
-                }
-                
-                // Ensure game over UI is hidden
-                if (gameOverUI != null)
-                {
-                    gameOverUI.gameObject.SetActive(false);
+                    InputActionManager.Instance.InputActionsActivate();
+                    InputActionManager.Instance.OnJumpPressed.AddListener(StartGame);
+                    Debug.Log("GameManager: Enabled input and added jump listener for MainMenu state");
                 }
             }
-            else
+            else if (oldState == GameStates.MainMenu)
             {
-                InputActionManager.Instance.OnJumpPressed.RemoveListener(StartGame);
+                // Remove jump listener when leaving MainMenu
+                if (InputActionManager.Exists())
+                {
+                    InputActionManager.Instance.OnJumpPressed.RemoveListener(StartGame);
+                    Debug.Log("GameManager: Removed jump listener when leaving MainMenu state");
+                }
             }
             
             // Handle Playing state
             if (newState == GameStates.Playing)
             {
-                // Hide main menu UI
-                if (mainMenuUI != null)
-                {
-                    mainMenuUI.gameObject.SetActive(false);
-                }
-                
                 // Make sure player is found and active
                 if (player == null)
                 {
@@ -1089,34 +839,6 @@ namespace RoofTops
                     // Make sure player is active
                     player.SetActive(true);
                     Debug.Log("GameManager: Player found and activated in Playing state");
-                }
-            }
-            
-            // Handle GameOver state
-            if (newState == GameStates.GameOver)
-            {
-                // Show game over UI
-                if (gameOverUI != null)
-                {
-                    gameOverUI.gameObject.SetActive(true);
-                }
-            }
-            
-            // Handle Paused state
-            if (newState == GameStates.Paused)
-            {
-                // Show pause indicator
-                if (pauseIndicator != null)
-                {
-                    pauseIndicator.SetActive(true);
-                }
-            }
-            else if (oldState == GameStates.Paused)
-            {
-                // Hide pause indicator when leaving paused state
-                if (pauseIndicator != null)
-                {
-                    pauseIndicator.SetActive(false);
                 }
             }
             
@@ -1137,13 +859,6 @@ namespace RoofTops
         public GameObject GetUIElement(string id)
         {
             return SceneReferenceManager.Instance.GetUI(id);
-        }
-
-        // Method to set the pause indicator
-        public void SetPauseIndicator(GameObject indicator)
-        {
-            pauseIndicator = indicator;
-            RegisterUIElement("PauseIndicator", indicator);
         }
 
         #region Game State
@@ -1261,15 +976,139 @@ namespace RoofTops
                 Debug.Log("GameManager: Player setup complete after finding");
             }
         }
+
+        // Simple speed ramp coroutine
+        private IEnumerator RampSpeed()
+        {
+            // Set initial speed
+            if (ModulePool.Instance != null)
+            {
+                ModulePool.Instance.currentMoveSpeed = initialGameSpeed;
+            }
+            
+            float startTime = Time.time;
+            
+            while (Time.time < startTime + speedRampDuration)
+            {
+                float t = (Time.time - startTime) / speedRampDuration;
+                float currentSpeed = Mathf.Lerp(initialGameSpeed, normalGameSpeed, t);
+                
+                if (ModulePool.Instance != null)
+                {
+                    ModulePool.Instance.currentMoveSpeed = currentSpeed;
+                }
+                
+                yield return null;
+            }
+            
+            // Ensure we end at exactly the target speed
+            if (ModulePool.Instance != null)
+            {
+                ModulePool.Instance.currentMoveSpeed = normalGameSpeed;
+            }
+        }
+
+        // Add these methods back
+        public void SaveGameData()
+        {
+            // Save distance records
+            PlayerPrefs.SetFloat("BestDistance", gameData.bestDistance);
+            PlayerPrefs.SetFloat("LastRunDistance", gameData.lastRunDistance);
+
+            // Save tridots collection
+            PlayerPrefs.SetInt("TotalTridotCollected", gameData.totalTridotCollected);
+            PlayerPrefs.SetInt("LastRunTridotCollected", gameData.lastRunTridotCollected);
+            PlayerPrefs.SetInt("BestRunTridotCollected", gameData.bestRunTridotCollected);
+
+            // Save memcard collection
+            PlayerPrefs.SetInt("TotalMemcardsCollected", gameData.totalMemcardsCollected);
+            PlayerPrefs.SetInt("LastRunMemcardsCollected", gameData.lastRunMemcardsCollected);
+            PlayerPrefs.SetInt("BestRunMemcardsCollected", gameData.bestRunMemcardsCollected);
+
+            // Save tutorial flags
+            PlayerPrefs.SetInt("HasShownDashInfo", gameData.hasShownDashInfo ? 1 : 0);
+
+            // Achievement data is now handled by GoalAchievementManager
+
+            // Ensure data is written to disk
+            PlayerPrefs.Save();
+        }
+
+        public void LoadGameData()
+        {
+            // Load distance records
+            gameData.bestDistance = PlayerPrefs.GetFloat("BestDistance", 0f);
+            gameData.lastRunDistance = PlayerPrefs.GetFloat("LastRunDistance", 0f);
+
+            // Load tridots collection
+            gameData.totalTridotCollected = PlayerPrefs.GetInt("TotalTridotCollected", 0);
+            gameData.lastRunTridotCollected = PlayerPrefs.GetInt("LastRunTridotCollected", 0);
+            gameData.bestRunTridotCollected = PlayerPrefs.GetInt("BestRunTridotCollected", 0);
+
+            // Load memcard collection
+            gameData.totalMemcardsCollected = PlayerPrefs.GetInt("TotalMemcardsCollected", 0);
+            gameData.lastRunMemcardsCollected = PlayerPrefs.GetInt("LastRunMemcardsCollected", 0);
+            gameData.bestRunMemcardsCollected = PlayerPrefs.GetInt("BestRunMemcardsCollected", 0);
+
+            // Load tutorial flags
+            gameData.hasShownDashInfo = PlayerPrefs.GetInt("HasShownDashInfo", 0) == 1;
+
+            // Achievement data is now handled by GoalAchievementManager
+        }
+
+        public void ClearGameData()
+        {
+            // Reset all game data
+            gameData.bestDistance = 0f;
+            gameData.lastRunDistance = 0f;
+            gameData.totalTridotCollected = 0;
+            gameData.lastRunTridotCollected = 0;
+            gameData.bestRunTridotCollected = 0;
+            gameData.totalMemcardsCollected = 0;
+            gameData.lastRunMemcardsCollected = 0;
+            gameData.bestRunMemcardsCollected = 0;
+            gameData.hasShownDashInfo = false;
+
+            // Clear all PlayerPrefs data first
+            PlayerPrefs.DeleteAll();
+
+            // Achievement data is now handled by GoalAchievementManager
+
+            // Save the cleared data
+            SaveGameData();
+            
+            // Notify GoalAchievementManager to reset its data if it exists
+            if (GoalAchievementManager.Instance != null)
+            {
+                GoalAchievementManager.Instance.ResetCurrentGoalIndices();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            // Save data when the application is closed
+            SaveGameData();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            GamesState = pauseStatus ? GameStates.Paused : previousState;
+            // Save data when the application is paused (e.g., when switching to another app on mobile)
+            if (pauseStatus)
+            {
+                SaveGameData();
+            }
+        }
     }
 
-    public enum GameStates
-    {
-        StartingUp,
-        MainMenu,
-        Playing,
-        Paused,
-        GameOver,
-        ShuttingDown
-    }
+    // GameStates enum has been moved to a separate file: GameStates.cs
+    // public enum GameStates
+    // {
+    //     StartingUp,
+    //     MainMenu,
+    //     Playing,
+    //     Paused,
+    //     GameOver,
+    //     ShuttingDown
+    // }
 }

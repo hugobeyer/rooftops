@@ -75,8 +75,8 @@ public class RestartButton3D : MonoBehaviour
         // Let GameManager handle the reset
         if (GameManager.Instance != null)
         {
-            Debug.Log("RestartButton3D: Calling GameManager.ResetGame()");
-            GameManager.Instance.ResetGame();
+            Debug.Log("RestartButton3D: Calling GameManager.RestartGame()");
+            GameManager.Instance.RestartGame();
         }
         else
         {

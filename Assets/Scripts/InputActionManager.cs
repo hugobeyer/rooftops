@@ -131,9 +131,10 @@ public class InputActionManager : MonoBehaviour
         switch (context.phase)
         {
             case InputActionPhase.Started:
+                Debug.Log("InputActionManager: Jump action Started");
                 break;
             case InputActionPhase.Performed:
-
+                Debug.Log("InputActionManager: Jump action Performed");
                 jumpPressedTime = 0f;
                 isJumping = true;
                 if(jumpHeldCoroutine != null)
@@ -144,16 +145,19 @@ public class InputActionManager : MonoBehaviour
                 jumpHeldCoroutine = this.StartCoroutine(JumpPressedCoroutine());
                 if (!doubleJumpActivated && doubleJumpTime > 0)
                 {
+                    Debug.Log("InputActionManager: Double jump activated");
                     OnDoubleJumpPressedActivated.Invoke();
                     doubleJumpTime = 0;
                     doubleJumpActivated = true;
                 }
                 else
                 {
+                    Debug.Log("InputActionManager: Invoking OnJumpPressed event");
                     OnJumpPressed.Invoke();
                 }
                 break;
             case InputActionPhase.Canceled:
+                Debug.Log("InputActionManager: Jump action Canceled");
                 isJumping = false;
                 this.StopCoroutine(jumpHeldCoroutine);
                 OnJumpReleased.Invoke();
@@ -165,19 +169,24 @@ public class InputActionManager : MonoBehaviour
    
     public void InputActionsActivate()
     {
+        Debug.Log("InputActionManager: InputActionsActivate called");
+        
         if(!inputActions.enabled)
         {
             inputActions.Enable();
+            Debug.Log("InputActionManager: Input actions enabled");
         }
 
         if (jump_action.bindings.Count == 0)
         {
+            Debug.Log("InputActionManager: No jump bindings found, finding Jump action");
             jump_action = inputActions.FindAction("Jump", throwIfNotFound: true);
         }
         jump_action.performed += HandleJumpAction;
         jump_action.canceled += HandleJumpAction;
         jump_action.started += HandleJumpAction;
         jump_action.Enable();
+        Debug.Log("InputActionManager: Jump action enabled and handlers attached");
 
 
         if (pointer_position_action.bindings.Count == 0)
@@ -188,8 +197,7 @@ public class InputActionManager : MonoBehaviour
         pointer_position_action.canceled += HandlePointerPositionAction;
         pointer_position_action.started += HandlePointerPositionAction;
         pointer_position_action.Enable();
-
-
+        Debug.Log("InputActionManager: Pointer position action enabled");
     }
 
     public void InputActionsDeactivate()

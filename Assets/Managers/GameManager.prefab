@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 8581398905134929779}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.077638, y: -7.5146623, z: 9.6828165}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45,20 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70ea1e9cd49f4ca4e93d795707058b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseIndicator: {fileID: 0}
   timeSpeed: 1
   initialGameSpeed: 1
   normalGameSpeed: 6
   speedIncreaseRate: 0.002
   speedRampDuration: 5
   gameData: {fileID: 11400000, guid: 6ddbb19422fe10d409dbb38666d50794, type: 2}
-  audioMixerForPitch: {fileID: 24100000, guid: 05e22a0a82de570419a94eb9c6a62d39, type: 2}
-  pitchParameter: Pitch
-  defaultMusicVolume: 1
-  normalPitch: 1
-  lowPitch: 0.8
   player: {fileID: 2088488356021552172, guid: 8bbbe44f75a5e5541ad1ff30c852d30c, type: 3}
-  initialUIGroup: {fileID: 0}
   autoSaveInterval: 30
   enableAutoSave: 1
   onGameStarted:
@@ -73,8 +66,6 @@ MonoBehaviour:
   increasedGravity: -9.81
   inputManager: {fileID: 0}
   footstepController: {fileID: 0}
-  deathUIPanel: {fileID: 0}
-  deathUIPanelDelay: 2
   playerRagdoll: {fileID: 6622180418098843676, guid: c5f55849e08a413409b5f24b038952cc, type: 3}
   deathForce: 0.5
   upwardForce: -5

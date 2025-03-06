@@ -32,39 +32,13 @@ public class DelayedActivation : MonoBehaviour
       public bool destroy = false;
    }
 
-   [System.Serializable]
-   public class InputDelaySettings
-   {
-      [Tooltip("Enable input delay for this state")]
-      public bool enableInputDelay = false;
-      
-      [Tooltip("Game state to control input for")]
-      public GameStates gameState;
-      
-      [Tooltip("Delay before enabling input (seconds)")]
-      public float inputEnableDelay = 0f;
-      
-      [Tooltip("Delay before disabling input (seconds)")]
-      public float disableInputDelay = 0f;
-      
-      [Tooltip("Should input be enabled or disabled for this state")]
-      public bool enableInput = true;
-   }
-
    [Tooltip("Items")]
    public GameStateItem[] items = new GameStateItem[0];
-   
-   [Header("Input Delay Settings")]
-   [Tooltip("Control input activation/deactivation per game state")]
-   public InputDelaySettings[] inputDelaySettings = new InputDelaySettings[0];
 
    // State tracking
    private Dictionary<GameStateItem, bool> activeStatus = new Dictionary<GameStateItem, bool>();
    private Dictionary<GameStateItem, Coroutine> activateRoutines = new Dictionary<GameStateItem, Coroutine>();
    private Dictionary<GameStateItem, Coroutine> deactivateRoutines = new Dictionary<GameStateItem, Coroutine>();
-   
-   // Input delay tracking
-   private Dictionary<InputDelaySettings, Coroutine> inputRoutines = new Dictionary<InputDelaySettings, Coroutine>();
 
    private void Awake()
    {
@@ -120,9 +94,6 @@ public class DelayedActivation : MonoBehaviour
             }
          }
       }
-      
-      // Check input delay settings for current state
-      CheckInputDelayForState(state);
    }
    
    private void OnGameStateChanged(GameStates oldState, GameStates newState)
@@ -147,62 +118,6 @@ public class DelayedActivation : MonoBehaviour
                DeactivateItem(item);
             }
          }
-      }
-      
-      // Handle input delay for the new state
-      CheckInputDelayForState(newState);
-   }
-   
-   private void CheckInputDelayForState(GameStates state)
-   {
-      foreach (var setting in inputDelaySettings)
-      {
-         if (setting.enableInputDelay && setting.gameState == state)
-         {
-            // Cancel any existing routines for this setting
-            if (inputRoutines.ContainsKey(setting) && inputRoutines[setting] != null)
-            {
-               StopCoroutine(inputRoutines[setting]);
-            }
-            
-            // Start new routine
-            if (setting.enableInput)
-            {
-               inputRoutines[setting] = StartCoroutine(EnableInputAfterDelay(setting));
-            }
-            else
-            {
-               inputRoutines[setting] = StartCoroutine(DisableInputAfterDelay(setting));
-            }
-         }
-      }
-   }
-   
-   private IEnumerator EnableInputAfterDelay(InputDelaySettings setting)
-   {
-      // Disable input immediately if we're going to delay enabling it
-      if (setting.inputEnableDelay > 0 && InputActionManager.Exists())
-      {
-         InputActionManager.Instance.InputActionsDeactivate();
-      }
-      
-      yield return new WaitForSeconds(setting.inputEnableDelay);
-      
-      // Enable input after delay
-      if (InputActionManager.Exists())
-      {
-         InputActionManager.Instance.InputActionsActivate();
-      }
-   }
-   
-   private IEnumerator DisableInputAfterDelay(InputDelaySettings setting)
-   {
-      yield return new WaitForSeconds(setting.disableInputDelay);
-      
-      // Disable input after delay
-      if (InputActionManager.Exists())
-      {
-         InputActionManager.Instance.InputActionsDeactivate();
       }
    }
    
@@ -278,7 +193,6 @@ public class DelayedActivation : MonoBehaviour
       activeStatus.Clear();
       activateRoutines.Clear();
       deactivateRoutines.Clear();
-      inputRoutines.Clear();
       
       // Reset to initial states
       foreach (var item in items)
@@ -311,15 +225,6 @@ public class DelayedActivation : MonoBehaviour
          {
             Debug.Log("  Item: NULL TARGET");
          }
-      }
-      
-      foreach (var setting in inputDelaySettings)
-      {
-         Debug.Log($"  Input Setting for State: {setting.gameState}");
-         Debug.Log($"    Enable Input Delay: {setting.enableInputDelay}");
-         Debug.Log($"    Enable Input: {setting.enableInput}");
-         Debug.Log($"    Enable Delay: {setting.inputEnableDelay}s");
-         Debug.Log($"    Disable Delay: {setting.disableInputDelay}s");
       }
    }
 }

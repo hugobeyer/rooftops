@@ -532,7 +532,7 @@ namespace RoofTops
             yield return new WaitForSeconds(1.0f);
 
             // Ask GameManager to perform the full reset
-            GameManager.Instance.ResetGame();
+            GameManager.Instance.RestartGame();
         }
 
         public void SetRunSpeedMultiplier(float multiplier, float duration = 0f)
@@ -606,10 +606,10 @@ namespace RoofTops
             if (!isDead)
             {
                 isDead = true;
+                CreateCollisionMarker(Color.green); // Draw green sphere to indicate death
                 // Immediately trigger camera transition
                 FindFirstObjectByType<NoiseMovement>()?.TransitionToDeathView();
                 // Disable input
-                // For legacy input, just disable the controller
                 this.enabled = false;
                 GetComponent<PlayerAnimatorController>().ResetAnimationStates();
 
@@ -620,11 +620,8 @@ namespace RoofTops
                 // Retrieve the final distance directly from GameManager.
                 float finalDistance = GameManager.Instance.CurrentDistance;
 
-                // Show ad through GameAdsManager
-                GameAdsManager.Instance?.OnPlayerDeath(() =>
-                {
-                    GameManager.Instance.HandlePlayerDeath(finalDistance);
-                });
+                // Directly call HandlePlayerDeath without showing an ad
+                GameManager.Instance.HandlePlayerDeath(finalDistance);
             }
         }
 
@@ -632,6 +629,7 @@ namespace RoofTops
         {
             if (other.gameObject.layer == 19)  // DeathDetector layer
             {
+                CreateCollisionMarker(Color.red); // Draw red sphere on collision
                 HandleDeath();
             }
         }
@@ -891,5 +889,20 @@ namespace RoofTops
 
 
         #endregion // Input Action Logic
+
+        private void CreateCollisionMarker(Color markerColor)
+        {
+            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.transform.position = transform.position;
+            marker.transform.localScale = Vector3.one * 1f; // Adjust size as needed
+            Renderer rend = marker.GetComponent<Renderer>();
+            if (rend != null)
+            {
+                rend.material = new Material(Shader.Find("Standard"));
+                rend.material.color = markerColor;
+            }
+            // Destroy the marker after 2 seconds
+            Destroy(marker, 2f);
+        }
     }
 }

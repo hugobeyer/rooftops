@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1035714398006345086}
   - component: {fileID: 1760297537970805513}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: moon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -120,7 +120,7 @@ GameObject:
   - component: {fileID: 2703141253003057283}
   - component: {fileID: 3238230825239499653}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: wind
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15753,7 +15753,7 @@ GameObject:
   - component: {fileID: 2666124329099860868}
   - component: {fileID: 571262706053960695}
   m_Layer: 0
-  m_Name: Particle System (1)
+  m_Name: birds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

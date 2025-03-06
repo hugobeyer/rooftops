@@ -54,30 +54,34 @@ public class GameOverUIController : MonoBehaviour
     // Button click handlers
     public void OnRooftopClick()
     {
-        Debug.Log("GameOverUIController: OnRooftopClick - Restarting game without ad");
-        // Just restart without ad
-        GameManager.Instance.ResetGame();
-    }
-
-    public void OnSmartAdvanceClick()
-    {
-        Debug.Log("GameOverUIController: OnSmartAdvanceClick - Showing ad then restarting");
+        Debug.Log("GameOverUIController: OnRooftopClick - Showing ad then restarting");
+        
+        // Disable buttons to prevent multiple clicks
+        DisableAllButtons();
+        
+        // Show ad before restarting
         if (GameAdsManager.Instance != null)
         {
-            // Disable buttons to prevent multiple clicks
-            DisableAllButtons();
-            
-            GameAdsManager.Instance.OnPlayerDeath(() => {
-                Debug.Log("GameOverUIController: Ad closed callback - Restarting game");
-                GameManager.Instance.ResetGame();
+            GameAdsManager.Instance.OnPlayerRestart(() => {
+                GameManager.Instance.RestartGame();
             });
         }
         else
         {
-            // No ad manager, just restart
-            Debug.LogWarning("GameOverUIController: GameAdsManager not found, restarting directly");
-            GameManager.Instance.ResetGame();
+            // Fallback if ad manager is not available
+            GameManager.Instance.RestartGame();
         }
+    }
+
+    public void OnSmartAdvanceClick()
+    {
+        Debug.Log("GameOverUIController: OnSmartAdvanceClick - Restarting without ad");
+        
+        // Disable buttons to prevent multiple clicks
+        DisableAllButtons();
+        
+        // Restart directly without showing an ad
+        GameManager.Instance.RestartGame();
     }
 
     public void OnTridotSkipClick()
@@ -89,7 +93,7 @@ public class GameOverUIController : MonoBehaviour
             // Disable buttons to prevent multiple clicks
             DisableAllButtons();
             
-            GameManager.Instance.ResetGame();
+            GameManager.Instance.RestartGame();
         }
     }
 
@@ -100,7 +104,7 @@ public class GameOverUIController : MonoBehaviour
         // Disable buttons to prevent multiple clicks
         DisableAllButtons();
         
-        GameManager.Instance.ResetGame();
+        GameManager.Instance.RestartGame();
     }
     
     private void DisableAllButtons()

@@ -12,8 +12,8 @@ public class RestartButtonHandler : MonoBehaviour
         // Let GameManager handle the reset
         if (GameManager.Instance != null)
         {
-            Debug.Log("RestartButtonHandler: Calling GameManager.ResetGame()");
-            GameManager.Instance.ResetGame();
+            Debug.Log("RestartButtonHandler: Calling GameManager.RestartGame()");
+            GameManager.Instance.RestartGame();
         }
         else
         {

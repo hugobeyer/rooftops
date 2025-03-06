@@ -10,10 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2108042182418723770}
   - component: {fileID: 6945980367734404992}
-  - component: {fileID: 1453079404541627329}
-  - component: {fileID: 8897874699425544013}
   - component: {fileID: 4961506720349777297}
-  - component: {fileID: 8729665267036549532}
+  - component: {fileID: 1234567890123456789}
   m_Layer: 0
   m_Name: InputActionManager
   m_TagString: Untagged
@@ -51,40 +49,6 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
---- !u!114 &1453079404541627329
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6314946545067308119}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca19a058016cc5546aa96f493bbe81d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _oldInputModule: {fileID: 4961506720349777297}
-  _newInputModule: {fileID: 4961506720349777297}
---- !u!114 &8897874699425544013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6314946545067308119}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SendPointerHoverToParent: 1
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
 --- !u!114 &4961506720349777297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,7 +80,7 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
---- !u!114 &8729665267036549532
+--- !u!114 &1234567890123456789
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,24 +94,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputActions: {fileID: -944628639613478452, guid: 6f7f10d3efc78eb4e85a0afd74a55fd6, type: 3}
   jump_action:
-    m_Name: Jump_action
+    m_Name: Jump
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 5089e502-b0b0-4b53-a954-8e205e4501df
+    m_Id: 
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
   pointer_position_action:
-    m_Name: Pointer_position_action
+    m_Name: Pointer Position
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: bc5cd9c4-aac7-4781-8485-36c4c3f83b0b
+    m_Id: 
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  jumpPressedTimeThreshold: 0.1
+  jumpPressedTimeThreshold: 0.05
   doubleJumpActivationTime: 0.2
   OnJumpPressed:
     m_PersistentCalls:

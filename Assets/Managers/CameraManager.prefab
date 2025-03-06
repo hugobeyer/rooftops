@@ -72,7 +72,7 @@ Camera:
   field of view: 32
   orthographic: 0
   orthographic size: 5
-  m_Depth: -2.1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 7339063
@@ -175,7 +175,7 @@ MonoBehaviour:
   midCameraPosition: {x: 15, y: 3, z: 5}
   midLookAtPosition: {x: 0, y: 0.5, z: 0}
   midFOV: 12
-  finalCameraPosition: {x: 12, y: 4, z: 2}
+  finalCameraPosition: {x: 12, y: 3, z: 2}
   finalLookAtPosition: {x: 0, y: 2, z: 4}
   finalFOV: 32
   yawLookSpeed: 5
@@ -214,11 +214,11 @@ MonoBehaviour:
   finalBlendDuration: 2
   useInitialLookAtOffset: 1
   baseLookSpeed: 1
-  deathBlendDuration: 2
+  deathBlendDuration: 1
   deathFOV: 20
   deathNoiseIntensity: 0.1
-  deathCameraPosition: {x: 14, y: 1, z: -2}
-  deathLookAtPosition: {x: 0, y: 3, z: 1}
+  deathCameraPosition: {x: 64, y: 1, z: -2}
+  deathLookAtPosition: {x: 0, y: 5, z: 1}
   deathVisualObject: {fileID: 0}
   initialNoiseMultiplier: 0.1
 --- !u!1 &8998823456681487413

@@ -47,37 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 803aa8e9921e61f438405d6e8a888aed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetObjects:
-  - {fileID: 0}
-  activeOnStart: 1
-  deactivateAfterInitialActivation: 0
-  initialDeactivationDelay: 1
-  destroyAfterInitialActivation: 0
-  activateOnTitleScreen: 1
-  titleScreenDelay: 0
-  activateOnGameStart: 0
-  gameStartDelay: 0.5
-  deactivateAfterGameStart: 1
-  gameStartDeactivationDelay: 1
-  destroyAfterGameStart: 1
-  activateOnDeath: 0
-  deathDelay: 0.3
-  deactivateOnDeath: 1
-  deathDeactivationDelay: 0.1
-  autoDeactivate: 0
-  activeTime: 3
-  destroyInsteadOfDeactivate: 0
-  autoDestroy: 0
-  destroyDelay: 5
-  useTimelineSignals: 0
-  activateSignalName: Activate
-  deactivateSignalName: Deactivate
-  onActivated:
-    m_PersistentCalls:
-      m_Calls: []
-  onDeactivated:
-    m_PersistentCalls:
-      m_Calls: []
+  items: []
 --- !u!1 &307936663391944429
 GameObject:
   m_ObjectHideFlags: 0
@@ -4959,7 +4929,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 985617176133727127}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89970c000e588374f844a9505c78fbd6, type: 3}
   m_Name: 
@@ -4981,6 +4951,7 @@ MonoBehaviour:
   bestScoreText: {fileID: 861587083873094138}
   lastRunText: {fileID: 7527036626633827823}
   memcardText: {fileID: 8920419461092785334}
+  currentGoalText: {fileID: 0}
 --- !u!1 &1187413614022586459
 GameObject:
   m_ObjectHideFlags: 0
