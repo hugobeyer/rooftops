@@ -232,16 +232,16 @@ namespace RoofTops.UI
             // Don't use layer mask for now to ensure we're hitting something
             RaycastHit[] hits = Physics.RaycastAll(ray, 100f);
             
-            if (GameManager.EnableDetailedLogs)
-            {
-                Debug.Log($"Raycast hit {hits.Length} objects");
+            // if (GameManager.EnableDetailedLogs)
+            // {
+            //     Debug.Log($"Raycast hit {hits.Length} objects");
                 
-                // Log all hits to see what we're hitting
-                foreach (RaycastHit hit in hits)
-                {
-                    Debug.Log($"Hit: {hit.collider.gameObject.name}");
-                }
-            }
+            //     // Log all hits to see what we're hitting
+            //     foreach (RaycastHit hit in hits)
+            //     {
+            //         Debug.Log($"Hit: {hit.collider.gameObject.name}");
+            //     }
+            // }
             
             // Check all hits
             bool buttonHit = false;
@@ -296,7 +296,7 @@ namespace RoofTops.UI
         private void OnDestroy()
         {
             // Unsubscribe from game state changes
-            GameManager.OnGameStateChanged -= HandleGameStateChanged;
+            //GameManager.OnGameStateChanged -= HandleGameStateChanged;
             
             // Make sure to remove listeners
             RemoveButtonListeners();
@@ -477,61 +477,61 @@ namespace RoofTops.UI
 
         public void OnRooftopClick()
         {
-            Debug.Log($"GameOverGUI: OnRooftopClick called - GameState={GameManager.GamesState}");
+            // Debug.Log($"GameOverGUI: OnRooftopClick called - GameState={GameManager.GamesState}");
             
-            PlayerController playerController = FindAnyObjectByType<PlayerController>();
-            if (playerController != null && !playerController.IsDead)
-            {
-                Debug.LogWarning("GameOverGUI: Player is not dead, but restart button was clicked. Forcing player death.");
-                playerController.Die();
-                return; // Exit early to let the death sequence handle the restart
-            }
+            // PlayerController playerController = FindAnyObjectByType<PlayerController>();
+            // if (playerController != null && !playerController.IsDead)
+            // {
+            //     Debug.LogWarning("GameOverGUI: Player is not dead, but restart button was clicked. Forcing player death.");
+            //     playerController.Die();
+            //     return; // Exit early to let the death sequence handle the restart
+            // }
             
-            // Removed GameAdsManager references - just reload the scene directly
-            Debug.Log("GameOverGUI: Reloading scene directly (GameAdsManager removed)");
+            // // Removed GameAdsManager references - just reload the scene directly
+            // Debug.Log("GameOverGUI: Reloading scene directly (GameAdsManager removed)");
             
             // Set a fallback timer in case the reload doesn't happen
-            StartCoroutine(AdFallbackTimer(3f));
+           // StartCoroutine(AdFallbackTimer(3f));
             
             // Introduce a small delay to allow previous resources to be properly cleaned up
-            StartCoroutine(ReloadAfterDelay(0.5f));
+           // StartCoroutine(ReloadAfterDelay(0.5f));
         }
         
-        private IEnumerator AdFallbackTimer(float timeout)
-        {
-            Debug.Log($"GameOverGUI: Starting fallback timer for {timeout} seconds");
-            yield return new WaitForSeconds(timeout);
-            Debug.LogWarning("GameOverGUI: Fallback timer expired - forcing scene reload");
-            ReloadScene();
-        }
+        // private IEnumerator AdFallbackTimer(float timeout)
+        // {
+        //     Debug.Log($"GameOverGUI: Starting fallback timer for {timeout} seconds");
+        //     yield return new WaitForSeconds(timeout);
+        //     Debug.LogWarning("GameOverGUI: Fallback timer expired - forcing scene reload");
+        //     ReloadScene();
+        // }
         
         private void ReloadScene()
         {
-            Debug.Log("GameOverGUI: ReloadScene called - reloading current scene");
+            // Debug.Log("GameOverGUI: ReloadScene called - reloading current scene");
             
-            // Ensure time scale is reset
-            Time.timeScale = 1f;
+            // // Ensure time scale is reset
+            // Time.timeScale = 1f;
             
-            // Use GameManager to restart the game
-            if (GameManager.Instance != null)
-            {
-                Debug.Log("GameOverGUI: Calling GameManager.RestartGame()");
-                GameManager.Instance.RestartGame();
-            }
-            else
-            {
-                Debug.LogWarning("GameOverGUI: GameManager.Instance is NULL, reloading scene directly");
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
+            // // Use GameManager to restart the game
+            // if (GameManager.Instance != null)
+            // {
+            //     Debug.Log("GameOverGUI: Calling GameManager.RestartGame()");
+            //     GameManager.Instance.RestartGame();
+            // }
+            // else
+            // {
+            //     Debug.LogWarning("GameOverGUI: GameManager.Instance is NULL, reloading scene directly");
+            //     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // }
         }
 
         public void OnTridotSkipClick()
         {
-            // Disable buttons to prevent multiple clicks
-                DisableAllButtons();
+            // // Disable buttons to prevent multiple clicks
+            //     DisableAllButtons();
                 
-            // Skip ad and restart
-                ReloadScene();
+            // // Skip ad and restart
+            //     ReloadScene();
         }
         
         public void OnPassPurchaseClick()
@@ -542,22 +542,22 @@ namespace RoofTops.UI
             Debug.Log("Pass purchase button clicked");
         }
 
-        private void OnDrawGizmos()
-        {
-            // Draw highlighted button
-            if (highlightedButton != null && highlightTimer > 0)
-            {
-                BoxCollider boxCollider = highlightedButton.GetComponent<BoxCollider>();
-                if (boxCollider != null)
-                {
-                    // Set the color to green
-                    Gizmos.color = Color.green;
+        // private void OnDrawGizmos()
+        // {
+        //     // Draw highlighted button
+        //     if (highlightedButton != null && highlightTimer > 0)
+        //     {
+        //         BoxCollider boxCollider = highlightedButton.GetComponent<BoxCollider>();
+        //         if (boxCollider != null)
+        //         {
+        //             // Set the color to green
+        //             Gizmos.color = Color.green;
                     
-                    // Draw a wire cube using the box collider's bounds
-                    Gizmos.DrawWireCube(boxCollider.bounds.center, boxCollider.bounds.size);
-                }
-            }
-        }
+        //             // Draw a wire cube using the box collider's bounds
+        //             Gizmos.DrawWireCube(boxCollider.bounds.center, boxCollider.bounds.size);
+        //         }
+        //     }
+        // }
 
         public void DebugButtonRaycast()
         {
@@ -582,44 +582,44 @@ namespace RoofTops.UI
             }
             
             // Draw a persistent line to show the ray
-            Debug.DrawLine(ray.origin, ray.direction * 100f, Color.red, 5f);
+            // Debug.DrawLine(ray.origin, ray.direction * 100f, Color.red, 5f);
             
             // Draw a persistent sphere at the hit point
-            DebugDrawSphere(ray.origin + ray.direction * 100f, 0.1f, Color.green, 5f);
+            // DebugDrawSphere(ray.origin + ray.direction * 100f, 0.1f, Color.green, 5f);
         }
 
-        private void DebugDrawSphere(Vector3 position, float radius, Color color, float duration)
-        {
-            // Draw lines to approximate a sphere
-            int segments = 8;
-            float angle = 0f;
-            float angleStep = 360f / segments;
+        // private void DebugDrawSphere(Vector3 position, float radius, Color color, float duration)
+        // {
+        //     // Draw lines to approximate a sphere
+        //     int segments = 8;
+        //     float angle = 0f;
+        //     float angleStep = 360f / segments;
             
-            // Draw circles in all three planes
-            for (int plane = 0; plane < 3; plane++)
-            {
-                Vector3 prevPoint = Vector3.zero;
+        //     // Draw circles in all three planes
+        //     for (int plane = 0; plane < 3; plane++)
+        //     {
+        //         Vector3 prevPoint = Vector3.zero;
                 
-                for (int i = 0; i <= segments; i++)
-                {
-                    float rads = Mathf.Deg2Rad * angle;
-                    Vector3 point = Vector3.zero;
+        //         for (int i = 0; i <= segments; i++)
+        //         {
+        //             float rads = Mathf.Deg2Rad * angle;
+        //             Vector3 point = Vector3.zero;
                     
-                    if (plane == 0) // XY plane
-                        point = position + new Vector3(Mathf.Sin(rads) * radius, Mathf.Cos(rads) * radius, 0);
-                    else if (plane == 1) // XZ plane
-                        point = position + new Vector3(Mathf.Sin(rads) * radius, 0, Mathf.Cos(rads) * radius);
-                    else // YZ plane
-                        point = position + new Vector3(0, Mathf.Sin(rads) * radius, Mathf.Cos(rads) * radius);
+        //             if (plane == 0) // XY plane
+        //                 point = position + new Vector3(Mathf.Sin(rads) * radius, Mathf.Cos(rads) * radius, 0);
+        //             else if (plane == 1) // XZ plane
+        //                 point = position + new Vector3(Mathf.Sin(rads) * radius, 0, Mathf.Cos(rads) * radius);
+        //             else // YZ plane
+        //                 point = position + new Vector3(0, Mathf.Sin(rads) * radius, Mathf.Cos(rads) * radius);
                     
-                    if (i > 0)
-                        Debug.DrawLine(prevPoint, point, color, duration);
+        //             if (i > 0)
+        //                 Debug.DrawLine(prevPoint, point, color, duration);
                     
-                    prevPoint = point;
-                    angle += angleStep;
-                }
-            }
-        }
+        //             prevPoint = point;
+        //             angle += angleStep;
+        //         }
+        //     }
+        // }
 
         private void MakeColliderVisible(GameObject button)
         {

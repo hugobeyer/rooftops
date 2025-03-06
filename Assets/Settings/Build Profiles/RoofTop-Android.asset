@@ -21,7 +21,11 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
+    m_path: Assets/Scenes/Core.unity
+  - m_enabled: 1
     m_path: Assets/Scenes/Main.unity
+  - m_enabled: 0
+    m_path: Assets/Scenes/adstest.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:
@@ -204,8 +208,8 @@ MonoBehaviour:
     - line: '|     tvOS: 0'
     - line: '|   overrideDefaultApplicationIdentifier: 1'
     - line: '|   AndroidBundleVersionCode: 1'
-    - line: '|   AndroidMinSdkVersion: 24'
-    - line: '|   AndroidTargetSdkVersion: 24'
+    - line: '|   AndroidMinSdkVersion: 31'
+    - line: '|   AndroidTargetSdkVersion: 35'
     - line: '|   AndroidPreferredInstallLocation: 1'
     - line: '|   aotOptions: '
     - line: '|   stripEngineCode: 1'
@@ -218,7 +222,7 @@ MonoBehaviour:
     - line: '|   keepLoadedShadersAlive: 0'
     - line: '|   StripUnusedMeshComponents: 0'
     - line: '|   strictShaderVariantMatching: 0'
-    - line: '|   VertexChannelCompressionMask: 4054'
+    - line: '|   VertexChannelCompressionMask: 2'
     - line: '|   iPhoneSdkVersion: 988'
     - line: '|   iOSSimulatorArchitecture: 0'
     - line: '|   iOSTargetOSVersionString: 13.0'
@@ -881,7 +885,7 @@ MonoBehaviour:
     - line: '|   webGLCloseOnQuit: 0'
     - line: '|   webWasm2023: 0'
     - line: '|   scriptingDefineSymbols:'
-    - line: '|     Android: LEVELPLAY_DEPENDENCIES_INSTALLED'
+    - line: '|     Android: LEVELPLAY_DEPENDENCIES_INSTALLED;DOTWEEN_EXISTS'
     - line: '|     Standalone: LEVELPLAY_DEPENDENCIES_INSTALLED'
     - line: '|   additionalCompilerArguments: {}'
     - line: '|   platformArchitecture: {}'
@@ -891,7 +895,8 @@ MonoBehaviour:
     - line: '|     Android: 2'
     - line: '|   il2cppCodeGeneration:'
     - line: '|     Android: 1'
-    - line: '|   il2cppStacktraceInformation: {}'
+    - line: '|   il2cppStacktraceInformation:'
+    - line: '|     Android: 0'
     - line: '|   managedStrippingLevel: {}'
     - line: '|   incrementalIl2cppBuild: {}'
     - line: '|   suppressCommonWarnings: 1'
@@ -984,7 +989,7 @@ MonoBehaviour:
     - line: '|   qnxGraphicConfPath: '
     - line: '|   apiCompatibilityLevel: 6'
     - line: '|   captureStartupLogs: {}'
-    - line: '|   activeInputHandler: 2'
+    - line: '|   activeInputHandler: 1'
     - line: '|   windowsGamepadBackendHint: 0'
     - line: '|   cloudProjectId: b1215445-eb0e-4948-9eb8-504b02fab7fc'
     - line: '|   framebufferDepthMemorylessMode: 0'
