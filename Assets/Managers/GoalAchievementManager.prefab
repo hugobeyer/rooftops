@@ -51,4 +51,4 @@ MonoBehaviour:
   initialGoalMessageDelay: 21
   goalAchievedMessageDelay: 0.1
   enabledCategories: []
-  goalValuesManager: {fileID: 0}
+  goalValuesManager: {fileID: 2658187237114701710, guid: 8f73a953fbbda0249b8119415dd090db, type: 3}

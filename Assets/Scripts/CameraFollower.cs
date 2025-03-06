@@ -150,7 +150,7 @@ public class CameraFollower : MonoBehaviour
     private void FindCamera()
     {
         // First try to get the NoiseMovement camera (main camera in RoofTops)
-        NoiseMovement noiseMovement = FindObjectOfType<NoiseMovement>();
+        NoiseMovement noiseMovement = FindFirstObjectByType<NoiseMovement>();
         if (noiseMovement != null)
         {
             targetCamera = noiseMovement.GetComponent<Camera>();
@@ -172,7 +172,7 @@ public class CameraFollower : MonoBehaviour
         }
         
         // Last resort - find any camera
-        targetCamera = FindObjectOfType<Camera>();
+        targetCamera = FindFirstObjectByType<Camera>();
         if (targetCamera != null)
         {
             cameraTransform = targetCamera.transform;

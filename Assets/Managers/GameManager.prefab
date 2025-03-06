@@ -57,15 +57,15 @@ MonoBehaviour:
   onGameStarted:
     m_PersistentCalls:
       m_Calls: []
-  gameplayUI: {fileID: 0}
-  mainMenuUI: {fileID: 0}
-  gameOverUI: {fileID: 0}
-  uiHeightSmoothSpeed: 5
-  targetMaterial: {fileID: 2100000, guid: a2deab81943791346804cd6786f2e63a, type: 2}
   defaultGravity: -9.81
   increasedGravity: -9.81
   inputManager: {fileID: 0}
   footstepController: {fileID: 0}
+  targetMaterial: {fileID: 2100000, guid: a2deab81943791346804cd6786f2e63a, type: 2}
+  audioMixerForPitch: {fileID: 0}
+  pitchParameter: Pitch
+  normalPitch: 1
+  lowPitch: 0.8
   playerRagdoll: {fileID: 6622180418098843676, guid: c5f55849e08a413409b5f24b038952cc, type: 3}
   deathForce: 0.5
   upwardForce: -5
@@ -75,6 +75,7 @@ MonoBehaviour:
   colliderSkinWidth: 0.1
   colliderBounciness: 0.01
   useCCD: 0
+  showDetailedLogging: 0
 --- !u!114 &1897718528898271202
 MonoBehaviour:
   m_ObjectHideFlags: 0

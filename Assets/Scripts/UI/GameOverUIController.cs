@@ -1,118 +1,110 @@
 using UnityEngine;
 using TMPro;
-using RoofTops;  // Add this for GameAdsManager
+using RoofTops;  // Add this to access GameManager and GameStates
 
-public class GameOverUIController : MonoBehaviour
+namespace RoofTops.UI
 {
-    [Header("Game Over Screen")]
-    public GameObject gameOverPanel;
-    public TMP_Text finalScoreText;
-    public TMP_Text newBestText;
-    public TMP_Text finalTridotText;
-    public TMP_Text finalMemcardText;
-
-    [Header("Death Buttons")]
-    public GameObject rooftopButton;
-    public GameObject smartAdvanceButton;
-    public GameObject tridotSkipButton;
-    public GameObject continueButton;
-    public TMP_Text tridotSkipText;
-    
-    public void ShowGameOver(float finalDistance, bool isNewBest)
+    public class GameOverUIController : MonoBehaviour
     {
-        GameManager.RequestGameStateChange(GameStates.GameOver);
-        gameOverPanel.SetActive(true);
-        finalScoreText.text = $"{finalDistance:F1} m";
-        newBestText.gameObject.SetActive(isNewBest);
-        finalTridotText.text = $"tridots: {GameManager.Instance.gameData.lastRunTridotCollected}";
+        [Header("Game Over Screen")]
+        public GameObject gameOverPanel;
+        public TMP_Text finalScoreText;
+        public TMP_Text newBestText;
+        public TMP_Text finalTridotText;
+        public TMP_Text finalMemcardText;
+
+        [Header("Death Buttons")]
+        public GameObject rooftopButton;      // Restart button
+        public GameObject tridotSkipButton;   // Skip button using tridots
+        public TMP_Text tridotSkipText;
         
-        // Display memcard count if the text component exists
-        if (finalMemcardText != null)
+        private void Start()
         {
-            finalMemcardText.text = $"Memcards: {GameManager.Instance.gameData.lastRunMemcardsCollected}";
+            // Check if restart button is properly set up
+            if (rooftopButton != null)
+            {
+                UnityEngine.UI.Button button = rooftopButton.GetComponent<UnityEngine.UI.Button>();
+                if (button != null)
+                {
+                    Debug.Log("GameOverUIController: Restart button found and has Button component");
+                    
+                    // Add a listener programmatically as a backup
+                    button.onClick.AddListener(OnRestartClick);
+                    Debug.Log("GameOverUIController: Added backup click listener to Restart button");
+                }
+                else
+                {
+                    Debug.LogError("GameOverUIController: Restart button does not have a Button component!");
+                }
+            }
+            else
+            {
+                Debug.LogError("GameOverUIController: Restart button reference is NULL!");
+            }
         }
 
-        // Update button states
-        UpdateButtonStates();
-    }
-
-    private void UpdateButtonStates()
-    {
-        // Update skip token count if available
-        if (tridotSkipText != null && GameAdsManager.Instance != null)
+        public void ShowGameOver(float finalDistance, bool isNewBest)
         {
-            tridotSkipText.text = $"tridots SKIP ({GameAdsManager.Instance.AdSkipsAvailable})";
-            tridotSkipButton.SetActive(GameAdsManager.Instance.AdSkipsAvailable > 0);
+            GameManager.RequestGameStateChange(GameStates.GameOver);
+            gameOverPanel.SetActive(true);
+            finalScoreText.text = $"{finalDistance:F1} m";
+            newBestText.gameObject.SetActive(isNewBest);
+            finalTridotText.text = $"tridots: {GameManager.Instance.gameData.lastRunTridotCollected}";
+            
+            // Display memcard count if the text component exists
+            if (finalMemcardText != null)
+            {
+                finalMemcardText.text = $"Memcards: {GameManager.Instance.gameData.lastRunMemcardsCollected}";
+            }
+
+            // Update button states
+            UpdateButtonStates();
         }
 
-        // Other buttons are always enabled for now
-        rooftopButton.SetActive(true);
-        smartAdvanceButton.SetActive(true);
-        continueButton.SetActive(false); // Disabled until we implement continue feature
-    }
-
-    // Button click handlers
-    public void OnRooftopClick()
-    {
-        Debug.Log("GameOverUIController: OnRooftopClick - Showing ad then restarting");
-        
-        // Disable buttons to prevent multiple clicks
-        DisableAllButtons();
-        
-        // Show ad before restarting
-        if (GameAdsManager.Instance != null)
+        private void UpdateButtonStates()
         {
-            GameAdsManager.Instance.OnPlayerRestart(() => {
-                GameManager.Instance.RestartGame();
-            });
+            // Update skip token count if available
+            if (tridotSkipText != null)
+            {
+                tridotSkipText.text = "tridots SKIP (0)";
+                tridotSkipButton.SetActive(false); // Disabled for now
+            }
+
+            // Restart button is always enabled
+            rooftopButton.SetActive(true);
         }
-        else
-        {
-            // Fallback if ad manager is not available
-            GameManager.Instance.RestartGame();
-        }
-    }
 
-    public void OnSmartAdvanceClick()
-    {
-        Debug.Log("GameOverUIController: OnSmartAdvanceClick - Restarting without ad");
-        
-        // Disable buttons to prevent multiple clicks
-        DisableAllButtons();
-        
-        // Restart directly without showing an ad
-        GameManager.Instance.RestartGame();
-    }
-
-    public void OnTridotSkipClick()
-    {
-        Debug.Log("GameOverUIController: OnTridotSkipClick - Using skip token and restarting");
-        if (GameAdsManager.Instance != null && GameAdsManager.Instance.AdSkipsAvailable > 0)
+        // Button click handlers
+        public void OnRestartClick()
         {
-            // Use skip token and restart
+            Debug.Log("GameOverUIController: OnRestartClick - Restarting game");
+            
             // Disable buttons to prevent multiple clicks
             DisableAllButtons();
             
+            // Restart the game
             GameManager.Instance.RestartGame();
         }
-    }
 
-    public void OnContinueClick()
-    {
-        Debug.Log("GameOverUIController: OnContinueClick - Continuing from death point");
-        // Future feature - continue from death point
-        // Disable buttons to prevent multiple clicks
-        DisableAllButtons();
+        public void OnSkipClick()
+        {
+            Debug.Log("GameOverUIController: OnSkipClick - Using skip token and restarting");
+            
+            // Disable buttons to prevent multiple clicks
+            DisableAllButtons();
+            
+            // Add direct call to restart
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.RestartGame();
+            }
+        }
         
-        GameManager.Instance.RestartGame();
+        private void DisableAllButtons()
+        {
+            // Disable all buttons to prevent multiple clicks
+            if (rooftopButton != null) rooftopButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
+            if (tridotSkipButton != null) tridotSkipButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
+        }
     }
-    
-    private void DisableAllButtons()
-    {
-        // Disable all buttons to prevent multiple clicks
-        if (rooftopButton != null) rooftopButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
-        if (smartAdvanceButton != null) smartAdvanceButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
-        if (tridotSkipButton != null) tridotSkipButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
-        if (continueButton != null) continueButton.GetComponent<UnityEngine.UI.Button>().interactable = false;
-    }
-} 
+}

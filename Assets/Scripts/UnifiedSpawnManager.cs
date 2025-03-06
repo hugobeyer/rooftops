@@ -93,7 +93,7 @@ namespace RoofTops
                 // Apply the global multiplier from the UnifiedSpawnManager
                 if (_cachedManager == null)
                 {
-                    _cachedManager = FindObjectOfType<UnifiedSpawnManager>();
+                    _cachedManager = FindFirstObjectByType<UnifiedSpawnManager>();
                 }
                 
                 if (_cachedManager != null)

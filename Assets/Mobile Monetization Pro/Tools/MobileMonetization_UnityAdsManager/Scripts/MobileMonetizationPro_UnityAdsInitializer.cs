@@ -183,14 +183,7 @@ public class MobileMonetizationPro_UnityAdsInitializer : MonoBehaviour, IUnityAd
     }
     public void LoadRewarded()
     {
-        // Check for a valid RewardedAdUnitID before attempting to load
-        if (string.IsNullOrEmpty(RewardedAdUnitID))
-        {
-            Debug.LogWarning("[MobileMonetizationPro_UnityAdsInitializer] RewardedAdUnitID is nil or empty. Skipping rewarded ad load.");
-            return;
-        }
-
-        Advertisement.Load(RewardedAdUnitID, this);
+        Advertisement.Load(RewardedAdUnitID,this);
     }
     public void ShowBannerAd()
     {

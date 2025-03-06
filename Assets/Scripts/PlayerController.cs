@@ -35,6 +35,7 @@ namespace RoofTops
         private float jumpStartTime;
         private float predictedFlightTime;
         private bool isDead = false;
+        public bool IsDead { get { return isDead; } }
 
         private CharacterController cc;
         //public bool isVaulting = false;
@@ -133,8 +134,6 @@ namespace RoofTops
         // Add public property to expose jump pad state
         public bool IsOnJumpPad => isOnJumpPad;
         
-        public bool IsDead => isDead;
-
         public bool IsDashing => isDashing;
 
         void Awake()
@@ -606,7 +605,6 @@ namespace RoofTops
             if (!isDead)
             {
                 isDead = true;
-                CreateCollisionMarker(Color.green); // Draw green sphere to indicate death
                 // Immediately trigger camera transition
                 FindFirstObjectByType<NoiseMovement>()?.TransitionToDeathView();
                 // Disable input
@@ -629,7 +627,6 @@ namespace RoofTops
         {
             if (other.gameObject.layer == 19)  // DeathDetector layer
             {
-                CreateCollisionMarker(Color.red); // Draw red sphere on collision
                 HandleDeath();
             }
         }
@@ -652,11 +649,16 @@ namespace RoofTops
 
         public void Die()
         {
+            Debug.Log($"PlayerController: Die method called - isDead={isDead}, GameState={GameManager.GamesState}");
+            
             if (!isDead)
             {
+                Debug.Log("PlayerController: Die method called - marking player as dead");
                 isDead = true;
+                
                 // Immediately trigger camera transition
                 FindFirstObjectByType<NoiseMovement>()?.TransitionToDeathView();
+                
                 // Disable input
                 this.enabled = false;
                 GetComponent<PlayerAnimatorController>().ResetAnimationStates();
@@ -667,12 +669,18 @@ namespace RoofTops
 
                 // Retrieve the final distance directly from GameManager.
                 float finalDistance = GameManager.Instance.CurrentDistance;
-
-                // Show ad through GameAdsManager
-                GameAdsManager.Instance?.OnPlayerDeath(() =>
+                
+                // Removed GameAdsManager references - call HandlePlayerDeath directly
+                Debug.Log($"PlayerController: Calling HandlePlayerDeath directly (GameAdsManager removed)");
+                
+                if (GameManager.Instance != null)
                 {
                     GameManager.Instance.HandlePlayerDeath(finalDistance);
-                });
+                }
+            }
+            else
+            {
+                Debug.Log($"PlayerController: Die method called but player is already dead, GameState={GameManager.GamesState}");
             }
         }
 
@@ -889,20 +897,5 @@ namespace RoofTops
 
 
         #endregion // Input Action Logic
-
-        private void CreateCollisionMarker(Color markerColor)
-        {
-            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            marker.transform.position = transform.position;
-            marker.transform.localScale = Vector3.one * 1f; // Adjust size as needed
-            Renderer rend = marker.GetComponent<Renderer>();
-            if (rend != null)
-            {
-                rend.material = new Material(Shader.Find("Standard"));
-                rend.material.color = markerColor;
-            }
-            // Destroy the marker after 2 seconds
-            Destroy(marker, 2f);
-        }
     }
 }

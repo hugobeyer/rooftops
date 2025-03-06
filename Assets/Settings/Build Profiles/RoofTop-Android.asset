@@ -989,7 +989,7 @@ MonoBehaviour:
     - line: '|   cloudProjectId: b1215445-eb0e-4948-9eb8-504b02fab7fc'
     - line: '|   framebufferDepthMemorylessMode: 0'
     - line: '|   qualitySettingsNames: []'
-    - line: '|   projectName: RoofTopsRun'
+    - line: '|   projectName: RoofTopRun'
     - line: '|   organizationId: hugo-beyer-as-publisher'
     - line: '|   cloudEnabled: 0'
     - line: '|   legacyClampBlendShapeWeights: 0'

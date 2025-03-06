@@ -38,10 +38,10 @@ public class DroneGameAction : MonoBehaviour
     
     private void CheckForExistingDrones()
     {
-        DroneMovement[] existingDrones = FindObjectsOfType<DroneMovement>();
-        if (existingDrones.Length > 0)
+        DroneMovement[] drones = FindObjectsByType<DroneMovement>(FindObjectsSortMode.None);
+        if (drones.Length > 0)
         {
-            activeDrone = existingDrones[0].gameObject;
+            activeDrone = drones[0].gameObject;
         }
     }
     

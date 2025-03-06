@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 6232366801808754358}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 930.15546, y: 556.29956, z: -4.2972207}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -47,11 +47,5 @@ MonoBehaviour:
   ShowBannerAdButton: {fileID: 0}
   ActionButtonsToInvokeInterstitalAds:
   - {fileID: 0}
-  - {fileID: 0}
   rewardedButtons: []
-  functions:
-  - RewardedButton: {fileID: 0}
-    script: {fileID: 0}
-    scriptName: 
-    functionNames: []
-    selectedFunctionIndex: 0
+  functions: []

@@ -316,7 +316,10 @@ namespace RoofTops
             // Track debugging info
             int itemsRemoved = 0;
             
-            Debug.Log($"About to clean module of type {moduleType}");
+            if (GameManager.EnableDetailedLogs)
+            {
+                Debug.Log($"About to clean module of type {moduleType}");
+            }
             
             // ONLY remove actual instantiated items (ones with "Clone" in name)
             // This is the safest approach that won't break the modules
@@ -341,7 +344,10 @@ namespace RoofTops
                 }
             }
             
-            Debug.Log($"Cleaned up {itemsRemoved} items from module {moduleType}");
+            if (GameManager.EnableDetailedLogs)
+            {
+                Debug.Log($"Cleaned up {itemsRemoved} items from module {moduleType}");
+            }
         }
 
         void MaintainModuleCount()

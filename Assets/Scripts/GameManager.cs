@@ -122,6 +122,14 @@ namespace RoofTops
         // Property to track the player's distance traveled
         public float PlayerDistance { get; set; }
 
+        [Header("Debug Settings")]
+        public static bool EnableDetailedLogs = false; // Set this to false to reduce log spam
+        public bool showDetailedLogging = false;
+
+        // Flag to indicate scene changes in progress
+        private bool isChangingScenes = false;
+        public bool IsChangingScenes => isChangingScenes;
+
         void Awake()
         {
             // Singleton pattern with DontDestroyOnLoad
@@ -218,11 +226,19 @@ namespace RoofTops
             {
                 RequestGameStateChange(GameStates.MainMenu);
             }
+
+            Debug.Log("GameManager: Started successfully");
         }
 
         // Update is called once per frame
         void Update()
         {
+            // Toggle detailed logs with F2 key
+            // if (Input.GetKeyDown(KeyCode.F2))
+            // {
+            //     ToggleDetailedLogs();
+            // }
+
             // Only update when not paused
             if (!IsPaused)
             {
@@ -284,21 +300,30 @@ namespace RoofTops
 
         public void ResetGame()
         {
+            Debug.Log("GameManager: ResetGame - START");
+            
             // Reset game state
             GamesState = GameStates.MainMenu;
             HasGameStarted = false;
             accumulatedDistance = 0f;
+            Debug.Log("GameManager: ResetGame - Game state variables reset");
             
             // Reset ModulePool speed
             if (ModulePool.Instance != null)
             {
                 ModulePool.Instance.ResetSpeed();
-                Debug.Log("GameManager: Reset ModulePool speed");
+                Debug.Log("GameManager: ResetGame - ModulePool speed reset");
+            }
+            else
+            {
+                Debug.Log("GameManager: ResetGame - ModulePool.Instance is NULL");
             }
             
             // Reset player state if it exists and is active
             if (player != null && player.activeInHierarchy)
             {
+                Debug.Log("GameManager: ResetGame - Player exists and is active");
+                
                 // Reset player position
                 player.transform.position = Vector3.zero;
                 
@@ -306,9 +331,18 @@ namespace RoofTops
                 PlayerController playerController = player.GetComponent<PlayerController>();
                 if (playerController != null)
                 {
+                    Debug.Log("GameManager: ResetGame - PlayerController found");
                     // We can't call ResetPlayer directly, so we'll just reset what we can
                     playerController.enabled = true;
                 }
+                else
+                {
+                    Debug.Log("GameManager: ResetGame - PlayerController is NULL");
+                }
+            }
+            else
+            {
+                Debug.Log("GameManager: ResetGame - Player is NULL or inactive");
             }
             
             // Disable UI elements that might interfere with scene transition
@@ -317,13 +351,14 @@ namespace RoofTops
             if (VistaPool.Instance != null)
             {
                 VistaPool.Instance.ResetVistas();
+                Debug.Log("GameManager: ResetGame - VistaPool reset");
+            }
+            else
+            {
+                Debug.Log("GameManager: ResetGame - VistaPool.Instance is NULL");
             }
             
-            // Clear any pending coroutines
-            StopAllCoroutines();
-            
-            // Log that we're restarting the game
-            Debug.Log("Restarting game...");
+            Debug.Log("GameManager: ResetGame - COMPLETE");
         }
 
         public void SlowTimeForJump(float targetScale = 0.25f, float duration = 0.75f)
@@ -514,7 +549,7 @@ namespace RoofTops
                 Debug.LogWarning("GoalAchievementManager.Instance.goalValuesManager is null!");
                 
                 // Try to find and assign it
-                GoalValuesManager goalValuesManager = FindObjectOfType<GoalValuesManager>();
+                GoalValuesManager goalValuesManager = FindFirstObjectByType<GoalValuesManager>();
                 if (goalValuesManager != null)
                 {
                     GoalAchievementManager.Instance.goalValuesManager = goalValuesManager;
@@ -534,7 +569,7 @@ namespace RoofTops
         private void LogAllDelayedActivationConfigurations()
         {
             Debug.Log("=== Logging all DelayedActivation configurations ===");
-            DelayedActivation[] delayedActivations = FindObjectsOfType<DelayedActivation>();
+            DelayedActivation[] delayedActivations = FindObjectsByType<DelayedActivation>(FindObjectsSortMode.None);
             Debug.Log($"Found {delayedActivations.Length} DelayedActivation components");
             
             foreach (var da in delayedActivations)
@@ -567,15 +602,28 @@ namespace RoofTops
         // New method to handle the overall game over (player death) logic.
         public void HandlePlayerDeath(float finalDistance, GameObject collidingHook = null)
         {
+            Debug.Log($"GameManager: HandlePlayerDeath - START, CurrentState={GamesState}, finalDistance={finalDistance}");
+            
             // Change game state to GameOver
             GamesState = GameStates.GameOver;
+            Debug.Log($"GameManager: HandlePlayerDeath - Set state to GameOver");
 
             // Save stats
             RecordFinalDistance(finalDistance);
 
-            // Make sure the player's animator is completely reset before going ragdoll
+            // Make sure the player is properly marked as dead
             if (player != null)
             {
+                PlayerController playerController = player.GetComponent<PlayerController>();
+                if (playerController != null && !playerController.IsDead)
+                {
+                    // Force the player to be marked as dead if it isn't already
+                    Debug.LogWarning("GameManager: Player not marked as dead in HandlePlayerDeath, forcing Die() call");
+                    playerController.Die();
+                    return; // Exit early to let the Die method handle the rest of the death sequence
+                }
+                
+                // Continue with normal death handling
                 PlayerAnimatorController animController = player.GetComponent<PlayerAnimatorController>();
                 if (animController != null)
                 {
@@ -634,6 +682,7 @@ namespace RoofTops
             Time.timeScale = 0.5f;
             
             // Wait a moment before transitioning to game over state
+            Debug.Log("GameManager: Starting TransitionToGameOver coroutine");
             StartCoroutine(TransitionToGameOver());
         }
 
@@ -756,11 +805,14 @@ namespace RoofTops
 
         private IEnumerator TransitionToGameOver()
         {
+            Debug.Log("GameManager: TransitionToGameOver - START");
+            
             // Wait a moment for dramatic effect
             yield return new WaitForSeconds(0.5f);
             
             // Reset time scale
             Time.timeScale = 1.0f;
+            Debug.Log("GameManager: TransitionToGameOver - Reset time scale to 1.0");
             
             // Don't disable the player here, it might cause issues with Unity Ads
             // The player is already visually hidden by SwitchToRagdollWithoutDisablingPlayer
@@ -769,15 +821,22 @@ namespace RoofTops
         // Call this from the UI button
         public void RestartGame()
         {
-            Debug.Log("GameManager: RestartGame called - DIRECT RESTART");
+            Debug.Log($"GameManager: RestartGame - START, CurrentState={GamesState}");
+            
+            // Set the changing scenes flag to true
+            isChangingScenes = true;
+            Debug.Log("GameManager: RestartGame - Set isChangingScenes flag to true");
             
             // Ensure time scale is reset
             Time.timeScale = 1f;
+            Debug.Log("GameManager: RestartGame - Time scale reset");
             
             // Reset game state
             ResetGame();
+            Debug.Log("GameManager: RestartGame - Game state reset");
             
             // Reload the current scene immediately
+            Debug.Log("GameManager: RestartGame - About to reload scene");
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
@@ -932,7 +991,7 @@ namespace RoofTops
             // If still null, try to find by type
             if (player == null)
             {
-                PlayerController playerController = FindObjectOfType<PlayerController>();
+                PlayerController playerController = FindFirstObjectByType<PlayerController>();
                 if (playerController != null)
                 {
                     player = playerController.gameObject;
@@ -1098,6 +1157,21 @@ namespace RoofTops
             {
                 SaveGameData();
             }
+        }
+
+        // Add this method to filter logs
+        public static void FilteredLog(string message, bool isEssential = false)
+        {
+            if (isEssential || EnableDetailedLogs)
+            {
+                Debug.Log(message);
+            }
+        }
+
+        public static void ToggleDetailedLogs()
+        {
+            EnableDetailedLogs = !EnableDetailedLogs;
+            Debug.Log($"Detailed logs are now {(EnableDetailedLogs ? "ENABLED" : "DISABLED")}");
         }
     }
 

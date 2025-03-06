@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da1ec0013e2ec7498f2bf1f2bb976f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialCameraPosition: {x: 108.4, y: 15.1, z: -20.6}
+  initialCameraPosition: {x: 90, y: 14, z: -15}
   initialLookAtPosition: {x: 0, y: 10.52, z: 20.6}
   initialFOV: 16
   midCameraPosition: {x: 15, y: 3, z: 5}
@@ -217,8 +217,8 @@ MonoBehaviour:
   deathBlendDuration: 1
   deathFOV: 20
   deathNoiseIntensity: 0.1
-  deathCameraPosition: {x: 64, y: 1, z: -2}
-  deathLookAtPosition: {x: 0, y: 5, z: 1}
+  deathCameraPosition: {x: 36, y: 1, z: 0}
+  deathLookAtPosition: {x: -2, y: 18, z: 2}
   deathVisualObject: {fileID: 0}
   initialNoiseMultiplier: 0.1
 --- !u!1 &8998823456681487413

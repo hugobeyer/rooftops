@@ -202,7 +202,7 @@ namespace RoofTops
         void Start()
         {
             if (goalValuesManager == null)
-                goalValuesManager = FindObjectOfType<GoalValuesManager>();
+                goalValuesManager = FindFirstObjectByType<GoalValuesManager>();
 
             InitializeGoals();
             LoadProgress();
@@ -329,7 +329,7 @@ namespace RoofTops
         {
             if (goalValuesManager == null)
             {
-                goalValuesManager = FindObjectOfType<GoalValuesManager>();
+                goalValuesManager = FindFirstObjectByType<GoalValuesManager>();
             }
 
             if (goalValuesManager != null)

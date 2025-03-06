@@ -116,7 +116,7 @@ Material:
     - _BUILTIN_ZWriteControl: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BrightFilter: 0.85
+    - _BrightFilter: 1.3
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -140,7 +140,7 @@ Material:
     - _Float_1: 0.52
     - _Fog_Offset: -117.2
     - _Fog_Spread: 42.2
-    - _Fuzz: 0.84
+    - _Fuzz: 0.72
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -160,7 +160,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Radius: 0.41
-    - _Range: 0.1
+    - _Range: 0.09
     - _ReceiveShadows: 1
     - _Rings: 24.28
     - _Ringsojt: -0.2
@@ -168,7 +168,7 @@ Material:
     - _SkewAmount: -1.04
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
-    - _SoapPass: 0.1
+    - _SoapPass: 0.33
     - _SpecularHighlights: 1
     - _Speed: 12
     - _SrcBlend: 1

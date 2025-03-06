@@ -1,3 +1,7 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
+
 namespace UnityEngine.InputSystem.Interactions
 {
 #if UNITY_EDITOR
@@ -88,7 +92,7 @@ namespace UnityEngine.InputSystem.Interactions
                         if (context.time - m_CurrentTapStartTime <= tapTimeOrDefault)
                         {
                             ++m_CurrentTapCount;
-                            if (m_CurrentTapCount >= tapCount && (Input.mousePosition - m_LastTapPosition).sqrMagnitude < maxTapDistance * maxTapDistance)
+                            if (m_CurrentTapCount >= tapCount && (Mouse.current.position.ReadValue() - m_LastTapPosition).sqrMagnitude < maxTapDistance * maxTapDistance)
                             {
                                 context.Performed();
                             }
@@ -97,7 +101,7 @@ namespace UnityEngine.InputSystem.Interactions
                                 m_CurrentTapPhase = TapPhase.WaitingForNextPress;
                                 m_LastTapReleaseTime = context.time;
                                 context.SetTimeout(tapDelayOrDefault);
-                                m_LastTapPosition = Input.mousePosition;
+                                m_LastTapPosition = Mouse.current.position.ReadValue();
                             }
                         }
                         else
@@ -132,14 +136,14 @@ namespace UnityEngine.InputSystem.Interactions
             m_CurrentTapCount = 0;
             m_CurrentTapStartTime = 0;
             m_LastTapReleaseTime = 0;
-            m_LastTapPosition = Vector3.zero;
+            m_LastTapPosition = Vector2.zero;
         }
 
         private TapPhase m_CurrentTapPhase;
         private int m_CurrentTapCount;
         private double m_CurrentTapStartTime;
         private double m_LastTapReleaseTime;
-        private Vector3 m_LastTapPosition = Vector3.zero;
+        private Vector2 m_LastTapPosition = Vector2.zero;
 
         private enum TapPhase
         {

@@ -92,7 +92,7 @@ namespace RoofTops
         [SerializeField] public GameObject watchParticleEffect; // Reference to particle effect in the scene
 
         // Add a flag to track when watch animation is playing
-        private bool isWatchAnimationPlaying = false;
+        // private bool isWatchAnimationPlaying = false;
 
         // Add these variables at the class level, near the other private fields
         private bool isDelayedGroundCheckActive = false;
@@ -238,7 +238,7 @@ namespace RoofTops
         private IEnumerator DelayedWatch()
         {
             // Set the flag to indicate animation is playing
-            isWatchAnimationPlaying = true;
+            // isWatchAnimationPlaying = true;
 
             // Initial delay before showing watch
             yield return new WaitForSeconds(watchStartDelay);
@@ -312,7 +312,7 @@ namespace RoofTops
             }
 
             // Reset the flag when animation is complete
-            isWatchAnimationPlaying = false;
+            // isWatchAnimationPlaying = false;
 
             // Clear the active coroutine reference
             activeWatchCoroutine = null;

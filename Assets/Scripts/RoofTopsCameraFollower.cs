@@ -90,7 +90,7 @@ namespace RoofTops
             noiseMovement = NoiseMovement.Instance;
             if (noiseMovement == null)
             {
-                noiseMovement = FindObjectOfType<NoiseMovement>();
+                noiseMovement = FindFirstObjectByType<NoiseMovement>();
             }
             
             if (noiseMovement != null)

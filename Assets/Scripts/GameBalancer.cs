@@ -51,9 +51,15 @@ public class GameBalancer : MonoBehaviour
     private void Awake()
     {
         // Get references
-        gameManager = GameManager.Instance;
+        if (playerController == null)
+        {
+            playerController = FindFirstObjectByType<PlayerController>();
+        }
+        if (gameManager == null)
+        {
+            gameManager = FindFirstObjectByType<GameManager>();
+        }
         spawnManager = FindObjectOfType<UnifiedSpawnManager>();
-        playerController = FindObjectOfType<PlayerController>();
         modulePool = ModulePool.Instance;
     }
     

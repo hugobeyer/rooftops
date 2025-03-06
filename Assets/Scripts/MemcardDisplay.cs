@@ -21,7 +21,7 @@ public class MemcardDisplay : MonoBehaviour
     void Start()
     {
         // Find the GameManager
-        gameManager = FindObjectOfType<GameManager>();
+        gameManager = FindFirstObjectByType<GameManager>();
         
         // Set the text color if we have a TextMesh
         if (memcardText != null)

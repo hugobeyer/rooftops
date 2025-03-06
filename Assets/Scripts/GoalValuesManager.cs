@@ -78,7 +78,7 @@ namespace RoofTops
             GoalAchievementManager goalManager = GoalAchievementManager.Instance;
             if (goalManager == null)
             {
-                goalManager = FindObjectOfType<GoalAchievementManager>();
+                goalManager = FindFirstObjectByType<GoalAchievementManager>();
                 if (goalManager == null)
                 {
                     Debug.LogWarning("GoalValuesManager: Could not find GoalAchievementManager to apply values");

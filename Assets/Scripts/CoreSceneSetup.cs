@@ -16,7 +16,6 @@ namespace RoofTops
         [Header("Manager Prefabs")]
         [SerializeField] private GameObject gameManagerPrefab;
         [SerializeField] private GameObject economyManagerPrefab;
-        [SerializeField] private GameObject gameAdsManagerPrefab;
         [SerializeField] private GameObject goalAchievementManagerPrefab;
         [SerializeField] private GameObject goalValuesManagerPrefab;
         [SerializeField] private GameObject inputActionManagerPrefab;
@@ -55,7 +54,7 @@ namespace RoofTops
             if (newState == GameStates.Playing && spawnPlayerOnStart)
             {
                 // Check if player already exists
-                PlayerController existingPlayer = FindObjectOfType<PlayerController>();
+                PlayerController existingPlayer = FindFirstObjectByType<PlayerController>();
                 if (existingPlayer == null)
                 {
                     Debug.Log("CoreSceneSetup: Game state changed to Playing, spawning player");
@@ -79,7 +78,7 @@ namespace RoofTops
             else if (oldState == GameStates.Playing && newState != GameStates.Playing)
             {
                 // Optionally deactivate player when leaving Playing state
-                PlayerController existingPlayer = FindObjectOfType<PlayerController>();
+                PlayerController existingPlayer = FindFirstObjectByType<PlayerController>();
                 if (existingPlayer != null && existingPlayer.gameObject.activeSelf)
                 {
                     existingPlayer.gameObject.SetActive(false);
@@ -93,7 +92,7 @@ namespace RoofTops
             Debug.Log("Setting up Core Scene...");
             
             // Create SceneReferenceManager if it doesn't exist
-            if (FindObjectOfType<SceneReferenceManager>() == null)
+            if (FindFirstObjectByType<SceneReferenceManager>() == null)
             {
                 GameObject obj = new GameObject("SceneReferenceManager");
                 obj.AddComponent<SceneReferenceManager>();
@@ -102,43 +101,34 @@ namespace RoofTops
             }
             
             // Instantiate GameManager if needed
-            if (FindObjectOfType<GameManager>() == null && gameManagerPrefab != null)
+            if (FindFirstObjectByType<GameManager>() == null && gameManagerPrefab != null)
             {
                 Instantiate(gameManagerPrefab);
                 Debug.Log("GameManager instantiated from prefab");
             }
             
             // Instantiate EconomyManager if needed
-            if (FindObjectOfType<EconomyManager>() == null && economyManagerPrefab != null)
+            if (economyManagerPrefab != null && FindFirstObjectByType<EconomyManager>() == null)
             {
-                Instantiate(economyManagerPrefab);
+                GameObject economyManager = Instantiate(economyManagerPrefab);
+                economyManager.transform.SetParent(null);
                 Debug.Log("EconomyManager instantiated from prefab");
-            }
-            
-            // Instantiate all other manager prefabs if they don't exist
-            if (gameAdsManagerPrefab != null && FindObjectOfType<GameAdsManager>() == null)
-            {
-                // Create as root GameObject to avoid DontDestroyOnLoad issues
-                GameObject adsManager = Instantiate(gameAdsManagerPrefab);
-                // Ensure it's a root object
-                adsManager.transform.SetParent(null);
-                Debug.Log("Game Ads Manager instantiated");
             }
             
             // Instantiate GoalValuesManager first
             GameObject goalValuesManagerObj = null;
-            if (goalValuesManagerPrefab != null && FindObjectOfType<GoalValuesManager>() == null)
+            if (goalValuesManagerPrefab != null && FindFirstObjectByType<GoalValuesManager>() == null)
             {
                 goalValuesManagerObj = Instantiate(goalValuesManagerPrefab);
                 Debug.Log("GoalValuesManager instantiated from prefab");
             }
             else
             {
-                goalValuesManagerObj = FindObjectOfType<GoalValuesManager>()?.gameObject;
+                goalValuesManagerObj = FindFirstObjectByType<GoalValuesManager>()?.gameObject;
             }
             
             // Then instantiate GoalAchievementManager and set the reference
-            if (goalAchievementManagerPrefab != null && FindObjectOfType<GoalAchievementManager>() == null)
+            if (goalAchievementManagerPrefab != null && FindFirstObjectByType<GoalAchievementManager>() == null)
             {
                 GameObject goalAchievementObj = Instantiate(goalAchievementManagerPrefab);
                 Debug.Log("GoalAchievementManager instantiated from prefab");
@@ -157,26 +147,26 @@ namespace RoofTops
                 }
             }
             
-            if (inputActionManagerPrefab != null && FindObjectOfType<InputActionManager>() == null)
+            if (inputActionManagerPrefab != null && FindFirstObjectByType<InputActionManager>() == null)
             {
                 Instantiate(inputActionManagerPrefab);
                 Debug.Log("Input Action Manager instantiated");
             }
             
-            if (cameraPrefab != null && FindObjectOfType<NoiseMovement>() == null)
+            if (cameraPrefab != null && FindFirstObjectByType<NoiseMovement>() == null)
             {
                 Instantiate(cameraPrefab);
                 Debug.Log("Camera instantiated");
             }
             
             // Instantiate gameplay systems
-            if (modulePoolPrefab != null && FindObjectOfType<ModulePool>() == null)
+            if (modulePoolPrefab != null && FindFirstObjectByType<ModulePool>() == null)
             {
                 Instantiate(modulePoolPrefab);
                 Debug.Log("Module Pool instantiated");
             }
             
-            if (vistaPoolPrefab != null && FindObjectOfType<VistaPool>() == null)
+            if (vistaPoolPrefab != null && FindFirstObjectByType<VistaPool>() == null)
             {
                 Instantiate(vistaPoolPrefab);
                 Debug.Log("Vista Pool instantiated");
@@ -199,8 +189,8 @@ namespace RoofTops
             Debug.Log("Initializing Goal Managers...");
             
             // Find the managers
-            GoalValuesManager goalValuesManager = FindObjectOfType<GoalValuesManager>();
-            GoalAchievementManager goalAchievementManager = FindObjectOfType<GoalAchievementManager>();
+            GoalValuesManager goalValuesManager = FindFirstObjectByType<GoalValuesManager>();
+            GoalAchievementManager goalAchievementManager = FindFirstObjectByType<GoalAchievementManager>();
             
             if (goalValuesManager == null)
             {
@@ -228,14 +218,14 @@ namespace RoofTops
             if (scene.name == initialSceneToLoad)
             {
                 // Instantiate ModulePool if needed
-                if (FindObjectOfType<ModulePool>() == null && modulePoolPrefab != null)
+                if (FindFirstObjectByType<ModulePool>() == null && modulePoolPrefab != null)
                 {
                     Instantiate(modulePoolPrefab);
                     Debug.Log("ModulePool instantiated from prefab");
                 }
                 
                 // Instantiate VistaPool if needed
-                if (FindObjectOfType<VistaPool>() == null && vistaPoolPrefab != null)
+                if (FindFirstObjectByType<VistaPool>() == null && vistaPoolPrefab != null)
                 {
                     Instantiate(vistaPoolPrefab);
                     Debug.Log("VistaPool instantiated from prefab");
@@ -249,7 +239,7 @@ namespace RoofTops
         public void SpawnPlayer()
         {
             // Only spawn if no player exists
-            if (FindObjectOfType<PlayerController>() == null && playerPrefab != null)
+            if (FindFirstObjectByType<PlayerController>() == null && playerPrefab != null)
             {
                 GameObject player = Instantiate(playerPrefab, playerSpawnPosition, Quaternion.identity);
                 Debug.Log("Player instantiated from prefab");

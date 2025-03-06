@@ -181,7 +181,7 @@ public class RenderQueueManager : MonoBehaviour
             // Handle name patterns
             if (!string.IsNullOrEmpty(setting.namePattern))
             {
-                var objects = GameObject.FindObjectsOfType<GameObject>(true);
+                var objects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
                 foreach (var obj in objects)
                 {
                     if (obj.name.Contains(setting.namePattern))
@@ -244,5 +244,12 @@ public class RenderQueueManager : MonoBehaviour
             };
             ApplyRenderQueueToObject(target, queue);
         }
+    }
+
+    private void UpdateAllRenderers()
+    {
+        Renderer[] allRenderers = FindObjectsByType<Renderer>(FindObjectsSortMode.None);
+        
+        // ... existing code ...
     }
 } 

@@ -17,7 +17,7 @@ namespace RoofTops
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<SceneReferenceManager>();
+                    _instance = FindFirstObjectByType<SceneReferenceManager>();
                     if (_instance == null)
                     {
                         GameObject obj = new GameObject("SceneReferenceManager");
