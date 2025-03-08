@@ -5351,6 +5351,10 @@ PrefabInstance:
       value: 21
       objectReference: {fileID: 0}
     - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2412752822398409858, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
       propertyPath: m_Quality
       value: 4
       objectReference: {fileID: 0}
@@ -5544,7 +5548,7 @@ CharacterController:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Height: 1.85
   m_Radius: 0.39
@@ -5561,7 +5565,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2088488356021552172}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 5e6e8ecf07524d1498e93c7634c6d587, type: 3}
   m_Controller: {fileID: 9100000, guid: 1bc7ff80a64ed8347b3026813f74b7dd, type: 2}
   m_CullingMode: 0
@@ -5582,7 +5586,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2088488356021552172}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b72db9439bd3eb644b4dc0c816817db6, type: 3}
   m_Name: 
