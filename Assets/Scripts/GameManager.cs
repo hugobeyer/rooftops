@@ -21,7 +21,7 @@ namespace RoofTops
         public static GameManager Instance { get; private set; }
 
         [Header("Time Control")]
-        [Range(0.1f, 32f)] public float timeSpeed = 1f;
+        [Range(0.025f, 10f)] public float timeSpeed = 1f;
 
         [Header("Speed Settings")]
         public float initialGameSpeed = 2f;    // Starting speed when game begins
@@ -233,12 +233,12 @@ namespace RoofTops
         // Update is called once per frame
         void Update()
         {
-            // Toggle detailed logs with F2 key
-            // if (Input.GetKeyDown(KeyCode.F2))
-            // {
-            //     ToggleDetailedLogs();
-            // }
-
+            // Apply timeSpeed to Time.timeScale when not in a special effect
+            if (!isPaused && timeScaleCoroutine == null)
+            {
+                Time.timeScale = timeSpeed;
+            }
+            
             // Only update when not paused
             if (!IsPaused)
             {

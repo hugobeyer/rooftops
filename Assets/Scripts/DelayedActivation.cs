@@ -30,6 +30,9 @@ public class DelayedActivation : MonoBehaviour
       
       [Tooltip("Destroy")]
       public bool destroy = false;
+
+      [Tooltip("Affect children")]
+      public bool affectChildren = false;
    }
 
    [Tooltip("Items")]
@@ -151,7 +154,34 @@ public class DelayedActivation : MonoBehaviour
       
       if (item.target != null)
       {
-         item.target.SetActive(true);
+         // Activate the target without affecting children
+         if (!item.affectChildren && !item.target.activeSelf)
+         {
+            // Store child active states
+            Dictionary<GameObject, bool> childrenStates = new Dictionary<GameObject, bool>();
+            foreach (Transform child in item.target.transform)
+            {
+               childrenStates[child.gameObject] = child.gameObject.activeSelf;
+            }
+            
+            // Activate parent
+            item.target.SetActive(true);
+            
+            // Restore child states
+            foreach (Transform child in item.target.transform)
+            {
+               if (childrenStates.ContainsKey(child.gameObject))
+               {
+                  child.gameObject.SetActive(childrenStates[child.gameObject]);
+               }
+            }
+         }
+         else
+         {
+            // Standard activation (affects children)
+            item.target.SetActive(true);
+         }
+         
          activeStatus[item] = true;
       }
    }
@@ -168,7 +198,37 @@ public class DelayedActivation : MonoBehaviour
          }
          else
          {
-            item.target.SetActive(false);
+            // Deactivate without affecting children
+            if (!item.affectChildren && item.target.activeSelf)
+            {
+               // Store child active states
+               Dictionary<GameObject, bool> childrenStates = new Dictionary<GameObject, bool>();
+               foreach (Transform child in item.target.transform)
+               {
+                  childrenStates[child.gameObject] = child.gameObject.activeSelf;
+               }
+               
+               // Deactivate parent
+               item.target.SetActive(false);
+               
+               // Activate children that were active before
+               foreach (var pair in childrenStates)
+               {
+                  if (pair.Value)
+                  {
+                     // Re-parent to maintain hierarchy
+                     Transform originalParent = pair.Key.transform.parent;
+                     pair.Key.transform.SetParent(null);
+                     pair.Key.SetActive(true);
+                     pair.Key.transform.SetParent(originalParent);
+                  }
+               }
+            }
+            else
+            {
+               // Standard deactivation (affects children)
+               item.target.SetActive(false);
+            }
          }
          
          activeStatus[item] = false;
@@ -219,6 +279,7 @@ public class DelayedActivation : MonoBehaviour
             Debug.Log($"    Activate on State: {item.activateState} with delay {item.activateDelay}s");
             Debug.Log($"    Deactivate on State: {item.deactivateState} with delay {item.deactivateDelay}s");
             Debug.Log($"    Destroy on Deactivate: {item.destroy}");
+            Debug.Log($"    Affect Children: {item.affectChildren}");
             Debug.Log($"    Current Status: {(activeStatus.ContainsKey(item) ? activeStatus[item] : "Unknown")}");
          }
          else

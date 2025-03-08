@@ -33,7 +33,7 @@ namespace RoofTops
         private bool isDisplaying = false;
         
         // Goal categories to display
-        [SerializeField] private string[] goalCategories = new string[] { "Distance", "Tridots", "Memcard" };
+        [SerializeField] private string[] goalCategories = new string[] { "Reach the distance of ", "The Tridots, catch ", "Memory Cards, collect " };
         
         private void Start()
         {
