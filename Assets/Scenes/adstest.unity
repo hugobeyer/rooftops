@@ -479,7 +479,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &412412859
+--- !u!1 &660050015
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -487,62 +487,104 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 412412861}
-  - component: {fileID: 412412860}
+  - component: {fileID: 660050017}
+  - component: {fileID: 660050016}
   m_Layer: 0
-  m_Name: init
+  m_Name: AdsInit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &412412860
+--- !u!114 &660050016
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 412412859}
+  m_GameObject: {fileID: 660050015}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12210d94405f84cc488d6d57339765cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 48a714779a36c43e38bad6f157e08f61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameID: 
-  AndroidGameID: 5798731
-  IOSGameID: 5798730
-  BannerAndroidAdUnitId: Banner_Android
-  BannerIOSAdUnitId: Banner_iOS
-  BannerAdUnitID: 
-  InterstitalAndroidAdUnitId: Interstitial_Android
-  InterstitalIOSAdUnitId: Interstitial_iOS
-  InterstitalAdUnitID: 
-  RewardedAndroidAdUnitId: Rewarded_Android
-  RewardedIOSAdUnitId: Rewarded_iOS
-  RewardedAdUnitID: 
-  EnableTestMode: 0
-  ShowBannerAdsInStart: 1
-  ChooseBannerPosition: 4
+  EnableGdprConsentMessage: 0
+  AndroidAppKey: 210674025
+  AndroidBannerAdUnitID: sdgktej0aplwpuy1
+  AndroidInterstitialAdUnitId: zmnwku8nb5d8psj4
+  AndroidRewardedAdUnitId: ll9mzszugxlm3grm
+  iOSAppKey: 2146b9f25
+  iOSBannerAdUnitID: wcu1724d1s1318gv
+  iOSInterstitialAdUnitId: dud9qc0jcjcpj98r
+  iOSRewardedAdUnitId: 1e84f0lrzbcf9r71
+  ShowBannerAdsInStart: 0
   EnableTimedInterstitalAds: 1
   InterstitialAdIntervalSeconds: 1
   ResetInterstitalAdTimerOnRewardedAd: 1
   CanShowAdsNow: 0
   Timer: 0
-  IsAdSkipped: 0
-  IsAdCompleted: 0
-  IsAdUnknown: 0
   IsBannerStartShowing: 0
   IsAdsInitializationCompleted: 0
---- !u!4 &412412861
+  RewardedAdUnit: 
+--- !u!4 &660050017
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 412412859}
+  m_GameObject: {fileID: 660050015}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 911.0793, y: 453.46854, z: 23.155075}
+  m_LocalPosition: {x: 2121.7222, y: 676.9493, z: 384.21356}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &828854035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 828854037}
+  - component: {fileID: 828854036}
+  m_Layer: 0
+  m_Name: AdsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &828854036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828854035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e468d10b7bec48d48c0044a9d800dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowBannerAdButton: {fileID: 0}
+  ActionButtonsToInvokeInterstitalAds:
+  - {fileID: 12544726}
+  rewardedButtons: []
+  functions: []
+--- !u!4 &828854037
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828854035}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2121.7222, y: 676.9493, z: 384.21356}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -763,55 +805,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1248600300
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1248600302}
-  - component: {fileID: 1248600301}
-  m_Layer: 0
-  m_Name: man
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1248600301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1248600300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8326ddb5cd39242b896990feba7bb8b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowBannerAdButton: {fileID: 0}
-  ActionButtonsToInvokeInterstitalAds:
-  - {fileID: 12544726}
-  rewardedButtons: []
-  functions: []
---- !u!4 &1248600302
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1248600300}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 911.0793, y: 453.46854, z: 23.155075}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1276624891
 GameObject:
   m_ObjectHideFlags: 0
@@ -894,6 +887,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 344567436}
   - {fileID: 1231070717}
-  - {fileID: 412412861}
-  - {fileID: 1248600302}
   - {fileID: 343396395}
+  - {fileID: 828854037}
+  - {fileID: 660050017}

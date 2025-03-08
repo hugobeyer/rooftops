@@ -18,7 +18,7 @@ namespace RoofTops.UI
             // Just use GameManager directly - simplest approach
             if (GameManager.Instance != null)
             {
-                distanceText.text = $"{GameManager.Instance.CurrentDistance:F1} m";
+                distanceText.text = $"{GameManager.Instance.CurrentDistance:F1}";
             }
         }
     }

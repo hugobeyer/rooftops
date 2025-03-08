@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Reflection;
 
 namespace RoofTops
 {
@@ -79,14 +80,57 @@ namespace RoofTops
 
         private void CollectMemcard()
         {
+            // First update EconomyManager (primary system)
             if (EconomyManager.Instance != null) 
             {
                 EconomyManager.Instance.AddMemcards(pointValue);
+                Debug.Log($"EconomyManager: Added {pointValue} memcards. New total: {EconomyManager.Instance.GetCurrentMemcards()}");
             } 
             else
             {
                 Debug.LogWarning("EconomyManager instance not found in MemcardCollectible.CollectMemcard.");
             }
+
+            // Then update GameDataObject (persistence system)
+            // Make sure we have the latest GameManager reference
+            if (gameManager == null)
+            {
+                gameManager = FindFirstObjectByType<GameManager>();
+            }
+            
+            if (gameManager != null && gameManager.gameData != null)
+            {
+                // Update GameDataObject directly
+                gameManager.gameData.totalMemcardsCollected += pointValue;
+                gameManager.gameData.lastRunMemcardsCollected += pointValue;
+                
+                if (gameManager.gameData.lastRunMemcardsCollected > gameManager.gameData.bestRunMemcardsCollected)
+                {
+                    gameManager.gameData.bestRunMemcardsCollected = gameManager.gameData.lastRunMemcardsCollected;
+                }
+                
+                Debug.Log($"GameData: Updated memcards. Last run total: {gameManager.gameData.lastRunMemcardsCollected}");
+                
+                // Try to save game data
+                try
+                {
+                    // Use reflection to check if the method exists and call it
+                    MethodInfo saveMethod = gameManager.GetType().GetMethod("SaveGameData", 
+                        BindingFlags.Public | BindingFlags.Instance);
+                    
+                    if (saveMethod != null)
+                    {
+                        saveMethod.Invoke(gameManager, null);
+                        Debug.Log("GameData saved successfully");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning("Could not save game data: " + ex.Message);
+                }
+            }
+            
+            // Update UI if available
             if (memcardDisplay != null)
             {
                 memcardDisplay.IncrementCount(pointValue);
@@ -100,24 +144,6 @@ namespace RoofTops
             
             // Destroy the memcard
             Destroy(gameObject);
-        }
-
-        private void UpdateGameData()
-        {
-            if (gameData != null)
-            {
-                // Increment the total collected count
-                gameData.totalTridotCollected += pointValue;
-                
-                // Increment the last run collected count
-                gameData.lastRunTridotCollected += pointValue;
-                
-                // Update best run collected if current run is better
-                if (gameData.lastRunTridotCollected > gameData.bestRunTridotCollected)
-                {
-                    gameData.bestRunTridotCollected = gameData.lastRunTridotCollected;
-                }
-            }
         }
 
         private void PlayCollectionSound()

@@ -11,33 +11,22 @@ namespace RoofTops.UI
         [Tooltip("Text element to display the memcards count")]
         public TMP_Text memcardsText;
         
-        private int currentMemcards = 0;
-        
-        void Start()
-        {
-            // Initialize with current value
-            UpdateMemcardsCount();
-        }
-        
         void Update()
-        {
-            UpdateMemcardsCount();
-        }
-        
-        private void UpdateMemcardsCount()
         {
             if (memcardsText == null) return;
             
-            // Only update from EconomyManager if available
-            if (EconomyManager.Instance != null)
-            {
-                currentMemcards = EconomyManager.Instance.GetCurrentMemcards();
-            }
-            // We're not using GameManager fallback anymore since we don't know the property name
-            // If EconomyManager isn't available, we'll use the cached value
+            // PRIORITY ORDER FOR GETTING MEMCARD COUNT:
+            // 1. GameManager.gameData.lastRunMemcardsCollected (persistent data)
+            // 2. EconomyManager.GetCurrentMemcards() (transient data)
             
-            // Update UI text
-            memcardsText.text = currentMemcards.ToString();
+            if (GameManager.Instance != null && GameManager.Instance.gameData != null)
+            {
+                memcardsText.text = GameManager.Instance.gameData.lastRunMemcardsCollected.ToString();
+            }
+            else if (EconomyManager.Instance != null)
+            {
+                memcardsText.text = EconomyManager.Instance.GetCurrentMemcards().ToString();
+            }
         }
     }
 } 

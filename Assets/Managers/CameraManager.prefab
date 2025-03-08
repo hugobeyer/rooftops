@@ -46,7 +46,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.045686435, g: 0.13541289, b: 0.26415092, a: 1}
+  m_BackGroundColor: {r: 0.07058824, g: 0.10980393, b: 0.1137255, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -210,15 +210,15 @@ MonoBehaviour:
   blendDuration: 3
   midFOVDelay: 1.5
   finalFOVDelay: 4
-  midBlendDuration: 0.5
+  midBlendDuration: 1
   finalBlendDuration: 2
   useInitialLookAtOffset: 1
   baseLookSpeed: 1
   deathBlendDuration: 1
   deathFOV: 20
   deathNoiseIntensity: 0.1
-  deathCameraPosition: {x: 36, y: 1, z: 0}
-  deathLookAtPosition: {x: -2, y: 18, z: 2}
+  deathCameraPosition: {x: 36, y: 12, z: 0}
+  deathLookAtPosition: {x: 5.46, y: 12, z: 4.15}
   deathVisualObject: {fileID: 0}
   initialNoiseMultiplier: 0.1
 --- !u!1 &8998823456681487413

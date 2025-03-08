@@ -113,7 +113,7 @@ Transform:
   m_GameObject: {fileID: 6356801314106751714}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 59, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -133,23 +133,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   patrolSpeed: 0.5
-  altitudeVariation: 12
-  maxBankAngle: 15
-  bankResponse: 3
-  yawSpeed: 25
+  altitudeVariation: 15.5
+  maxBankAngle: 11.1
+  bankResponse: 10.34
+  yawSpeed: 500
   maxYawAngle: 360
-  searchlightFactor: 0.325
+  searchlightFactor: 27.29
   turbulence: 0.5
   bobFrequency: 0.3
   mainRotor: {fileID: 1511278716878161199}
-  mainRotorRPM: 1200
+  mainRotorRPM: 1500
   pathScale: 200
-  pathStretch: 0.92
-  turnIntensity: 1.2
+  pathStretch: 1.68
+  turnIntensity: 1.74
   centerPathInBoundaries: 1
   autoScaleToFitBoundaries: 1
   minX: -54.5
-  maxX: -17.9
+  maxX: -27.3
   boundaryForce: 1
   enforceStrictBoundaries: 1
 --- !u!82 &3367900685081255847
@@ -365,6 +365,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: dfb899777f589b74ab435d6ba0eaa540, type: 2}
+    - target: {fileID: 4953377252493334692, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 40f0d05ffc9eb734e9ddd1d0b170be7d, type: 2}
     - target: {fileID: 8449996119470504636, guid: 2a08b7c368c445e41ac44457331ea922, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 

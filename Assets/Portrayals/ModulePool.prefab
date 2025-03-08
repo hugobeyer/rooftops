@@ -114,8 +114,8 @@ MonoBehaviour:
   showDebugVisuals: 0
   constantGapRate: 2
   constantHeightRate: 1
-  gapRandomPercent: 32
-  heightRandomPercent: 32
+  gapRandomPercent: 50
+  heightRandomPercent: 50
   solidGroundTag: GroundCollider
   triggerGroundTag: GroundedTrigger
   gapRandomMin: 0

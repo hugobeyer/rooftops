@@ -93,10 +93,10 @@ MonoBehaviour:
   progressionCurve: 1
   initialSpeed: 6
   initialJumpForce: 5
-  initialJumpGrowthRate: 0.001
+  initialJumpGrowthRate: 0.0025
   initialGapSize: 0
   initialHeightVariation: 0
   gapScalingPercentage: 100
   heightScalingPercentage: 100
-  reliefPercentage: 0.1
+  reliefPercentage: 0.01
   jumpForceMultiplier: 1

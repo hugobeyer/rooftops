@@ -5147,8 +5147,8 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 12
-      minScalar: 1
+      scalar: 34.15
+      minScalar: 1.18
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -6771,7 +6771,7 @@ ParticleSystem:
     z:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 2.93
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -7800,11 +7800,11 @@ ParticleSystem:
     inWorldSpace: 0
     multiplyDragByParticleSize: 0
     multiplyDragByParticleVelocity: 1
-    dampen: 0.1
+    dampen: 0.62
     drag:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.1
+      scalar: 0.48
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -10291,7 +10291,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.025
-      minScalar: 0.1
+      minScalar: 0.27
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10344,7 +10344,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.01
-      minScalar: 0.05
+      minScalar: 0.13
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10397,7 +10397,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.1
-      minScalar: 0.2
+      minScalar: 0.39
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10610,11 +10610,11 @@ ParticleSystem:
     maxNumParticles: 1000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 1
-    rotation3D: 1
+    rotation3D: 0
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 0.2
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -10754,7 +10754,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.33
+      value: 0.11
       mode: 0
       spread: 0
       speed:
@@ -11274,7 +11274,7 @@ ParticleSystem:
     y:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 4.4505897
+      scalar: 2.5919883
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -11839,7 +11839,7 @@ ParticleSystem:
     orbitalZ:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -12764,11 +12764,11 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
   NoiseModule:
-    enabled: 0
+    enabled: 1
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 4.86
+      scalar: 1.2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -12925,7 +12925,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     separateAxes: 0
-    frequency: 0.33
+    frequency: 0.35
     damping: 0
     octaves: 1
     octaveMultiplier: 0.5
@@ -13467,7 +13467,7 @@ ParticleSystem:
     range: {x: 0, y: 1}
     separateAxes: 0
   RotationBySpeedModule:
-    enabled: 0
+    enabled: 1
     x:
       serializedVersion: 2
       minMaxState: 0
@@ -13698,9 +13698,9 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     range: {x: 0, y: 1}
   CollisionModule:
-    enabled: 0
+    enabled: 1
     serializedVersion: 4
-    type: 0
+    type: 1
     collisionMode: 0
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
@@ -14880,19 +14880,19 @@ ParticleSystemRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_RenderMode: 4
+  m_RenderMode: 1
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
-  m_MaxParticleSize: 0.5
+  m_MaxParticleSize: 0.04
   m_CameraVelocityScale: 0
-  m_VelocityScale: 0.18
-  m_LengthScale: 1.14
+  m_VelocityScale: -0
+  m_LengthScale: 8.55
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 0
-  m_Pivot: {x: 0, y: 0, z: 0}
+  m_RenderAlignment: 1
+  m_Pivot: {x: 0.19, y: -0.11, z: -0.28}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1
   m_ApplyActiveColorSpace: 0
